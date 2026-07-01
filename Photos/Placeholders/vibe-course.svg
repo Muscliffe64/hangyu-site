@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f4eedd"/>
+      <stop offset="100%" stop-color="#d6c79a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" fill="url(#bg2)"/>
+  <!-- 黑板 -->
+  <rect x="100" y="90" width="1000" height="560" rx="8" fill="#23332b"/>
+  <rect x="100" y="90" width="1000" height="560" rx="8" fill="none" stroke="#6b4d2a" stroke-width="14"/>
+  <!-- 粉笔字：3-Session 课程结构 -->
+  <g fill="#f4eed8" font-family="'Songti SC', Georgia, serif">
+    <text x="160" y="170" font-size="32" letter-spacing="0.08em" font-style="italic">AI · Vibe Coding · 三节课</text>
+    <line x1="160" y1="190" x2="500" y2="190" stroke="#f4eed8" stroke-width="2"/>
+    <g font-size="20" letter-spacing="0.06em" font-style="italic">
+      <text x="160" y="280">① Session 1 — 立骨架</text>
+      <text x="200" y="310" font-size="14" fill="#c3b48a">学生离场时本地能跑</text>
+      <text x="160" y="380">② Session 2 — 上颜值</text>
+      <text x="200" y="410" font-size="14" fill="#c3b48a">手机上看也舒服</text>
+      <text x="160" y="480">③ Session 3 — 推上线</text>
+      <text x="200" y="510" font-size="14" fill="#c3b48a">每人拿到一个真实 URL</text>
+    </g>
+  </g>
+  <!-- 右侧示意：HTML 标签 -->
+  <g font-family="Menlo, monospace" fill="#a8c79a" font-size="13">
+    <text x="700" y="280">&lt;html lang="zh-CN"&gt;</text>
+    <text x="720" y="305">&lt;head&gt;…&lt;/head&gt;</text>
+    <text x="720" y="330">&lt;body&gt;</text>
+    <text x="740" y="355">&lt;header&gt;…</text>
+    <text x="740" y="380">&lt;main&gt;</text>
+    <text x="760" y="405">&lt;section&gt;</text>
+    <text x="780" y="430">你的作品</text>
+    <text x="760" y="455">&lt;/section&gt;</text>
+    <text x="740" y="480">&lt;/main&gt;</text>
+    <text x="720" y="505">&lt;/body&gt;</text>
+    <text x="700" y="530">&lt;/html&gt;</text>
+  </g>
+  <!-- 粉笔灰 / 高光 -->
+  <ellipse cx="800" cy="640" rx="80" ry="6" fill="#f4eed8" opacity="0.25"/>
+  <!-- 标题 -->
+  <g font-family="Georgia, 'Songti SC', serif">
+    <text x="60" y="720" font-size="22" font-style="italic" fill="#8b3a1e" letter-spacing="0.15em">Teaching Vibe Coding — A 3-Session Course</text>
+  </g>
+</svg>

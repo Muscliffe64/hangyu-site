@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="ice-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cdd9df"/>
+      <stop offset="60%" stop-color="#9ab1b8"/>
+      <stop offset="100%" stop-color="#5e7480"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e3340"/>
+      <stop offset="100%" stop-color="#0a1820"/>
+    </linearGradient>
+  </defs>
+  <!-- 天空 -->
+  <rect width="1600" height="540" fill="url(#ice-sky)"/>
+  <!-- 远山冰原 -->
+  <path d="M0,500 L120,440 L240,470 L360,420 L500,460 L640,430 L780,470 L920,420 L1080,450 L1240,415 L1400,450 L1600,420 L1600,540 L0,540 Z" fill="#e7ecee" opacity="0.95"/>
+  <!-- 海 -->
+  <rect y="540" width="1600" height="360" fill="url(#sea)"/>
+  <!-- 冰山主体 -->
+  <g>
+    <polygon points="380,420 540,460 700,450 760,560 820,540 740,640 580,650 420,610 320,580 280,520" fill="#f4f7f8" opacity="0.98"/>
+    <polygon points="380,420 540,460 510,520 420,520" fill="#dde6eb" opacity="0.9"/>
+    <polygon points="700,450 820,540 760,560 690,520" fill="#cfd9df" opacity="0.85"/>
+    <!-- 水下倒影 -->
+    <polygon points="280,580 320,580 420,610 580,650 740,640 820,540 760,560 750,720 380,730 290,650" fill="#1a2e38" opacity="0.55"/>
+  </g>
+  <!-- 一只小船（船是给纪录片"出海"那一笔） -->
+  <g transform="translate(1100,640)">
+    <rect x="-50" y="-6" width="100" height="14" fill="#1a1410"/>
+    <polygon points="-30,-6 -30,-50 35,-6" fill="#fdf9ef"/>
+    <line x1="-30" y1="-50" x2="-30" y2="8" stroke="#1a1410" stroke-width="2"/>
+  </g>
+  <!-- 中央播放按钮 -->
+  <g opacity="0.92">
+    <circle cx="800" cy="430" r="68" fill="#fdf9ef" opacity="0.18"/>
+    <circle cx="800" cy="430" r="56" fill="none" stroke="#fdf9ef" stroke-width="2"/>
+    <polygon points="785,402 785,458 832,430" fill="#fdf9ef"/>
+  </g>
+  <!-- 文字 -->
+  <g fill="#fdf9ef" font-family="Georgia, 'Songti SC', serif">
+    <text x="800" y="780" text-anchor="middle" font-size="36" letter-spacing="0.18em" opacity="0.95">我 的 南 极 奥 德 赛</text>
+    <text x="800" y="820" text-anchor="middle" font-size="16" font-style="italic" letter-spacing="0.22em" opacity="0.7">My Antarctic Odyssey · 2024</text>
+  </g>
+</svg>

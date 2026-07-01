@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>封面编辑器 — Hangyu</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .cover-editor-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem var(--gutter);
+    }
+    .cover-editor-page h1 {
+      font-family: var(--font-zh);
+      font-size: 1.6rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin: 0 0 0.6rem;
+    }
+    .cover-editor-intro {
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      font-family: var(--font-zh);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+    .cover-editor-toolbar {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .cover-editor-toolbar button {
+      font-family: var(--font-zh);
+      font-size: 0.95rem;
+      padding: 0.7rem 1.5rem;
+      background: var(--ink);
+      color: var(--bg);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    .cover-editor-toolbar button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .cover-editor-status {
+      font-family: var(--font-en);
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-quiet);
+    }
+    .cover-editor-status.ok { color: #2a8050; }
+    .cover-editor-status.error { color: #c62b2b; }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .cover-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.18s;
+    }
+    .cover-card.drag-over .cover-drop {
+      border-color: var(--ink);
+      background: rgba(0,0,0,0.04);
+      transform: scale(1.02);
+    }
+    .cover-drop {
+      aspect-ratio: 2.35 / 1;
+      border: 2px dashed var(--line);
+      background: var(--bg-alt);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .cover-drop img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 50%;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .cover-card.has-cover .cover-drop {
+      cursor: grab;
+    }
+    .cover-card.has-cover .cover-drop.dragging {
+      cursor: grabbing;
+    }
+    .cover-drop-hint {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.4rem 0.6rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      color: white;
+      font-family: var(--font-zh);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.18s;
+      pointer-events: none;
+    }
+    .cover-card.has-cover:hover .cover-drop-hint { opacity: 1; }
+    .cover-drop-empty {
+      color: var(--ink-quiet);
+      font-family: var(--font-zh);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 0 1rem;
+    }
+    .cover-card.has-cover .cover-drop {
+      border-style: solid;
+      border-color: var(--line);
+    }
+    .cover-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .cover-card-info .date {
+      font-family: var(--font-en);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      color: var(--ink-quiet);
+    }
+    .cover-card-info h3 {
+      font-family: var(--font-zh);
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin: 0;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+    .cover-card-success {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #2a8050;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      animation: pop 0.3s;
+    }
+    .cover-card.just-saved .cover-card-success {
+      display: flex;
+    }
+    @keyframes pop {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+
+    .cover-editor-warning {
+      max-width: 640px;
+      margin: 2rem auto;
+      padding: 1rem 1.4rem;
+      background: var(--bg-alt);
+      border-left: 3px solid #c62b2b;
+      font-family: var(--font-zh);
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      display: none;
+    }
+    .cover-editor-warning.show { display: block; }
+
+    .cover-grid.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="writing.html" class="active"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="cover-editor-page">
+      <h1>封面编辑器</h1>
+      <p class="cover-editor-intro">
+        从 Finder 把图片直接拖到对应卡片，自动以文章名保存到 <code>Writing/covers/</code>。
+        卡片现有的封面图来自之前下载的微信封面。覆盖直接拖新图即可。
+      </p>
+
+      <div class="cover-editor-toolbar">
+        <button id="grant-folder">连接 Writing/covers 文件夹</button>
+        <span class="cover-editor-status" id="status">尚未连接</span>
+      </div>
+
+      <div class="cover-editor-warning" id="warning">
+        <strong>浏览器不支持。</strong> File System Access API 仅 Chrome / Edge / Arc 支持，Safari / Firefox 暂不能用。
+        改用 Chrome 打开此页即可。
+      </div>
+
+      <div class="cover-grid disabled" id="grid">
+        <!-- 由 JS 渲染 -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script>
+    // 文章列表 —— 跟 build_articles.py 中的 ARTICLES 对齐
+    // (display_title, md_stem, date)
+    const ARTICLES = [
+      ['我是不是也有点傲慢',                '我是不是也有点傲慢',                '2026.03.05'],
+      ['在爸爸这座"大山"下，用 AI 写完一篇周记', '在爸爸这座“大山”下，用AI写完一篇周记', '2026.02.27'],
+      ['资产、复利与一个奇妙的时刻',        '资产、复利与一个奇妙的时刻',        '2026.02.24'],
+      ['当大模型遇上小矿工',                '当大模型遇上小矿工',                '2025.11.20'],
+      ['孩子们真棒!',                       '孩子们真棒_',                       '2025.10.29'],
+      ['又被习惯了',                        '又被习惯了',                        '2025.09.30'],
+      ['星野道夫的睡前故事',                '星野道夫的睡前故事',                '2025.09.26'],
+      ['苍蝇',                              '苍蝇',                              '2025.09.16'],
+      ['你讲你的"立德树人"',                '你讲你的_立德树人_',                '2025.09.15'],
+      ['子弹说了算',                        '子弹说了算',                        '2025.09.12'],
+      ['热爱是一个动词',                    '热爱是一个动词',                    '2025.09.11'],
+      ['夜行默拉皮:比特币的种子',          '夜行默拉皮_比特币的种子',          '2025.08.26'],
+      ['在婆罗浮屠想起的墙',                '在婆罗浮屠想起的墙',                '2025.08.25'],
+      ['工具人也得先是人',                  '工具人也得先是人',                  '2025.07.17'],
+      ['俄乌巴以喝中药',                    '鹅屋八乙喝中药',                    '2025.07.10'],
+      ['大象',                              '大象',                              '2025.05.22'],
+      ['演出已散，戏仍在演',                '演出已散_戏仍在演',                '2025.05.16'],
+      ['一棵杨树',                          '一棵杨树',                          '2025.05.15'],
+      ['孩子，一路走好，一个中国人',        '孩子，一路走好，一个中国人',        '2024.09.21'],
+      ['勇敢地去做空教育中的"负资产"',      '勇敢地去做空教育中的_负资产_',      '2024.09.18'],
+      ['21 世纪的美白执念:安全撤离指南',    '21世纪的美白执念__安全撤离指南',     '2024.09.13'],
+      ['贝壳、核废水与世界和平',            '贝壳_核废水与世界和平',            '2024.09.09'],
+      ['0.7:痛定思痛接着痛',                '0_7_痛定思痛接着痛',                '2024.09.06'],
+      ['这是一个开始',                      '这是一个开始',                      '2024.09.05'],
+    ];
+
+    const grid = document.getElementById('grid');
+    const grantBtn = document.getElementById('grant-folder');
+    const statusEl = document.getElementById('status');
+    const warningEl = document.getElementById('warning');
+
+    let dirHandle = null;
+    let positions = {};  // { stem: { x: 0..1, y: 0..1 } }
+
+    if (!('showDirectoryPicker' in window)) {
+      warningEl.classList.add('show');
+      grantBtn.disabled = true;
+      statusEl.textContent = '当前浏览器不支持';
+    }
+
+    function renderCards() {
+      grid.innerHTML = '';
+      ARTICLES.forEach(([title, stem, date]) => {
+        const card = document.createElement('div');
+        card.className = 'cover-card';
+        card.dataset.stem = stem;
+        card.innerHTML = `
+          <div class="cover-drop">
+            <span class="cover-drop-empty">拖图到这里</span>
+            <div class="cover-drop-hint">拖动调整位置</div>
+          </div>
+          <div class="cover-card-info">
+            <span class="date">${date}</span>
+            <h3>${title}</h3>
+          </div>
+          <div class="cover-card-success">✓</div>
+        `;
+        grid.appendChild(card);
+
+        tryLoadExistingCover(card, stem);
+        bindDropEvents(card);
+        bindRepositionEvents(card);
+      });
+    }
+
+    function tryLoadExistingCover(card, stem) {
+      const exts = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'];
+      let i = 0;
+      const drop = card.querySelector('.cover-drop');
+      function tryNext() {
+        if (i >= exts.length) return;
+        const url = `Writing/covers/${encodeURIComponent(stem)}.${exts[i]}?_=${Date.now()}`;
+        const img = new Image();
+        img.onload = () => {
+          mountCoverImage(card, url);
+        };
+        img.onerror = () => { i++; tryNext(); };
+        img.src = url;
+      }
+      tryNext();
+    }
+
+    // 在卡片里挂上 <img> 并应用 positions[stem] 中的位置
+    function mountCoverImage(card, src) {
+      const drop = card.querySelector('.cover-drop');
+      // 保留 hint，但清掉空文本和已有 img
+      drop.querySelectorAll('img, .cover-drop-empty').forEach(el => el.remove());
+      const img = document.createElement('img');
+      img.src = src;
+      drop.insertBefore(img, drop.firstChild);
+      card.classList.add('has-cover');
+      applyPosition(card);
+    }
+
+    function getPos(stem) {
+      return positions[stem] || { x: 0.5, y: 0.5 };
+    }
+
+    function applyPosition(card) {
+      const img = card.querySelector('.cover-drop img');
+      if (!img) return;
+      const { x, y } = getPos(card.dataset.stem);
+      img.style.objectPosition = `${x * 100}% ${y * 100}%`;
+    }
+
+    // ---- Drop（从 Finder 拖入新图）----
+    function bindDropEvents(card) {
+      card.addEventListener('dragover', e => {
+        if (!e.dataTransfer.types.includes('Files')) return;
+        e.preventDefault();
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', e => {
+        if (!card.contains(e.relatedTarget)) {
+          card.classList.remove('drag-over');
+        }
+      });
+      card.addEventListener('drop', async e => {
+        if (!e.dataTransfer.types.includes('Files')) return;
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        if (!dirHandle) { alert('请先点上方按钮连接 covers 文件夹'); return; }
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          alert('请拖入图片文件（jpg / png）');
+          return;
+        }
+        await saveImage(card, file);
+      });
+    }
+
+    // ---- 在已有封面上 mousedown + drag 调整位置 ----
+    function bindRepositionEvents(card) {
+      const drop = card.querySelector('.cover-drop');
+      let dragging = false;
+      let startMouseX = 0, startMouseY = 0;
+      let startX = 0.5, startY = 0.5;
+
+      drop.addEventListener('mousedown', e => {
+        const img = drop.querySelector('img');
+        if (!img) return;  // 还没图，让 drop 事件处理
+        // 若是从 Finder 拖入，dataTransfer.types 包含 Files，由 dragover 处理；mousedown 是本地拖
+        e.preventDefault();
+        dragging = true;
+        drop.classList.add('dragging');
+        startMouseX = e.clientX;
+        startMouseY = e.clientY;
+        const cur = getPos(card.dataset.stem);
+        startX = cur.x;
+        startY = cur.y;
+      });
+
+      window.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const rect = drop.getBoundingClientRect();
+        // 横向 / 纵向各以 frame 尺寸为参考。1 个 frame 高度 = 全程 0..1
+        const dx = (e.clientX - startMouseX) / rect.width;
+        const dy = (e.clientY - startMouseY) / rect.height;
+        // 鼠标向下拖 → 看图更靠上 → y 减小；向上拖 → y 增大
+        const newX = clamp(startX - dx, 0, 1);
+        const newY = clamp(startY - dy, 0, 1);
+        positions[card.dataset.stem] = { x: newX, y: newY };
+        applyPosition(card);
+      });
+
+      window.addEventListener('mouseup', async () => {
+        if (!dragging) return;
+        dragging = false;
+        drop.classList.remove('dragging');
+        // 拖动结束写盘
+        await savePositions();
+      });
+    }
+
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    async function saveImage(card, file) {
+      const stem = card.dataset.stem;
+      const extMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
+      const ext = extMatch ? extMatch[1].toLowerCase() : 'jpg';
+      const targetName = `${stem}.${ext}`;
+
+      try {
+        // 清掉同 stem 不同后缀的旧文件
+        for (const oldExt of ['jpg', 'jpeg', 'png']) {
+          if (oldExt === ext) continue;
+          try { await dirHandle.removeEntry(`${stem}.${oldExt}`); } catch (_) {}
+        }
+
+        const fileHandle = await dirHandle.getFileHandle(targetName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(await file.arrayBuffer());
+        await writable.close();
+
+        // 重置该卡片位置为居中（新图）
+        positions[stem] = { x: 0.5, y: 0.5 };
+        await savePositions();
+
+        const url = URL.createObjectURL(file);
+        mountCoverImage(card, url);
+        card.classList.add('just-saved');
+        setTimeout(() => card.classList.remove('just-saved'), 1500);
+
+        statusEl.textContent = `已保存: ${targetName}`;
+        statusEl.className = 'cover-editor-status ok';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `保存失败: ${err.message}`;
+        statusEl.className = 'cover-editor-status error';
+      }
+    }
+
+    // ---- 位置元数据读 / 写 ----
+    async function loadPositions() {
+      if (!dirHandle) return;
+      try {
+        const fh = await dirHandle.getFileHandle('_positions.json');
+        const file = await fh.getFile();
+        const text = await file.text();
+        positions = JSON.parse(text);
+      } catch (e) {
+        positions = {};
+      }
+      // 给所有已挂图的卡片应用一次
+      grid.querySelectorAll('.cover-card.has-cover').forEach(applyPosition);
+    }
+
+    async function savePositions() {
+      if (!dirHandle) return;
+      try {
+        const fh = await dirHandle.getFileHandle('_positions.json', { create: true });
+        const w = await fh.createWritable();
+        await w.write(JSON.stringify(positions, null, 2));
+        await w.close();
+      } catch (e) {
+        console.error('savePositions failed:', e);
+      }
+    }
+
+    grantBtn.addEventListener('click', async () => {
+      try {
+        const handle = await window.showDirectoryPicker({
+          mode: 'readwrite',
+          startIn: 'documents',
+        });
+        dirHandle = handle;
+        statusEl.textContent = `已连接: ${handle.name}/`;
+        statusEl.className = 'cover-editor-status ok';
+        grid.classList.remove('disabled');
+        grantBtn.textContent = '重新连接（已连接 ' + handle.name + '）';
+        // 一拿到目录就读位置元数据
+        await loadPositions();
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          statusEl.textContent = `连接失败: ${err.message}`;
+          statusEl.className = 'cover-editor-status error';
+        }
+      }
+    });
+
+    renderCards();
+  </script>
+</body>
+</html>

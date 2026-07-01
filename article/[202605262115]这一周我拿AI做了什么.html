@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>这一周，我又拿 AI 做了什么 — Hangyu</title>
+  <meta name="description" content="这一周，我又拿 AI 做了什么">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="../index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="../photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="../films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="../writing.html" class="active"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="../jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="../about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <article class="article-page article-page-ai">
+      <div class="article-meta"><time>2026.05.26</time><span class="dot">·</span><span class="from">积木船长的朋友</span><span class="dot">·</span><span class="from">AI 与教育</span></div>
+      <h1 class="article-title">这一周，我又拿 AI 做了什么</h1>
+      <div class="article-cover"><img src="../Writing/covers/%5B202605262115%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E6%8B%BFAI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.jpg" alt="" loading="lazy"></div>
+<div class="article-body">
+<p><em> What I actually did with AI this week — week two </em></p>
+<blockquote><p>2026.05.17 · WEEK 02</p><p>五一之后的每周课程开始，我都跟学生分享这一周我用 AI 做了什么。</p><p>接上一次「这十几天」的续集。 还是不讲教程，只讲 <strong> 真实发生的事 </strong> ，和我从这些事里读出来的东西。</p><p>—— 积木船长的朋友 · 5/11 → 5/17</p></blockquote>
+<hr>
+<h3>一、AI 第一次"自己把产品上线了"</h3>
+<p><em> A new line, crossed again. </em></p>
+<p>上节课我跟大家说，假期里 Codex 在我屏幕上自己操作、把积木的小游戏部署上了我在阿里云的服务器中——当时我觉得已经够震撼了。</p>
+<p>这周又往前走了一步。</p>
+<p>我让 Codex 直接通过 <strong> computer use </strong> 把积木的游戏部署到 <strong> Cloudflare </strong> 上。整个过程：</p>
+<blockquote><p>我描述目标 → 它打开浏览器 → 配合我注册、配置、上传 → 解决报错、重试、验证 → 上线。</p></blockquote>
+<p>游戏地址： <strong> 幸存者:反攻行动 </strong> （网页体验更佳） tactical-shooter-jim.pages.dev</p>
+<p>【这里插入截图:游戏界面 / 或直接放游戏链接卡片】</p>
+<p>我全程 <strong> 没动键盘 </strong> 。</p>
+<p>上次它是在我的本地终端里干活;这次它是在 <strong> 云服务上 </strong> 跑出来一整套部署流程。</p>
+<p>"AI 帮我写代码" → "AI 帮我把产品上线"—— <strong> 这条线又被跨过去一次 </strong> 。</p>
+<blockquote><p><strong> 不要拿三个月前你试过的东西,去判断现在 AI 能做什么。 </strong></p><p><em> Don't use last quarter's ceiling to judge today's tools. </em></p></blockquote>
+<p>今天能力的边界,可能下周就 <strong> 不在那儿了 </strong> 。</p>
+<hr>
+<h3>二、用 AI 在一上午,统筹了一个会议的团队</h3>
+<p><em> An entire team, briefed before lunch. </em></p>
+<p>这周五学院有个会议筹备—— <strong> Sonic Futures 2026 </strong> ,6 月开。我被分到所有视觉和宣传相关的工作。</p>
+<p>以前这种活,光是「读完会议 PDF → 拆出我负责的范围 → 拆成具体任务 → 找学生 → 一个一个分配 → 排出每天的日程」——要花一两天。</p>
+<p>这次我做的事是:</p>
+<p><strong> 01 </strong> PDF 丢给 Codex(Parse the brief) <strong> → </strong> <strong> 02 </strong> Markdown 任务清单(Structured tasks) <strong> → </strong> <strong> 03 </strong> 7 个同学 / 自动每日分配(Assign to 7 students) <strong> → </strong> <strong> 04 </strong> 1 小时会议录音 → STT → 拆解(Audio in, schedule out)</p>
+<p>以前一个人手动算十几天日程的活,模型几分钟做完,而且 <strong> 已经集成在 Obsidian 里 </strong> 。</p>
+<p>同一天,我们让 Codex 调用 GPT Image2一次出十几版主视觉风格,当天就筛出定稿方向。 <strong> 邀请函的中英文版第二天就交了。 </strong></p>
+<figure class="article-figure ratio-235"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/iboOs6icMql24WqZ3m6veu2syAwIx97PIOE1jhDGmGIPvlsC22bV2hZ8gVXmZ2NwvokOIrVUSbiciaGQSjqibMsGGSWeRMiaGhUj9lkXI0MibiahBEQ/640?wx_fmt=jpeg&amp;from=appmsg" alt="" loading="lazy"></figure>
+<blockquote><p><strong> AI 不再是"做创意"的工具,它接管的是"结构化的统筹工作"。 </strong></p><p><em> From "make creative" to "run the coordination". </em></p></blockquote>
+<p>把人从这种活里解放出来——去做 <strong> 更需要判断的事 </strong> 。</p>
+<hr>
+<h3>三、毕业答辩:AI 已经长在这届学生的作品里了</h3>
+<p><em> It isn't a tool anymore. It's the soil. </em></p>
+<p>周二我参加了 2022 级录音艺术的 <strong> 毕业答辩 </strong> 。</p>
+<p>我做了两件事:</p>
+<p><strong> 第一件:评语我让 AI 写了。 </strong></p>
+<p>每年写评语是最痛的环节。这次我 <strong> 提前两天 Vibe Coding 了一个"评语生成系统" </strong> ——现场开录音,把老师在答辩现场的评价全收录进去,再把往届评语喂给大模型学习 <strong> 术语与结构 </strong> ,调用 <strong> 硅基流动的 API </strong> 让 <strong> DeepSeek V3 </strong> 生成评语,最终把 <strong> 12 位同学的数据导出 JSON,丢给本地的 Agent,自动填入 Word </strong> 。</p>
+<p>写评语这件事, <strong> 今年就这样过去了 </strong> 。</p>
+<p><strong> 第二件:我刻意问了一下他们毕设里 AI 的参与度。 </strong></p>
+<p>有几个同学很坦白地说:作曲和歌词深度使用了 <strong> Suno </strong> 。有同学Vibe 了一个 Protools插件 来提高效率，有同学甚至让 <strong> Codex 在 ProTools 里完整搭了整个轨道的路由 </strong> 。</p>
+<blockquote><p><strong> 这一届,AI 已经长在他们作品里了——不是"用了一下",是"基础设施"。 </strong></p><p><em> No longer a tool they tried. Infrastructure they live in. </em></p></blockquote>
+<p>2023 年初我们一起开始接触 ChatGPT 的那一届——四年下来,到了这个程度。</p>
+<p><strong> 无与伦比的未来。 </strong></p>
+<hr>
+<h3>四、数据是核心。一个反面案例。</h3>
+<p><em> Don't trade your data for an internship. </em></p>
+<p>这周一我去了一个企业的访企拓岗会议。对方开口提了一个合作方案:</p>
+<blockquote><p>每年给他们提供 <strong> 5000 首原创音乐 </strong> 用于训练 AI 模型,换几个实习岗位。</p></blockquote>
+<p>我们当时心里很清楚——</p>
+<blockquote><p><strong> 数据是核心资产,实习是边角料。这是一笔极度不对等的交换。 </strong></p><p><em> Data is the asset. The internship is the bait. </em></p></blockquote>
+<p>这件事我想说的不是"别签这种合同"，而是一个 <strong> 判断框架 </strong> :</p>
+<p>在 AI 时代,搞清楚什么是 <strong> 真的资产 </strong> 。</p>
+<p>模型谁都能调,参数谁都能下载,但你录过的声音、你拍过的素材、你写过的乐谱、你混过的音轨—— <strong> 这些不可复现的、有审美痕迹的内容 </strong> ,才是 AI 时代真正稀缺的东西。</p>
+<p>不要轻易把它们换成几个"听起来还不错"的机会。</p>
+<hr>
+<h3>五、两台电脑、两个 Agent,在我面前协作</h3>
+<p><em> A remote agent and a local one — talking to each other. </em></p>
+<p>周六晚上一个特别有意思的场景。</p>
+<p>我们工作室在打掼蛋。 <strong> 孙总 </strong> 给我提了个产品改进的建议,我当场想给我做的微信小程序加一个新功能。</p>
+<p>问题: <strong> 源代码不在我手边的 MacBook 上,在山底下家里的 Mac Studio 上。 </strong></p>
+<p>以前我会想:算了,回家再说。 这次我没回家。</p>
+<p>我打开 <strong> Hermes </strong> (部署在 Mac Studio 上的另一个 agent),告诉它:</p>
+<blockquote><p>"你在我的文稿文件夹里把掼蛋项目找出来,把最新版本的压缩包发过来。"</p></blockquote>
+<p>它找到了。200KB,立刻发过来。</p>
+<p>然后我在 MacBook 上让 Claude 接着改。（这之后我才学着用的 git）</p>
+<p><strong> 远程 · Mac Studio · Hermes </strong> — finds the asset <strong> → </strong> <strong> 本地 · MacBook · Claude </strong> — writes the code</p>
+<p>我不需要回家、不需要远程桌面、不需要 SSH—— <strong> 一个 agent 找资产,一个 agent 改代码,我只是发指令 </strong> 。</p>
+<blockquote><p><strong> 你不再操作一台电脑,你在指挥一支由 agent 组成的小队。 </strong></p><p><em> You don't run a machine anymore. You command a squad. </em></p></blockquote>
+<hr>
+<h3>六、AI 给我做了一面镜子,照出我自己</h3>
+<p><em> A second pair of eyes, with no social cost. </em></p>
+<p>这周还有一件事——这件不是"我用 AI 做了什么",是 <strong> "AI 反过来给我做了什么" </strong> 。</p>
+<p>我现在在 Obsidian 里养了一套系统:它读我每天的语音日记,每天早上给我推一份「简报」,里面有几个问题问我。</p>
+<p>周五那份简报里,它给我下了一个判断:</p>
+<blockquote><p><strong> "碰撞来找你时,你的角色更像是输出者而非共建者。" </strong></p><p>—— 它的依据是我自己最近写的几篇日记里的若干场景:我总是“抱怨“身边没人能跟我聊 AI,但回头看,是我没给别人开口的机会——我太习惯输出,太习惯掌握节奏。</p></blockquote>
+<p>我看到这句话的时候, <strong> 安静了几秒 </strong> 。</p>
+<p>它是对的。</p>
+<p>要知道一件事: <strong> AI 长期跟你打交道,它会慢慢长出一个"关于你"的模型。 </strong> 这个模型有时候比你身边的人更敢直接说,因为它没有人际成本。</p>
+<blockquote><p><strong> 未来用 AI 用得深的人,会越来越多地经历"被 AI 照见"的瞬间。 </strong></p><p><em> It's not judging you. It's offering a second view. </em></p></blockquote>
+<p>要不要接受这个视角,是自己的事。 但 <strong> 不要回避它 </strong> ——这恰恰是 AI 给你的、最便宜的成长机会。</p>
+<hr>
+<h3>七、我把"写一篇论文"做成了一条流水线</h3>
+<p><em> From doing the task → designing the system. </em></p>
+<p>前面六段讲的都是"用 AI 做一件具体的事"。这一段不一样——这周我做的事是 <strong> 用 AI 去搭"做事这件事本身"的系统 </strong> 。</p>
+<p>论文是我现在最卡的事。一篇稿子要走完:</p>
+<blockquote><p>找题 → 读文献 → 立假设 → 选方法 → 整理材料 → 写引言 → 写讨论 → 自审 → 投出去</p></blockquote>
+<p>每一步都很重,每一步都容易卡住。</p>
+<p>这周我做的事,是把这整个流程 <strong> 拆开、写清楚、变成一条可以让 AI 跑的流水线 </strong> 。</p>
+<p><strong> STEP 01 </strong> 拆成清晰阶段(Stage the workflow) <strong> → </strong> <strong> STEP 02 </strong> 每阶段配一个 AI 技能(Skill per stage) <strong> → </strong> <strong> STEP 03 </strong> 主智能体 + 子智能体(Orchestrator + sub agents)</p>
+<p>每一个阶段写清楚四件事: <strong> 谁是主力(我 / AI / 合议)、输入是什么、输出是什么、卡在哪个点必须停下来等我决定 </strong> 。</p>
+<p>选题、引言、假设、方法、结果、讨论——每个阶段都封装成一个独立的<strong>"技能模块"</strong>。过去要读很多原典才能掌握的经验,现在装进了 AI 可以直接调用的技能里。</p>
+<p>最关键的是第三步:用 <strong> sub agent </strong> 的模式去跑。审稿环节也是这样——我让一个组织智能体调用 10 个不同视角的子智能体(结构、逻辑、贡献、痕迹清理、模拟审稿……),每个子智能体只干一件事、写一份报告。</p>
+<p><strong> 主智能体 · Orchestrator(decides, dispatches, integrates) </strong></p>
+<p>子智能体阵列:</p>
+<ol><li>结构审查</li><li>逻辑检查</li><li>贡献评估</li><li>痕迹清理</li><li>模拟审稿</li><li>文献对照</li><li>方法核验</li><li>讨论延展</li><li>语言润色</li><li>风险扫描</li></ol>
+<p><strong> 整套可以挂机跑 </strong> ——我去吃饭、去开会、去睡觉,回来一看, <strong> 报告齐了 </strong> 。</p>
+<blockquote><p><em> A LEAP </em></p><p><strong> 第一层:用 AI 做一件事。 </strong></p><p><strong> 第二层:设计一套逻辑,让 AI 自己调度自己去跑完一个流程。 </strong></p><p><em> From "use the agent" to "design the agents". </em></p></blockquote>
+<p>将来做混音、剪辑、声音设计、配乐——里面都有大量「 <strong> 每次都要重复一遍、每次都很费力、每次都凭手感 </strong> 」的环节。</p>
+<p>试着画一张图,把这件事拆成阶段:哪些是你必须自己拍板的(风格、版本、判断),哪些是 AI 可以做苦力的(找参考、整理素材、做校对、做审查)。</p>
+<p>再想一步——能不能把每个阶段交给一个独立的 <strong> 子 agent </strong> 去跑?</p>
+<blockquote><p><em> The moment you draw that diagram, you're ahead </em></p></blockquote>
+<hr>
+<h3>最后 · 七天七件事</h3>
+<p>这一周里,AI 帮我把团队拆好、把会议跑顺、把儿子的游戏部署上线、把毕业评语写完、把跨设备的源代码协作跑通—— <strong> 还顺便告诉了我,我有个我自己没意识到的问题。 </strong></p>
+<p><strong> Day 1 </strong> AI 自己把游戏部署到 Cloudflare</p>
+<blockquote><p>computer use 全程自主操作,我没动键盘</p></blockquote>
+<p><strong> Day 2 </strong> 一上午统筹了会议的团队</p>
+<blockquote><p>PDF → 任务 → 7 个学生 → 录音转日程</p></blockquote>
+<p><strong> Day 3 </strong> 毕业答辩 · 现场用 AI 写评语</p>
+<blockquote><p>同时观察到 AI 已是这一届的基础设施</p></blockquote>
+<p><strong> Day 4 </strong> 识别出一笔不对等的数据交换</p>
+<blockquote><p>5000 首原创音乐 ≠ 几个实习岗位</p></blockquote>
+<p><strong> Day 5 </strong> 远程 + 本地双 agent 协作</p>
+<blockquote><p>Hermes 找资产 / Claude 写代码 / 我发指令</p></blockquote>
+<p><strong> Day 6 </strong> 被 AI 提醒:我太习惯输出</p>
+<blockquote><p>它从我的日记里看出了我没看出来的东西</p></blockquote>
+<p><strong> Day 7 </strong> 把"写论文"做成 sub agent 流水线</p>
+<blockquote><p>主智能体 + 10 个审稿子智能体 / 挂机跑</p></blockquote>
+<hr>
+<p>七天,七件事。 每件事都不是"试 AI", 是"用 AI 做完一件具体的事"。</p>
+<p><strong> 别学 AI,去用它做事。 </strong> 每做完一件,你对它边界的感觉就清晰一点。</p>
+<p>—— 积木船长的朋友 · 2026.05.17</p>
+      </div>
+
+      <nav class="article-nav">
+        <a class="prev" href="%5B202605290049%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E7%94%A8AI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><span class="hint">上一篇 · 更新</span><span class="title">这一周，我用 AI 做了什么（WEEK 03）</span></a>
+        <a class="next" href="%E5%9C%A8%E7%88%B8%E7%88%B8%E8%BF%99%E5%BA%A7%E2%80%9C%E5%A4%A7%E5%B1%B1%E2%80%9D%E4%B8%8B%EF%BC%8C%E7%94%A8AI%E5%86%99%E5%AE%8C%E4%B8%80%E7%AF%87%E5%91%A8%E8%AE%B0.html"><span class="hint">下一篇 · 更早</span><span class="title">在爸爸这座"大山"下，用 AI 写完一篇周记</span></a>
+      </nav>
+
+      <div class="back-to-list">
+        <a href="../writing.html#ai">← 回到 AI 与教育</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+</body>
+</html>

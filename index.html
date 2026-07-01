@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangyu — 用影像和文字记录世界</title>
+  <meta name="description" content="纪录片导演、摄影师、写作者，教师。用影像和文字记录世界。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-name">Hangyu</span>
+      </a>
+      <nav class="primary-nav">
+        <a href="index.html" class="active"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="daily-strip-section">
+      <div class="strip-header">
+        <span class="strip-label">今日选辑 · Today's Selection</span>
+        <span class="strip-date" id="stripDate">—</span>
+      </div>
+      <div class="daily-grid-wrap">
+        <div class="daily-grid-track">
+          <div class="daily-grid" id="dailyStrip">
+            <!-- 由 script.js 按今日日期种子伪随机填充 -->
+          </div>
+        </div>
+        <button class="daily-prev" id="dailyPrev" aria-label="上一页">‹</button>
+        <button class="daily-next" id="dailyNext" aria-label="下一页">›</button>
+      </div>
+    </section>
+
+    <section class="intro">
+      <p class="intro-zh">姬航宇，纪录片导演、摄影师、写作者，现任西安音乐学院录音艺术专业教师。2008 年进入中国传媒大学录音艺术专业，2013 年赴英国伯恩茅斯大学电影电视声音制作专业深造。2016 年创办西安东西映画文化传媒有限公司。近年来，他持续进行纪录片拍摄，也在传统艺术类教育中探索 AI 与区块链的教学应用。</p>
+      <p class="intro-en">Hangyu Ji is a documentary filmmaker, photographer, writer, and lecturer in Recording Arts at Xi'an Conservatory of Music. In 2008, he entered the Recording Arts program at Communication University of China; in 2013, he continued his studies in Sound Production for Film and Television at Bournemouth University in the UK. In 2016, he founded Xi'an Everything Film &amp; Culture Media Co., Ltd. He continues to make documentaries while exploring how AI and blockchain can enter traditional arts education.</p>
+    </section>
+
+    <section class="preview">
+      <div class="section-head">
+        <h2>
+          <span class="zh">摄影</span>
+          <span class="en">Photography</span>
+        </h2>
+        <a href="photography.html" class="more">查看全部 / View all →</a>
+      </div>
+      <div class="photo-grid">
+        <a href="photo-chuanxi.html" class="photo-card" data-label="Western Sichuan · 2025" style="background-image: url('Photos/2025%20%E5%B7%9D%E8%A5%BF/20250805-DJI_0509.jpg')"></a>
+        <a href="photo-java.html" class="photo-card" data-label="Java · 2025" style="background-image: url('Photos/2025%20%20Java/20250821-JR501028.jpg')"></a>
+        <a href="photo-png.html" class="photo-card" data-label="Papua New Guinea · 2025" style="background-image: url('Photos/2025%20Papua%20New%20Guinea/20250218-DSC00723.jpg')"></a>
+        <a href="photo-japan.html" class="photo-card" data-label="Japan · 2024" style="background-image: url('Photos/2024%20Japan/20240802-DSC01618_Osaka_2500.jpg')"></a>
+      </div>
+    </section>
+
+    <section class="preview">
+      <div class="section-head">
+        <h2>
+          <span class="zh">影像</span>
+          <span class="en">Films</span>
+        </h2>
+        <a href="films.html" class="more">查看全部 / View all →</a>
+      </div>
+      <div class="film-list">
+        <a href="films.html#antarctic" class="film-card">
+          <div class="film-thumb" style="background-image: url('Photos/2023%20Antarctica/DSC07925.jpg'); background-size: cover; background-position: center;"></div>
+          <div class="film-info">
+            <h3>我的南极奥德赛 <span class="film-title-en">My Antarctic Odyssey</span></h3>
+            <p class="meta">2024.02.05 · Antarctic Peninsula · 37:55 · 4K</p>
+            <p>从穿越德雷克海峡开始，跨越两万公里抵达南极半岛。冰川、企鹅、海豹，以及那种近乎宗教的寂静。</p>
+            <p class="excerpt-en">Across the Drake Passage to ice, wildlife, seasickness, and a silence that feels almost sacred.</p>
+          </div>
+        </a>
+        <a href="films.html#galapagos" class="film-card">
+          <div class="film-thumb" style="background-image: url('Photos/2024%20Galapagos/20240707-DSC04300_%E6%B5%B7%E9%AC%A3%E8%9C%A5%E4%B9%8B%E5%B2%9B_2500.jpg'); background-size: cover; background-position: center;"></div>
+          <div class="film-info">
+            <h3>走进加拉帕戈斯 <span class="film-title-en">Into the Galapagos</span></h3>
+            <p class="meta">2024.10.06 · Galapagos Islands · 29:12 · 4K</p>
+            <p>火山岛、海鬣蜥、鸟群与海水，把这片与世隔绝的群岛慢慢展开。</p>
+            <p class="excerpt-en">Volcanic islands, marine iguanas, birds, coastlines, and the living traces of deep time.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="preview">
+      <div class="section-head">
+        <h2>
+          <span class="zh">文字</span>
+          <span class="en">Writing</span>
+        </h2>
+        <a href="writing.html" class="more">查看全部 / View all →</a>
+      </div>
+      <!-- home-writing-list:start -->
+      <div class="article-list">
+        <article class="article-card" data-section="ai"><a href="article/%5B202606282233%5D%E4%BB%8E%E9%9B%B6%E5%88%B0%E4%B8%80%E8%B0%88%E8%B0%88%E5%B8%A6%E5%AD%A6%E7%94%9F%E4%BB%AC%E6%8E%A2%E7%B4%A2AI%E7%9A%84%E8%BF%99%E4%B8%AA%E5%AD%A6%E6%9C%9F.html"><div class="card-cover"><img src="Writing/covers/%5B202606282233%5D%E4%BB%8E%E9%9B%B6%E5%88%B0%E4%B8%80%E8%B0%88%E8%B0%88%E5%B8%A6%E5%AD%A6%E7%94%9F%E4%BB%AC%E6%8E%A2%E7%B4%A2AI%E7%9A%84%E8%BF%99%E4%B8%AA%E5%AD%A6%E6%9C%9F.jpg" alt="" loading="lazy"></div><div class="card-text"><span class="date">2026.06.28</span><h3>从零到一，谈谈带学生们探索 AI 的这个学期</h3><p class="excerpt">这学期带学生探索 AI 之后，我真正想记下来的，是一个人如何开始使用 AI。</p></div></a></article>
+        <article class="article-card" data-section="ai"><a href="article/%5B202606182000%5D%E8%BF%99%E5%91%A8%E6%88%91%E4%BB%AC%E6%8B%BFAI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><div class="card-cover"><img src="Writing/covers/%5B202606182000%5D%E8%BF%99%E5%91%A8%E6%88%91%E4%BB%AC%E6%8B%BFAI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.jpg" alt="" loading="lazy"></div><div class="card-text"><span class="date">2026.06.18</span><h3>这周我们拿 AI 做了什么</h3><p class="excerpt">学生的流程、真实项目和 Agent 交易开始一起发生，AI 分享从“我”变成了“我们”。</p></div></a></article>
+        <article class="article-card" data-section="ai"><a href="article/%5B202606112000%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E4%BB%AC%E7%94%A8AI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><div class="card-cover"><img src="Writing/covers/%5B202606112000%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E4%BB%AC%E7%94%A8AI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.jpg" alt="" loading="lazy"></div><div class="card-text"><span class="date">2026.06.11</span><h3>这一周，我们用 AI 做了什么？</h3><p class="excerpt">越来越多同学开始把自己的项目拿出来，课堂里的 AI 分享正在从演示变成共创。</p></div></a></article>
+      </div>
+      <!-- home-writing-list:end -->
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

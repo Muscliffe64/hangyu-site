@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8dfc8"/>
+      <stop offset="60%" stop-color="#c9b48a"/>
+      <stop offset="100%" stop-color="#8a7146"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6a5b34"/>
+      <stop offset="100%" stop-color="#2e2818"/>
+    </linearGradient>
+  </defs>
+  <!-- 天空 -->
+  <rect width="600" height="540" fill="url(#sky)"/>
+  <!-- 远山轮廓 -->
+  <path d="M0,440 L70,400 L150,430 L230,380 L320,420 L400,395 L490,425 L600,400 L600,540 L0,540 Z" fill="#74633a" opacity="0.7"/>
+  <!-- 苞谷地 -->
+  <rect y="540" width="600" height="260" fill="url(#field)"/>
+  <!-- 苞谷株（剪影） -->
+  <g stroke="#1a1408" stroke-width="2" fill="none" opacity="0.85">
+    <path d="M40,800 L40,600 M30,640 L40,620 L50,640 M25,680 L40,650 L55,680 M22,720 L40,690 L58,720"/>
+    <path d="M110,800 L110,610 M100,650 L110,625 L120,650 M95,690 L110,655 L125,690"/>
+    <path d="M180,800 L180,605 M168,640 L180,615 L192,640 M165,680 L180,650 L195,680 M162,720 L180,690 L198,720"/>
+    <path d="M260,800 L260,612 M250,650 L260,630 L270,650 M245,690 L260,660 L275,690"/>
+    <path d="M340,800 L340,608 M330,648 L340,625 L350,648 M325,690 L340,655 L355,690 M322,725 L340,695 L358,725"/>
+    <path d="M420,800 L420,615 M408,650 L420,628 L432,650 M403,690 L420,660 L437,690"/>
+    <path d="M500,800 L500,605 M488,648 L500,625 L512,648 M483,688 L500,655 L517,688 M480,725 L500,695 L520,725"/>
+    <path d="M570,800 L570,612 M560,650 L570,630 L580,650"/>
+  </g>
+  <!-- 一棵杨树（剪影） -->
+  <g fill="#0e0a04">
+    <rect x="295" y="380" width="10" height="160"/>
+    <path d="M300,200 Q260,260 270,330 Q240,290 260,360 Q235,340 255,400 Q245,400 280,415 Q295,395 300,400 Q305,395 320,415 Q355,400 345,400 Q365,340 340,360 Q360,290 330,330 Q340,260 300,200 Z"/>
+  </g>
+  <!-- 标签 -->
+  <g font-family="Georgia, 'Songti SC', serif" fill="#fdf9ef">
+    <text x="40" y="760" font-size="36" font-style="italic" letter-spacing="0.04em" opacity="0.95">Daily</text>
+    <text x="40" y="785" font-size="14" letter-spacing="0.18em" opacity="0.7">家 门 口 · 正 在 整 理</text>
+  </g>
+</svg>

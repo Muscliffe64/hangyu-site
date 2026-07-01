@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>写代码 · Vibe Coding — Hangyu</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="refresh" content="0; url=index.html">
+  <meta name="description" content="一个不写代码的人，怎么靠 AI 一起把脑子里的网页做出来。">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    window.location.replace('index.html');
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <h1>
+        <span class="zh">写代码</span>
+        <span class="en">Vibe Coding</span>
+      </h1>
+      <p class="lede">一个不写代码的人，怎么靠 AI 一起把脑子里的网页做出来。这里记录我自己用 Cowork、Claude Code、Kimi、Codex 等工具做出来的小项目 —— 也是我设计的"AI 写网页"课的现场样品。</p>
+    </div>
+
+    <div class="page-body">
+      <section class="vibe-intro">
+        <p class="vibe-intro-zh">Vibe Coding 是一种"凭感觉写代码"的方式：你说你想要什么、AI 把它落到文件里。不背语法、不下载一堆开发工具，普通人也能上手。</p>
+        <p class="vibe-intro-en">Vibe coding — telling an AI what you want, and letting it write the file. No need to memorize syntax or set up a dev environment. Anyone can do it.</p>
+      </section>
+
+      <div class="vibe-grid">
+
+        <article class="vibe-card">
+          <a href="index.html" class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-portfolio.svg')"></a>
+          <div class="vibe-info">
+            <span class="vibe-tag">Personal Site</span>
+            <h3>Hangyu.dev — 这个作品集本身</h3>
+            <p class="vibe-meta">2026 · 纯 HTML / CSS / JS · 跟 Cowork 共建</p>
+            <p class="vibe-desc">你正在看的这整个网站。摄影、影像、文字、积木 —— 所有版块都是我用自然语言对 AI 说清楚要什么，再一段一段调出来的。没有框架，没有打包工具，所有文件都能直接打开来读。</p>
+            <p class="vibe-stack"><span>HTML</span><span>CSS</span><span>vanilla JS</span><span>Vercel</span><span>Cowork</span></p>
+            <p class="vibe-cta"><a href="index.html">回到首页看效果 →</a></p>
+          </div>
+        </article>
+
+        <article class="vibe-card">
+          <a href="vibe-coding.html#course" class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-course.svg')"></a>
+          <div class="vibe-info">
+            <span class="vibe-tag">Teaching</span>
+            <h3>AI 写网页 · 三节课</h3>
+            <p class="vibe-meta">2026 春 · 高校通识课 · 90 分钟 × 3</p>
+            <p class="vibe-desc">为零编程基础的大二大三学生设计的三节课。每个学生最终离场时手里都有一个真实的 URL —— 一个自己拍的照片、自己写的文字、自己拍的视频都摆在上面的个人作品集。零课后作业，全部课堂内完成。</p>
+            <p class="vibe-stack"><span>课程设计</span><span>vanilla HTML</span><span>Vercel</span><span>Kimi CLI / Codex / Cowork</span></p>
+            <p class="vibe-cta"><a href="vibe-coding.html#course">看课程大纲 ↓</a></p>
+          </div>
+        </article>
+
+        <article class="vibe-card">
+          <a href="cover-editor.html" class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-cover-editor.svg')"></a>
+          <div class="vibe-info">
+            <span class="vibe-tag">Internal Tool</span>
+            <h3>Cover Editor — 文章封面定位小工具</h3>
+            <p class="vibe-meta">2026 · 单页应用 · 给自己用的</p>
+            <p class="vibe-desc">写文章列表的时候发现：每篇封面图都是 2.35 : 1 的扁条，但原图都是不同纵横比。AI 当场给我做了这个小工具——拖一拖就能定下来"这张封面要露哪一截"，导出 JSON 自动让前端读。</p>
+            <p class="vibe-stack"><span>HTML</span><span>CSS</span><span>JS</span><span>localStorage → JSON</span></p>
+            <p class="vibe-cta"><a href="cover-editor.html">打开工具 →</a></p>
+          </div>
+        </article>
+
+        <article class="vibe-card">
+          <span class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-cli.svg')"></span>
+          <div class="vibe-info">
+            <span class="vibe-tag">Workflow</span>
+            <h3>从公众号到静态文章页 · 全自动管线</h3>
+            <p class="vibe-meta">2026 · Python · build_articles.py</p>
+            <p class="vibe-desc">公众号上 24 篇文章想搬到自己网站。AI 写了一个 Python 脚本：批量抓回文字 + 图、清掉广告与引流二维码、统一头部和"上一篇 / 下一篇"导航、按发布时间倒排重建索引。一次跑完，24 篇文章页全部生成。</p>
+            <p class="vibe-stack"><span>Python</span><span>BeautifulSoup</span><span>HTML 模板</span><span>Markdown</span></p>
+            <p class="vibe-cta"><a href="writing.html">看最终列表 →</a></p>
+          </div>
+        </article>
+
+      </div>
+
+      <section id="course" class="vibe-section">
+        <h2>三节课的课程大纲（drafting）</h2>
+        <ol class="vibe-syllabus">
+          <li>
+            <span class="num">01</span>
+            <div>
+              <h4>立骨架 · Skeleton</h4>
+              <p>学生带着自己的素材到课。一节课把网站从零搭到本地能跑 —— 有首页、有几个内容栏目、有自己的几张照片 / 一段文字。</p>
+              <p class="hint">关键概念：HTML 是骨架 / CSS 是衣服 / JS 是动作。我们这节只碰骨架。</p>
+            </div>
+          </li>
+          <li>
+            <span class="num">02</span>
+            <div>
+              <h4>上颜值 · Visual</h4>
+              <p>给上节课的骨架上颜色、上字体、上排版、做手机响应式。这节课结束，他们的网站在手机上看也能看。</p>
+              <p class="hint">关键概念：怎么告诉 AI "我喜欢的感觉"。学生最容易掉进的坑是"我想要好看"，但说不出来好看是什么。</p>
+            </div>
+          </li>
+          <li>
+            <span class="num">03</span>
+            <div>
+              <h4>推上线 · Ship</h4>
+              <p>把网站推到 Vercel。每人拿到一个真实的 URL，可以发给朋友、加在简历上。</p>
+              <p class="hint">关键概念：什么是"部署"。为什么不用 Git 也能上线。为什么这个 URL 是免费的、可以一直用。</p>
+            </div>
+          </li>
+        </ol>
+        <p class="vibe-note">课程正在第一遍迭代中，这套大纲会随着第一届学生反馈持续修订。如果你也在教类似的课，欢迎来信讨论 →
+          <a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a>
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

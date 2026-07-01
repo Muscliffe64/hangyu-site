@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>导出 localStorage 里的注释 / 顺序</title>
+<style>
+  body { font: 14px/1.6 -apple-system, "PingFang SC", sans-serif; max-width: 760px; margin: 40px auto; padding: 0 20px; color: #222; }
+  h1 { font-size: 18px; }
+  .row { padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: baseline; }
+  .row .name { font-weight: 600; }
+  .row .meta { color: #666; font-size: 12px; }
+  button { font-size: 14px; padding: 8px 16px; cursor: pointer; }
+  .primary { background: #111; color: #fff; border: none; border-radius: 4px; }
+  pre { background: #f5f5f5; padding: 12px; border-radius: 4px; max-height: 320px; overflow: auto; font-size: 12px; }
+  .empty { color: #999; padding: 20px; text-align: center; }
+  .hint { color: #666; font-size: 13px; margin: 12px 0 24px; }
+</style>
+</head>
+<body>
+<h1>localStorage 里的注释 / 顺序导出</h1>
+<p class="hint">
+  这个页面只读浏览器 localStorage 里所有 <code>photoOrder:*</code> 的条目，把它们打包成一个 JSON 文件下载下来。<br>
+  请在<strong>之前写注释的那台电脑、那个浏览器</strong>里打开本页。
+</p>
+
+<div id="list"></div>
+
+<div style="margin: 24px 0;">
+  <button class="primary" id="download">下载 manifests-backup.json</button>
+  <button id="copy">复制到剪贴板</button>
+</div>
+
+<h3 style="margin-top:32px;">预览</h3>
+<pre id="preview"></pre>
+
+<script>
+(function () {
+  const PREFIX = 'photoOrder:';
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || k.indexOf(PREFIX) !== 0) continue;
+    const folder = k.slice(PREFIX.length);
+    try { data[folder] = JSON.parse(localStorage.getItem(k) || '{}'); }
+    catch (e) { data[folder] = { _parseError: true, raw: localStorage.getItem(k) }; }
+  }
+
+  const list = document.getElementById('list');
+  const folders = Object.keys(data).sort();
+  if (folders.length === 0) {
+    list.innerHTML = '<div class="empty">localStorage 里没有任何 photoOrder:* 条目<br>—— 可能你不是在这个浏览器里写的注释，或者已经被清掉了</div>';
+  } else {
+    folders.forEach(function (folder) {
+      const m = data[folder] || {};
+      const captionsCount = m.captions ? Object.keys(m.captions).length : 0;
+      const orderCount = Array.isArray(m.order) ? m.order.length : 0;
+      const hiddenCount = Array.isArray(m.hidden) ? m.hidden.length : 0;
+      const parts = [];
+      parts.push('顺序 ' + orderCount + ' 张');
+      parts.push('注释 ' + captionsCount + ' 条');
+      if (hiddenCount) parts.push('隐藏 ' + hiddenCount);
+      if (m.thumbnail) parts.push('封面 ✓');
+      if (m.intro) parts.push('简介 ✓');
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<span class="name">' + folder + '</span><span class="meta">' + parts.join(' · ') + '</span>';
+      list.appendChild(row);
+    });
+  }
+
+  const payload = JSON.stringify(data, null, 2);
+  document.getElementById('preview').textContent = payload;
+
+  document.getElementById('download').addEventListener('click', function () {
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'manifests-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('copy').addEventListener('click', async function () {
+    try { await navigator.clipboard.writeText(payload); this.textContent = '已复制 ✓'; }
+    catch (e) { this.textContent = '复制失败，请手动从下方预览框拷贝'; }
+  });
+})();
+</script>
+</body>
+</html>
