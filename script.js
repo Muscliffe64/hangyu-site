@@ -684,8 +684,9 @@
         });
         lbList = all.map(function (p) {
           const f = gridFolder || (p.dataset && p.dataset.folder) || null;
+          const itemImg = p.querySelector('img');
           return {
-            src: p.querySelector('img').src,
+            src: p.getAttribute('href') || (itemImg ? itemImg.src : ''),
             filename: p.dataset && p.dataset.filename ? p.dataset.filename : null,
             folder: f,
             exif: getExifFromElement(p)
@@ -1490,7 +1491,22 @@
         document.body.appendChild(link);
       }
     }
-    justifyGallery(grid, getJimHeight(), 4);
+    layoutJimGrid(grid);
+  }
+
+  function layoutJimGrid(grid) {
+    if (!grid) return;
+    layoutJustified(grid, getJimHeight(), 4);
+
+    const needsLoad = Array.from(grid.children).some(function (photo) {
+      const img = photo.querySelector('img');
+      return img && !getImageAspect(img);
+    });
+    if (needsLoad) {
+      loadAllImages(Array.from(grid.children)).then(function () {
+        layoutJustified(grid, getJimHeight(), 4);
+      });
+    }
   }
 
   function enterJimEditMode(grid, initialManifest) {
@@ -1841,7 +1857,7 @@
           renderHomeStripPage().then(lockTrackHeight);
         }
         const jg = document.querySelector('.jim-grid');
-        if (jg) layoutJustified(jg, getJimHeight(), 4);
+        if (jg) layoutJimGrid(jg);
         const pg = document.querySelector('.project-grid');
         if (pg) layoutProjectGrid(pg);
       }, 150);
