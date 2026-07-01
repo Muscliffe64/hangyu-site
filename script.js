@@ -739,6 +739,13 @@
     }
   }
 
+  function thumbnailSrc(src) {
+    if (!src || !/^Photos\//.test(src)) return src;
+    return src
+      .replace(/^Photos\//, 'Photos/_thumbs/')
+      .replace(/\.(jpe?g|png)$/i, '.webp');
+  }
+
   function parseProjectPagePhotos(html, expectedFolder) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const grid = doc.querySelector('.project-grid[data-folder]');
@@ -822,9 +829,9 @@
 
   // 把照片列表渲染到指定 grid 元素里（不动 pageIndex / pageStarts），返回实际显示张数
   function renderStripInto(strip, startIdx, total) {
-    const BATCH = 24;
+    const batch = Math.min(total, Math.max(12, getDailyEstimatedVisibleCount() + 8));
     const slice = [];
-    for (let i = 0; i < BATCH; i++) {
+    for (let i = 0; i < batch; i++) {
       slice.push(dailyShuffled[(startIdx + i) % total]);
     }
     strip.innerHTML = '';
@@ -836,8 +843,9 @@
       if (p.filename) a.dataset.filename = p.filename;
       if (p.exif)     a.dataset.exif = p.exif;
       const img = document.createElement('img');
-      img.src = p.src;
+      img.src = thumbnailSrc(p.src);
       img.alt = '';
+      img.decoding = 'async';
       a.appendChild(img);
       strip.appendChild(a);
     });
