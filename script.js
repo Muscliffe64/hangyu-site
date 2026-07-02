@@ -756,7 +756,7 @@
       const img = a.querySelector('img');
       const src = img ? (img.getAttribute('src') || '') : '';
       const href = a.getAttribute('href') || '';
-      const photoSrc = src || href;
+      const photoSrc = href || src;
       if (!photoSrc) return null;
       return {
         src: photoSrc,
@@ -811,20 +811,17 @@
 
   function loadHomeStock() {
     if (homeStockPromise) return homeStockPromise;
-    homeStockPromise = Promise.all(Object.keys(FOLDER_TO_PROJECT).map(function (folder) {
-      return loadProjectPageStock(folder).catch(function () { return []; });
-    })).then(function (lists) {
-      const seen = new Set();
-      const photos = [];
-      lists.flat().forEach(function (photo) {
-        const key = (photo.folder || '') + '\n' + (photo.filename || photo.src);
-        if (!seen.has(key)) {
-          seen.add(key);
-          photos.push(photo);
-        }
+    homeStockPromise = fetch('Photos/photo-index.json')
+      .then(function (res) {
+        if (!res.ok) throw new Error('Failed to load photo index');
+        return res.json();
+      })
+      .then(function (photos) {
+        return Array.isArray(photos) && photos.length ? photos : STOCK;
+      })
+      .catch(function () {
+        return STOCK;
       });
-      return photos.length ? photos : STOCK;
-    });
     return homeStockPromise;
   }
 
@@ -1271,7 +1268,7 @@
       if (manifest && manifest.thumbnail) {
         const thumb = card.querySelector('.project-thumb');
         if (thumb) {
-          const url = 'Photos/' + encodeURIComponent(folder) + '/' + encodeURIComponent(manifest.thumbnail);
+          const url = thumbnailSrc('Photos/' + encodeURIComponent(folder) + '/' + encodeURIComponent(manifest.thumbnail));
           thumb.style.backgroundImage = "url('" + url + "')";
         }
       }
