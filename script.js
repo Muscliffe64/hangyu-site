@@ -1051,6 +1051,18 @@
     return projectManifestPromises[folder];
   }
 
+  async function loadServerProjectManifest(folder) {
+    if (!folder) return null;
+    try {
+      const url = 'Photos/' + encodeURIComponent(folder) + '/_order.json';
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (!res.ok) return null;
+      return cleanManifestIntro(await res.json());
+    } catch (e) {
+      return null;
+    }
+  }
+
   function saveProjectManifestLocal(folder, manifest) {
     try {
       localStorage.setItem(manifestKey(folder), JSON.stringify(manifest));
@@ -1255,7 +1267,7 @@
     const cards = document.querySelectorAll('.project-card[data-folder]');
     for (const card of cards) {
       const folder = card.dataset.folder;
-      const manifest = await loadProjectManifest(folder);
+      const manifest = await loadServerProjectManifest(folder);
       if (manifest && manifest.thumbnail) {
         const thumb = card.querySelector('.project-thumb');
         if (thumb) {
