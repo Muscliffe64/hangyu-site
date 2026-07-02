@@ -743,7 +743,7 @@
   function thumbnailSrc(src) {
     if (!src || !/^Photos\//.test(src)) return src;
     return src
-      .replace(/^Photos\//, 'Photos/_thumbs/')
+      .replace(/^Photos\//, 'Photos/thumbs/')
       .replace(/\.(jpe?g|png)$/i, '.webp');
   }
 
