@@ -54,6 +54,7 @@ SECTIONS = {
         'title': '随笔',
         'en': 'Essays',
         'anchor': 'essays',
+        'page': 'writing.html',
         'description_zh': '从日常和远方长出来的文字：教育、旅行、亲子、社会观察，以及那些慢慢形成的判断。',
         'description_en': 'Essays drawn from everyday life and elsewhere: education, travel, family, social observation, and the judgments that slowly take shape.',
     },
@@ -61,21 +62,55 @@ SECTIONS = {
         'title': 'AI 与教育',
         'en': 'AI & Education',
         'anchor': 'ai',
+        'page': 'writing.html',
         'description_zh': '记录我在教学现场里和模型一起工作：课堂实验、学生项目、提示词、工具实践，以及 AI 如何改变学习、表达和师生关系。',
         'description_en': 'Notes on AI in education: classroom experiments, student projects, prompts, tools, and how models reshape learning, expression, and the teacher-student relationship.',
+    },
+    # 每周的「我们用 AI 做了什么」不在文字页，列在写代码页（vibe-coding.html）底部。
+    'weekly': {
+        'title': '我们用 AI 做了什么',
+        'en': 'Weekly Notes',
+        'anchor': 'weekly',
+        'page': 'vibe-coding.html',
+        'description_zh': '每周一篇：这一周我和学生们拿 AI 做了什么。',
+        'description_en': 'A weekly log of what my students and I built with AI.',
     },
 }
 
 
-# 最新在前。把 section 改成 'ai'，文章就会进入 AI 分区。
+# 顶部导航。加栏目只改这里，然后重跑脚本；手写的页面（首页、摄影页等）要另外改。
+NAV_ITEMS = [
+    ('index.html', '首页', 'Home'),
+    ('photography.html', '摄影', 'Photography'),
+    ('films.html', '影像', 'Films'),
+    ('writing.html', '文字', 'Writing'),
+    ('vibe-coding.html', '写代码', 'Coding'),
+    ('jim.html', '积木', 'Jim'),
+    ('about.html', '关于', 'About'),
+]
+
+
+def site_nav_html(prefix='', active=''):
+    links = []
+    for href, zh, en in NAV_ITEMS:
+        cls = ' class="active"' if href == active else ''
+        links.append(f'        <a href="{prefix}{href}"{cls}><span class="zh">{zh}</span><span class="en">{en}</span></a>')
+    return '\n'.join(links)
+
+
+def writing_sections():
+    return {key: info for key, info in SECTIONS.items() if info['page'] == 'writing.html'}
+
+
+# 最新在前。section 写 'ai' 进 AI 分区；写 'weekly' 进写代码页的每周记录。
 ARTICLES = [
     Article('从零到一，谈谈带学生们探索 AI 的这个学期', '[202606282233]从零到一谈谈带学生们探索AI的这个学期', '2026.06.28', 'ai'),
-    Article('这周我们拿 AI 做了什么', '[202606182000]这周我们拿AI做了什么', '2026.06.18', 'ai'),
-    Article('这一周，我们用 AI 做了什么？', '[202606112000]这一周我们用AI做了什么', '2026.06.11', 'ai'),
+    Article('这周我们拿 AI 做了什么', '[202606182000]这周我们拿AI做了什么', '2026.06.18', 'weekly'),
+    Article('这一周，我们用 AI 做了什么？', '[202606112000]这一周我们用AI做了什么', '2026.06.11', 'weekly'),
     Article('卖了 0.08 个以太坊那天起', '[202606052000]卖了0.08个以太坊那天起', '2026.06.05', 'ai'),
-    Article('这一周，我用 AI 做了什么（WEEK 04）', '[202606032111]这一周我用AI做了什么', '2026.06.03', 'ai'),
-    Article('这一周，我用 AI 做了什么（WEEK 03）', '[202605290049]这一周我用AI做了什么', '2026.05.29', 'ai'),
-    Article('这一周，我又拿 AI 做了什么', '[202605262115]这一周我拿AI做了什么', '2026.05.26', 'ai'),
+    Article('这一周，我用 AI 做了什么（WEEK 04）', '[202606032111]这一周我用AI做了什么', '2026.06.03', 'weekly'),
+    Article('这一周，我用 AI 做了什么（WEEK 03）', '[202605290049]这一周我用AI做了什么', '2026.05.29', 'weekly'),
+    Article('这一周，我又拿 AI 做了什么', '[202605262115]这一周我拿AI做了什么', '2026.05.26', 'weekly'),
     Article('我是不是也有点傲慢', '我是不是也有点傲慢', '2026.03.05'),
     Article('在爸爸这座"大山"下，用 AI 写完一篇周记', '在爸爸这座“大山”下，用AI写完一篇周记', '2026.02.27', 'ai'),
     Article('资产、复利与一个奇妙的时刻', '资产、复利与一个奇妙的时刻', '2026.02.24'),
@@ -571,12 +606,7 @@ def page_html(article, body_html, prev_a, next_a, cover_url=None, description=''
     <div class="header-inner">
       <a href="../index.html" class="brand"><span class="brand-name">Hangyu</span></a>
       <nav class="primary-nav">
-        <a href="../index.html"><span class="zh">首页</span><span class="en">Home</span></a>
-        <a href="../photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
-        <a href="../films.html"><span class="zh">影像</span><span class="en">Films</span></a>
-        <a href="../writing.html" class="active"><span class="zh">文字</span><span class="en">Writing</span></a>
-        <a href="../jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
-        <a href="../about.html"><span class="zh">关于</span><span class="en">About</span></a>
+{site_nav_html('../', section['page'])}
       </nav>
     </div>
   </header>
@@ -594,7 +624,7 @@ def page_html(article, body_html, prev_a, next_a, cover_url=None, description=''
       </nav>
 
       <div class="back-to-list">
-        <a href="../writing.html#{escape_attr(section["anchor"])}">← 回到 {escape(section_label)}</a>
+        <a href="../{section['page']}#{escape_attr(section["anchor"])}">← 回到 {escape(section_label)}</a>
       </div>
     </article>
   </main>
@@ -609,10 +639,11 @@ def page_html(article, body_html, prev_a, next_a, cover_url=None, description=''
 
 
 def writing_index_html(cards_by_section):
-    total = sum(len(cards) for cards in cards_by_section.values())
+    sections = writing_sections()
+    total = sum(len(cards_by_section.get(key, [])) for key in sections)
     section_html = []
 
-    for key, info in SECTIONS.items():
+    for key, info in sections.items():
         cards = cards_by_section.get(key, [])
         section_html.append(f'''      <section class="writing-section" id="{escape_attr(info["anchor"])}">
         <div class="writing-section-head">
@@ -638,12 +669,7 @@ def writing_index_html(cards_by_section):
     <div class="header-inner">
       <a href="index.html" class="brand"><span class="brand-name">Hangyu</span></a>
       <nav class="primary-nav">
-        <a href="index.html"><span class="zh">首页</span><span class="en">Home</span></a>
-        <a href="photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
-        <a href="films.html"><span class="zh">影像</span><span class="en">Films</span></a>
-        <a href="writing.html" class="active"><span class="zh">文字</span><span class="en">Writing</span></a>
-        <a href="jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
-        <a href="about.html"><span class="zh">关于</span><span class="en">About</span></a>
+{site_nav_html('', 'writing.html')}
       </nav>
     </div>
   </header>
@@ -683,7 +709,8 @@ def update_home_writing_preview(generated_articles, descriptions_by_stem, metada
     if not index_path.exists():
         return False
 
-    latest = sorted(generated_articles, key=article_sort_key, reverse=True)[:limit]
+    in_writing = [a for a in generated_articles if a.section in writing_sections()]
+    latest = sorted(in_writing, key=article_sort_key, reverse=True)[:limit]
     cards = [
         article_card(
             article,
@@ -725,6 +752,42 @@ def update_home_writing_preview(generated_articles, descriptions_by_stem, metada
     return True
 
 
+def weekly_list_html(articles, descriptions_by_stem):
+    items = []
+    for article in sorted(articles, key=article_sort_key, reverse=True):
+        excerpt = descriptions_by_stem.get(article.stem) or EXCERPTS.get(article.stem, '')
+        items.append(
+            f'<li><a href="{article_url(article)}">'
+            f'<span class="weekly-date">{escape(article.date)}</span>'
+            f'<span class="weekly-title">{escape(article.title)}</span>'
+            f'<span class="weekly-excerpt">{escape(excerpt)}</span>'
+            f'</a></li>'
+        )
+    return (
+        '      <!-- weekly-list:start -->\n'
+        '      <ol class="weekly-list">\n'
+        + ''.join(f'        {item}\n' for item in items)
+        + '      </ol>\n'
+        '      <!-- weekly-list:end -->'
+    )
+
+
+def update_weekly_list(generated_articles, descriptions_by_stem):
+    page_path = WEB / SECTIONS['weekly']['page']
+    if not page_path.exists():
+        return False
+    weekly = [a for a in generated_articles if a.section == 'weekly']
+    text = page_path.read_text(encoding='utf-8')
+    pattern = re.compile(r'      <!-- weekly-list:start -->[\s\S]*?      <!-- weekly-list:end -->')
+    if not pattern.search(text):
+        print(f'⚠ {page_path.name} 里没有 weekly-list 标记，每周列表未更新')
+        return False
+    new_text = pattern.sub(lambda m: weekly_list_html(weekly, descriptions_by_stem), text, count=1)
+    if new_text != text:
+        page_path.write_text(new_text, encoding='utf-8')
+    return True
+
+
 cards_by_section = {key: [] for key in SECTIONS}
 generated = []
 descriptions_by_stem = {}
@@ -755,6 +818,7 @@ for article in ARTICLES:
 wh_path = WEB / 'writing.html'
 wh_path.write_text(writing_index_html(cards_by_section), encoding='utf-8')
 home_updated = update_home_writing_preview(generated, descriptions_by_stem, metadata_by_stem)
+weekly_updated = update_weekly_list(generated, descriptions_by_stem)
 
 print(f'生成 {len(generated)} 篇文章页')
 for key, info in SECTIONS.items():
@@ -762,4 +826,6 @@ for key, info in SECTIONS.items():
 print('writing.html 已重建')
 if home_updated:
     print('index.html 首页文字区已按日期更新')
+if weekly_updated:
+    print(f'{SECTIONS["weekly"]["page"]} 每周列表已更新')
 print('完成。')
