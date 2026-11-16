@@ -3,14 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>写代码 · Vibe Coding — Hangyu</title>
-  <meta name="robots" content="noindex, nofollow">
-  <meta http-equiv="refresh" content="0; url=index.html">
-  <meta name="description" content="一个不写代码的人，怎么靠 AI 一起把脑子里的网页做出来。">
+  <title>写代码 · Coding — Hangyu</title>
+  <meta name="description" content="一个不是程序员的老师和父亲，用 AI 为学生和儿子做的课件、学习平台与游戏。">
   <link rel="stylesheet" href="styles.css">
-  <script>
-    window.location.replace('index.html');
-  </script>
 </head>
 <body>
   <header class="site-header">
@@ -21,6 +16,7 @@
         <a href="photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
         <a href="films.html"><span class="zh">影像</span><span class="en">Films</span></a>
         <a href="writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="vibe-coding.html" class="active"><span class="zh">写代码</span><span class="en">Coding</span></a>
         <a href="jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
         <a href="about.html"><span class="zh">关于</span><span class="en">About</span></a>
       </nav>
@@ -28,104 +24,137 @@
   </header>
 
   <main>
-    <div class="page-head">
+    <div class="page-head code-page-head">
       <h1>
         <span class="zh">写代码</span>
-        <span class="en">Vibe Coding</span>
+        <span class="en">Coding</span>
       </h1>
-      <p class="lede">一个不写代码的人，怎么靠 AI 一起把脑子里的网页做出来。这里记录我自己用 Cowork、Claude Code、Kimi、Codex 等工具做出来的小项目 —— 也是我设计的"AI 写网页"课的现场样品。</p>
+      <p class="lede">我不是程序员。这里的东西，都是我用自然语言和 AI 一起做出来的：给学生的课件和学习平台，给儿子积木的学习工具和游戏。每一个都在真实使用。这一页放的是它们的样子、为什么要做，以及做的过程中想明白的事。</p>
+      <p class="lede-en">I'm not a programmer. Everything here was built by talking it through with AI: lessons and learning platforms for my students, learning tools and games for my son Jim. All of them are in real use. This page shows what they look like, why they exist, and what building them taught me.</p>
     </div>
 
-    <div class="page-body">
-      <section class="vibe-intro">
-        <p class="vibe-intro-zh">Vibe Coding 是一种"凭感觉写代码"的方式：你说你想要什么、AI 把它落到文件里。不背语法、不下载一堆开发工具，普通人也能上手。</p>
-        <p class="vibe-intro-en">Vibe coding — telling an AI what you want, and letting it write the file. No need to memorize syntax or set up a dev environment. Anyone can do it.</p>
+    <div class="page-body code-page-body">
+
+      <section class="code-section" id="classroom">
+        <div class="code-section-head">
+          <h2><span class="zh">课堂</span><span class="en">For My Students</span></h2>
+          <p class="section-desc-zh">为我的课和研究团队做的工具。</p>
+          <p class="section-desc-en">Tools for my classes and my research team.</p>
+        </div>
+        <div class="code-grid">
+
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/yingxiang.webp" alt="光圈、曝光与光线课件：3D 公园场景里，相机对着人物，右上角是相机拍到的浅景深画面" width="1200" height="750" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 交互课件 · 课堂在用</p>
+              <h3><span class="zh">影像与声音课件</span><span class="en">Image &amp; Sound Lessons</span></h3>
+              <p class="code-desc">把相机、镜头、麦克风和扬声器一件件拆开来讲的交互课件。学生在 3D 场景里转光圈、换焦距、挪太阳，马上就能看到景深、曝光和影子怎么变。</p>
+              <p class="code-note">先一次只动一个参数，到最后一关才把所有参数一起打开。</p>
+            </div>
+          </article>
+
+          <article class="code-card">
+            <figure class="code-shot is-phone"><img src="Code/cigen.webp" alt="词根学习平台手机界面：uni- 前缀卡片，附有课上的类比和例词" width="520" height="1126" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 课后练习 · 35 名学生在用</p>
+              <h3><span class="zh">词根学习平台</span><span class="en">Root Words</span></h3>
+              <p class="code-desc">音视频技术专业英语的课后练习。每天复习到期的词根，再学几个新的；每张卡片都附着“课上”那一刻：老师怎么类比的，同学们怎么猜出来的。</p>
+              <p class="code-note">卡片上写的不只是释义，还有课堂上发生过的事。学生记住的往往是那个瞬间。</p>
+            </div>
+          </article>
+
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/course-square.webp" alt="课程广场首页：左侧栏目，中间是同学分享，右侧是“想听热榜”投票" width="1200" height="807" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 人工智能导论 · 班级社区</p>
+              <h3><span class="zh">课程广场</span><span class="en">Course Square</span></h3>
+              <p class="code-desc">一门课的班级社区。同学可以匿名提问、分享作品，也可以给“下节课想听什么”投票，票数第一的话题下节课一定讲。</p>
+              <p class="code-note">让学生决定一部分课讲什么。</p>
+            </div>
+          </article>
+
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/qinling.webp" alt="秦岭声景地图：地图上标着录音点，左侧是 48 个点位、47 段录音的概览" width="1200" height="750" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 团队项目 · 进行中</p>
+              <h3><span class="zh">秦岭声景地图</span><span class="en">Qinling Soundscape</span></h3>
+              <p class="code-desc">我们在秦岭录下的森林声音，一个个标在地图上。原始录音、加工过的声音、用它们做成的音乐连成一棵“来龙去脉”的树。</p>
+              <p class="code-note">每一件作品，都能找回它出自哪一段录音。</p>
+            </div>
+          </article>
+
+        </div>
       </section>
 
-      <div class="vibe-grid">
+      <section class="code-section" id="jim">
+        <div class="code-section-head">
+          <h2><span class="zh">给积木</span><span class="en">For Jim</span></h2>
+          <p class="section-desc-zh">为儿子积木做的学习工具和游戏。他是唯一的用户，也是最严格的测试员。</p>
+          <p class="section-desc-en">Learning tools and games for my son Jim, the only user and the toughest tester.</p>
+        </div>
+        <div class="code-grid">
 
-        <article class="vibe-card">
-          <a href="index.html" class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-portfolio.svg')"></a>
-          <div class="vibe-info">
-            <span class="vibe-tag">Personal Site</span>
-            <h3>Hangyu.dev — 这个作品集本身</h3>
-            <p class="vibe-meta">2026 · 纯 HTML / CSS / JS · 跟 Cowork 共建</p>
-            <p class="vibe-desc">你正在看的这整个网站。摄影、影像、文字、积木 —— 所有版块都是我用自然语言对 AI 说清楚要什么，再一段一段调出来的。没有框架，没有打包工具，所有文件都能直接打开来读。</p>
-            <p class="vibe-stack"><span>HTML</span><span>CSS</span><span>vanilla JS</span><span>Vercel</span><span>Cowork</span></p>
-            <p class="vibe-cta"><a href="index.html">回到首页看效果 →</a></p>
-          </div>
-        </article>
-
-        <article class="vibe-card">
-          <a href="vibe-coding.html#course" class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-course.svg')"></a>
-          <div class="vibe-info">
-            <span class="vibe-tag">Teaching</span>
-            <h3>AI 写网页 · 三节课</h3>
-            <p class="vibe-meta">2026 春 · 高校通识课 · 90 分钟 × 3</p>
-            <p class="vibe-desc">为零编程基础的大二大三学生设计的三节课。每个学生最终离场时手里都有一个真实的 URL —— 一个自己拍的照片、自己写的文字、自己拍的视频都摆在上面的个人作品集。零课后作业，全部课堂内完成。</p>
-            <p class="vibe-stack"><span>课程设计</span><span>vanilla HTML</span><span>Vercel</span><span>Kimi CLI / Codex / Cowork</span></p>
-            <p class="vibe-cta"><a href="vibe-coding.html#course">看课程大纲 ↓</a></p>
-          </div>
-        </article>
-
-        <article class="vibe-card">
-          <a href="cover-editor.html" class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-cover-editor.svg')"></a>
-          <div class="vibe-info">
-            <span class="vibe-tag">Internal Tool</span>
-            <h3>Cover Editor — 文章封面定位小工具</h3>
-            <p class="vibe-meta">2026 · 单页应用 · 给自己用的</p>
-            <p class="vibe-desc">写文章列表的时候发现：每篇封面图都是 2.35 : 1 的扁条，但原图都是不同纵横比。AI 当场给我做了这个小工具——拖一拖就能定下来"这张封面要露哪一截"，导出 JSON 自动让前端读。</p>
-            <p class="vibe-stack"><span>HTML</span><span>CSS</span><span>JS</span><span>localStorage → JSON</span></p>
-            <p class="vibe-cta"><a href="cover-editor.html">打开工具 →</a></p>
-          </div>
-        </article>
-
-        <article class="vibe-card">
-          <span class="vibe-thumb" style="background-image: url('Photos/Placeholders/vibe-cli.svg')"></span>
-          <div class="vibe-info">
-            <span class="vibe-tag">Workflow</span>
-            <h3>从公众号到静态文章页 · 全自动管线</h3>
-            <p class="vibe-meta">2026 · Python · build_articles.py</p>
-            <p class="vibe-desc">公众号上 24 篇文章想搬到自己网站。AI 写了一个 Python 脚本：批量抓回文字 + 图、清掉广告与引流二维码、统一头部和"上一篇 / 下一篇"导航、按发布时间倒排重建索引。一次跑完，24 篇文章页全部生成。</p>
-            <p class="vibe-stack"><span>Python</span><span>BeautifulSoup</span><span>HTML 模板</span><span>Markdown</span></p>
-            <p class="vibe-cta"><a href="writing.html">看最终列表 →</a></p>
-          </div>
-        </article>
-
-      </div>
-
-      <section id="course" class="vibe-section">
-        <h2>三节课的课程大纲（drafting）</h2>
-        <ol class="vibe-syllabus">
-          <li>
-            <span class="num">01</span>
-            <div>
-              <h4>立骨架 · Skeleton</h4>
-              <p>学生带着自己的素材到课。一节课把网站从零搭到本地能跑 —— 有首页、有几个内容栏目、有自己的几张照片 / 一段文字。</p>
-              <p class="hint">关键概念：HTML 是骨架 / CSS 是衣服 / JS 是动作。我们这节只碰骨架。</p>
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/jiangtong.webp" alt="积木讲通 iPad 界面：今晚建议的哲学话题“同一性：换掉所有积木，还是原来那座作品吗”" width="1180" height="820" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · iPad · 数学与哲学</p>
+              <h3><span class="zh">积木讲通</span><span class="en">Explain It</span></h3>
+              <p class="code-desc">看懂、练几题，再用自己的话把道理讲给 AI 小伙伴“铁蛋”听。比如：一艘积木船的每一块都换过了，它还是原来那艘船吗？</p>
+              <p class="code-note">积木的推理常常比题目更深，却被判“没通过”。所以我把“过 / 不过”改成了一级一级往上走。</p>
             </div>
-          </li>
-          <li>
-            <span class="num">02</span>
-            <div>
-              <h4>上颜值 · Visual</h4>
-              <p>给上节课的骨架上颜色、上字体、上排版、做手机响应式。这节课结束，他们的网站在手机上看也能看。</p>
-              <p class="hint">关键概念：怎么告诉 AI "我喜欢的感觉"。学生最容易掉进的坑是"我想要好看"，但说不出来好看是什么。</p>
+          </article>
+
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/jimu-learning.webp" alt="单词积木：英语单词按前缀、词根、后缀拆成彩色积木块" width="1180" height="820" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 数学 · 英语 · 哲学 · 打卡</p>
+              <h3><span class="zh">积木学习小站</span><span class="en">Jim's Study Corner</span></h3>
+              <p class="code-desc">四个小模块放在一起：每日打卡、每天三道动脑的数学题、把单词拆成词根来拼的“单词积木”，还有哲学实验室。换 iPad 或电脑都能接着学。</p>
+              <p class="code-note">单词也像积木：前缀、词根、后缀，各是一块。</p>
             </div>
-          </li>
-          <li>
-            <span class="num">03</span>
-            <div>
-              <h4>推上线 · Ship</h4>
-              <p>把网站推到 Vercel。每人拿到一个真实的 URL，可以发给朋友、加在简历上。</p>
-              <p class="hint">关键概念：什么是"部署"。为什么不用 Git 也能上线。为什么这个 URL 是免费的、可以一直用。</p>
+          </article>
+
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/tuanzi.webp" alt="团子嘉年华开始界面：漂浮在海上的彩色小岛和三个存档位" width="1200" height="750" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 3D 派对闯关游戏</p>
+              <h3><span class="zh">团子嘉年华</span><span class="en">Tuanzi Carnival</span></h3>
+              <p class="code-desc">积木自己构想的派对游戏，配乐是他用 Suno 做的三首歌。我和 AI 帮他把它重建成能完整玩下来的版本：派对杯、九个冒险关卡、扭蛋机和衣帽间。</p>
+              <p class="code-note">代码注释写到他自己也能改：想加一条赛道，照着抄一行就行。</p>
             </div>
-          </li>
-        </ol>
-        <p class="vibe-note">课程正在第一遍迭代中，这套大纲会随着第一届学生反馈持续修订。如果你也在教类似的课，欢迎来信讨论 →
-          <a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a>
-        </p>
+          </article>
+
+          <article class="code-card">
+            <figure class="code-shot"><img src="Code/skyhook.webp" alt="Skyhook Rescue：雨中停机坪上的红色救援直升机和飞行仪表" width="1200" height="750" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 3D 飞行游戏</p>
+              <h3><span class="zh">救援直升机</span><span class="en">Skyhook Rescue</span></h3>
+              <p class="code-desc">一款没有武器的救援游戏：在暴雨、稀薄的高原空气、浓烟和夜色里飞行，用绞车把人救上来。底层是真实的飞行物理，也可以打开辅助。</p>
+            </div>
+          </article>
+
+        </div>
       </section>
+
+      <section class="code-section" id="weekly">
+        <div class="code-section-head">
+          <h2><span class="zh">我们用 AI 做了什么</span><span class="en">Weekly Notes</span></h2>
+          <p class="section-desc-zh">每周一篇：这一周我和学生们拿 AI 做了什么。</p>
+          <p class="section-desc-en">A weekly log of what my students and I built with AI.</p>
+        </div>
+      <!-- weekly-list:start -->
+      <ol class="weekly-list">
+        <li><a href="article/%5B202606182000%5D%E8%BF%99%E5%91%A8%E6%88%91%E4%BB%AC%E6%8B%BFAI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><span class="weekly-date">2026.06.18</span><span class="weekly-title">这周我们拿 AI 做了什么</span><span class="weekly-excerpt">学生的流程、真实项目和 Agent 交易开始一起发生，AI 分享从“我”变成了“我们”。</span></a></li>
+        <li><a href="article/%5B202606112000%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E4%BB%AC%E7%94%A8AI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><span class="weekly-date">2026.06.11</span><span class="weekly-title">这一周，我们用 AI 做了什么？</span><span class="weekly-excerpt">越来越多同学开始把自己的项目拿出来，课堂里的 AI 分享正在从演示变成共创。</span></a></li>
+        <li><a href="article/%5B202606032111%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E7%94%A8AI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><span class="weekly-date">2026.06.03</span><span class="weekly-title">这一周，我用 AI 做了什么（WEEK 04）</span><span class="weekly-excerpt">从上架第一个产品到学生项目、语音系统和课程项目，这一周继续记录真实发生的 AI 使用。</span></a></li>
+        <li><a href="article/%5B202605290049%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E7%94%A8AI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><span class="weekly-date">2026.05.29</span><span class="weekly-title">这一周，我用 AI 做了什么（WEEK 03）</span><span class="weekly-excerpt">修服务器、学生开始动手、搭个人知识系统，以及我继续观察 AI 如何进入工作流。</span></a></li>
+        <li><a href="article/%5B202605262115%5D%E8%BF%99%E4%B8%80%E5%91%A8%E6%88%91%E6%8B%BFAI%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88.html"><span class="weekly-date">2026.05.26</span><span class="weekly-title">这一周，我又拿 AI 做了什么</span><span class="weekly-excerpt">产品上线、会议统筹、毕业答辩和多 Agent 协作，这一周 AI 又跨过了几条线。</span></a></li>
+      </ol>
+      <!-- weekly-list:end -->
+      </section>
+
+      <p class="code-contact">这些项目大多在课堂和家里使用，没有公开入口。想试用、想看代码，或者只是想聊聊，欢迎来信：<a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+      <p class="code-contact-en">Most of these live in classrooms and at home, without a public link. If you'd like to try one, see the code, or just talk, write to me.</p>
 
     </div>
   </main>
