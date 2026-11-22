@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>快门与运动模糊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: same dark studio page as the other lessons. Three pages:
+   one photo records a stretch of time → in video the shutter is open for part of each frame → choosing a shutter for the shot.
+   Color: light-yellow = the real world / your choice, lilac = the recorded photo / the reference. */
+:root{
+  color-scheme: dark;
+  --bg:#0d0f12; --panel:#14171c; --panel2:#1a1e24; --line:#262b33;
+  --fg:#ebe7df; --muted:#9198a2; --faint:#5d636c;
+  --light:#e9c77f; --air:#86b6cf; --brass:#d8b06a; --digit:#b6a4e8; --err:#e86a7a; --good:#6cc08b;
+  --display:"Bricolage Grotesque","Noto Sans SC",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 72px;display:flex;flex-direction:column;gap:26px}
+header.top{display:flex;flex-direction:column;gap:14px;padding-top:12px}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.hdr-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.6vw,64px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{max-width:62ch;color:var(--muted);font-size:16px;margin:0}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--panel)}
+.lang button{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:5px 12px;border-radius:999px;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.toolbtn{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.toolbtn[aria-pressed="true"]{color:#17120a;background:var(--brass);border-color:var(--brass)}
+:is(.lang button,.toolbtn,.nav button,.pager button,.chip,.btn,.qopts button):focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:20;display:flex;gap:4px;padding:5px;border-radius:14px;overflow-x:auto;scrollbar-width:none;
+  background:rgba(20,23,28,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line)}
+.nav::-webkit-scrollbar{display:none}
+.nav button{all:unset;cursor:pointer;flex:1 0 auto;display:flex;align-items:baseline;gap:8px;padding:9px 14px;border-radius:10px;color:var(--muted);font-weight:500;white-space:nowrap}
+.nav button span{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.nav button:hover{color:var(--fg)}
+.nav button[aria-current="true"]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px #343a43}
+.nav button[aria-current="true"] span{color:var(--brass)}
+
+section.page{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.shead{display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:6px;align-items:baseline}
+.snum{font-family:var(--mono);font-size:13px;color:var(--brass)}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,3.2vw,34px);margin:0;line-height:1.15;text-wrap:balance}
+.ssub{grid-column:2;color:var(--muted);max-width:68ch;margin:0}
+
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.panel canvas{display:block;width:100%}
+.plabel{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.plabel b{font-weight:600}
+.plabel span{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.plabel.real b{color:var(--light)} .plabel.screen b{color:var(--digit)}
+
+.ctrl{display:flex;gap:10px 18px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.ctrl label{font-size:13px;color:var(--muted)}
+.ctrl .grow{flex:1 1 220px;display:flex;align-items:center;gap:10px;min-width:0}
+.ctrl output{font-family:var(--mono);font-size:15px;min-width:5.5ch;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-width:0;accent-color:var(--brass);height:28px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip:hover{border-color:#3a414b;color:var(--fg)}
+.chip[aria-pressed="true"]{color:#17120a;background:var(--brass);border-color:var(--brass)}
+.btn{all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--fg);background:var(--panel2)}
+.btn:hover{border-color:#3a414b}
+.btn[disabled]{opacity:.4;cursor:default}
+
+.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.readout div{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.readout span{font-size:11.5px;color:var(--muted)}
+.readout b{font-family:var(--mono);font-weight:500;font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.verdict{margin:0;padding:10px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:15px}
+.key{margin:0;padding:12px 16px;border-left:3px solid var(--brass);background:var(--panel);border-radius:0 12px 12px 0;max-width:78ch}
+.key b{color:var(--brass)}
+.big{font-family:var(--display);font-size:clamp(20px,2.8vw,30px);line-height:1.3;margin:0;text-wrap:balance}
+.big em{font-style:normal;color:var(--light)} .big i{font-style:normal;color:var(--digit)} .big strong{color:var(--brass)}
+
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line);margin-top:6px}
+.pager button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+.pager button:hover{border-color:#3a414b}
+.pager button span{font-size:12px;color:var(--muted)}
+.pager button b{font-family:var(--display);font-size:17px}
+.pager .next{margin-left:auto;text-align:right}
+
+.quiz{display:flex;flex-direction:column;gap:14px}
+.q{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.q p{margin:0}
+.q .qq{font-weight:600}
+.qopts{display:flex;gap:8px;flex-wrap:wrap}
+.qopts button{all:unset;cursor:pointer;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:14px}
+.qopts button.ok{border-color:var(--good);color:var(--good)}
+.qopts button.no{border-color:var(--err);color:var(--err)}
+.q .why{color:var(--muted);font-size:14px}
+
+body.present{font-size:17px}
+body.present .wrap{max-width:1560px}
+body.present .lede,body.present .ssub,body.present .quiz{display:none}
+body.present h1{font-size:clamp(26px,3vw,40px)}
+@media (max-width:760px){
+  .duo{grid-template-columns:1fr}
+  .readout{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+.verdict.good{border-color:var(--good);color:var(--good)}
+.verdict.goal b{color:var(--brass)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="toprow">
+      <div class="eyebrow" data-i18n="eyebrow"></div>
+      <div class="hdr-r">
+        <a class="toolbtn" href="https://123.57.56.38:624/" target="_top" data-i18n="home"></a>
+        <button type="button" class="toolbtn" id="present" aria-pressed="false" data-i18n="present"></button>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" id="lang-zh" aria-pressed="true">中文</button>
+          <button type="button" id="lang-en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+    <h1 data-i18n="title"></h1>
+    <p class="lede" data-i18n="lede"></p>
+  </header>
+  <nav class="nav" id="nav" aria-label="Pages"></nav>
+
+  <!-- 01 how long the shutter stays open -->
+  <section class="page" id="open">
+    <div class="shead"><div class="snum">01</div><h2 data-i18n="s1h"></h2><p class="ssub" data-i18n="s1s"></p></div>
+    <div class="duo">
+      <div class="panel"><div class="plabel real"><b data-i18n="p1real"></b><span data-i18n="p1realS"></span></div><canvas id="c1a"></canvas></div>
+      <div class="panel"><div class="plabel screen"><b data-i18n="p1photo"></b><span id="p1photoS"></span></div><canvas id="c1b"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="sh1" data-i18n="shLabel"></label><input type="range" id="sh1" min="0" max="8" step="1" value="4"><output id="sh1o" style="min-width:9ch"></output></div>
+      <div class="chips" id="sh1chips"></div>
+      <button type="button" class="chip" id="real1" aria-pressed="false" data-i18n="realBright"></button>
+    </div>
+    <div class="panel"><div class="plabel"><b data-i18n="tlH"></b><span data-i18n="tlS"></span></div><canvas id="c1t"></canvas></div>
+    <div class="readout" id="ro1"></div>
+    <p class="key" data-i18n-html="key1"></p>
+    <div class="pager" data-pager="open"></div>
+  </section>
+
+  <!-- 02 shutter and frame rate -->
+  <section class="page" id="angle" hidden>
+    <div class="shead"><div class="snum">02</div><h2 data-i18n="s2h"></h2><p class="ssub" data-i18n="s2s"></p></div>
+    <div class="duo">
+      <div class="panel"><div class="plabel real"><b data-i18n="p2you"></b><span id="p2youS"></span></div><canvas id="c2a"></canvas></div>
+      <div class="panel"><div class="plabel screen"><b data-i18n="p2ref"></b><span data-i18n="p2refS"></span></div><canvas id="c2b"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <label data-i18n="angLabel"></label>
+      <div class="chips" id="ang2chips"></div>
+      <button type="button" class="btn" id="play2"></button>
+      <button type="button" class="btn" id="step2" data-i18n="step"></button>
+    </div>
+    <div class="panel"><div class="plabel"><b data-i18n="fl2H"></b><span data-i18n="fl2S"></span></div><canvas id="c2t"></canvas></div>
+    <div class="readout" id="ro2"></div>
+    <p class="verdict" id="verdict2"></p>
+    <p class="key" data-i18n-html="key2"></p>
+    <div class="pager" data-pager="angle"></div>
+  </section>
+
+  <!-- 03 creative choices -->
+  <section class="page" id="create" hidden>
+    <div class="shead"><div class="snum">03</div><h2 data-i18n="s3h"></h2><p class="ssub" data-i18n="s3s"></p></div>
+    <div class="ctrl">
+      <label data-i18n="sceneLabel"></label>
+      <div class="chips" id="sc3chips"></div>
+    </div>
+    <p class="verdict goal" id="goal3"></p>
+    <div class="duo">
+      <div class="panel"><div class="plabel real"><b data-i18n="p3real"></b><span id="p3realS"></span></div><canvas id="c3a"></canvas></div>
+      <div class="panel"><div class="plabel screen"><b data-i18n="p3photo"></b><span id="p3photoS"></span></div><canvas id="c3b"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="sh3" data-i18n="shLabel"></label><input type="range" id="sh3" min="0" max="8" step="1" value="3"><output id="sh3o" style="min-width:9ch"></output></div>
+      <div class="chips" id="sh3chips"></div>
+    </div>
+    <p class="verdict" id="verdict3"></p>
+    <p class="key" data-i18n-html="key3"></p>
+    <h2 data-i18n="quizH" style="margin-top:14px"></h2>
+    <div class="quiz" id="quiz"></div>
+    <div class="pager" data-pager="create"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ================= i18n & helpers ================= */
+let lang="zh";
+try{ const s=localStorage.getItem("mic-lang"); if(s==="en"||s==="zh") lang=s; }catch(e){}
+const $=id=>document.getElementById(id);
+const zh=()=>lang==="zh";
+const FPS=24;
+const T={
+  eyebrow:["影像基础 · 05","Imaging Basics · 05"], home:["← 课程目录","← All lessons"], present:["投屏模式","Present"],
+  title:["快门与运动模糊","Shutter Speed & Motion Blur"],
+  lede:["上一课说，视频是一张接一张的照片。可是每一张照片也不是“一瞬间”：快门要打开一小段时间，让光进来。这段时间里在动的东西，都会被拖成一道影子。","Last lesson: video is one photo after another. But each photo is not an instant either. The shutter has to stay open for a short while to let light in, and anything that moves during that time gets smeared."],
+  n1:["快门开多久","How long it opens"], n2:["快门与帧率","Shutter & frame rate"], n3:["用快门创作","Create with it"],
+  prev:["上一页","Previous"], next:["下一页","Next"],
+  s1h:["一张照片不是一瞬间","A photo is not an instant"],
+  s1s:["左边是真实的世界：风车在转，人在跑。右边是相机在同一个时刻拍下的照片。把快门时间一点点调长，看看谁变糊了，谁一点没变。","Left: the real world, a windmill turning and a person running. Right: the photo the camera takes at the same moment each time. Make the shutter time longer step by step and see what blurs and what does not change at all."],
+  p1real:["真实世界","The real world"], p1realS:["一直在动","always moving"], p1photo:["拍到的照片","The photo"],
+  shLabel:["快门","Shutter"], realBright:["固定光圈和 ISO：看亮度变化","Fix aperture & ISO: show brightness"],
+  click:["咔嚓","click"], sec:[" 秒"," s"],
+  tlH:["快门打开的那一段","When the shutter is open"], tlS:["黄线：现在　紫块：快门打开","yellow line: now · purple: shutter open"],
+  openFor:["快门打开 {d}","shutter open for {d}"],
+  r1a:["快门速度","Shutter speed"], r1b:["打开的时间","Time open"], r1c:["跑步的人移动了","The runner moved"], r1d:["进光量（和 1/60 比）","Light (vs 1/60)"],
+  same:["一样","the same"], more:["多 {n} 档，更亮","{n} stops more, brighter"], less:["少 {n} 档，更暗","{n} stops less, darker"],
+  cm:[" 厘米"," cm"], m:[" 米"," m"],
+  key1:["<b>要点</b>　快门打开多久，照片就记录多久。不动的东西怎么拍都清楚，动的东西会被拖出一段，这就是<b>运动模糊</b>。快门越快，画面越清楚，但进来的光也越少，画面会变暗，要靠开大光圈或提高 ISO 补回来（见“光圈、曝光与光线”一课）。","<b>Key idea</b>　The photo records everything that happens while the shutter is open. Things that stay still are always sharp; things that move are dragged into a streak. That is <b>motion blur</b>. A faster shutter gives a sharper picture but lets in less light, so the picture gets darker and you have to open the aperture or raise the ISO (see the lesson “Aperture, exposure & light”)."],
+  s2h:["拍视频：每一格只开一部分时间","Video: each frame is open only part of the time"],
+  s2s:["每秒拍 24 格，每一格就有 1/24 秒。快门可以在这段时间里一直开着，也可以只开一小会儿。电影人用“快门角度”来说开了多少：360° 是全开，180° 是开一半。左边换不同的角度，和右边的电影标准比一比。","At 24 frames a second, each frame gets 1/24 of a second. The shutter can stay open for all of that time or only a small part. Filmmakers describe this as the “shutter angle”: 360° is open the whole time, 180° is open for half. Change the angle on the left and compare it with the cinema standard on the right."],
+  p2you:["你的选择","Your choice"], p2ref:["电影标准 180°","Cinema standard 180°"], p2refS:["1/48 秒","1/48 s"],
+  angLabel:["快门角度","Shutter angle"], step:["下一格 ▸","Next frame ▸"], play:["⏸ 暂停看单格","⏸ Pause on one frame"], paused:["▶ 播放","▶ Play"],
+  fl2H:["六格胶片的时间","The time of six frames"], fl2S:["亮：快门开着　暗：快门关着","bright: open · dark: closed"],
+  slot:["1 格 = 1/24 秒","1 frame = 1/24 s"],
+  r2a:["快门角度","Shutter angle"], r2b:["快门速度","Shutter speed"], r2c:["每格打开","Open per frame"], r2d:["每格关闭","Closed per frame"],
+  v360:["每一格都拖得很长。运动很顺，但到处发糊，像喝醉了或者在做梦。","Every frame is smeared a long way. Motion is fluid but everything is soft, like being dizzy or in a dream."],
+  v180:["这就是电影的样子：每格带一点模糊，刚好把上一格和下一格连起来。","This is the look of cinema: a little blur in each frame, just enough to join one frame to the next."],
+  v90:["每格更清楚，动作开始有一点一跳一跳。动作片和战争片常用它制造紧张感。","Each frame is crisper and movement starts to look a little jumpy. Action and war films use this for tension."],
+  v45:["每格几乎是清楚的定格，连起来一跳一跳，像一串快速的幻灯片。暂停看单格：非常清楚。","Each frame is almost a sharp freeze, and together they stutter like a rapid slide show. Pause on one frame: very sharp."],
+  key2:["<b>要点：180° 规则</b>　拍视频时，快门时间大约是“帧率的两倍分之一”。每秒 24 格用 1/48（相机上选 1/50），30 格用 1/60，60 格用 1/120。这样每一格都带一点模糊，运动看起来最自然。快门太快，每格都很清楚，连起来反而一跳一跳；快门太慢，整个画面发糊。","<b>Key idea: the 180° rule</b>　For video, set the shutter time to about one over twice the frame rate. At 24 fps use 1/48 (1/50 on most cameras), at 30 fps use 1/60, at 60 fps use 1/120. Each frame then carries a little blur and motion looks most natural. Too fast and every frame is sharp but the motion stutters; too slow and the whole picture goes soft."],
+  s3h:["没有“正确”的快门，只有合适的快门","There is no “correct” shutter, only the right one for the shot"],
+  s3s:["选一个场景，读一读拍摄目标，然后调快门，直到右边的照片变成你想要的样子。","Pick a scene, read the goal, then change the shutter until the photo on the right looks the way you want."],
+  sceneLabel:["场景","Scene"], p3real:["眼前的场景","The scene in front of you"], p3photo:["拍到的照片","The photo"], bright3:["亮度已自动补偿","brightness auto-corrected"],
+  goal:["拍摄目标：","Goal: "], tripod:["相机在三脚架上","camera on a tripod"], follow:["相机跟着人转","camera follows the runner"],
+  scSplash:["水球爆开","Water balloon"], scCars:["夜晚车流","Night traffic"], scWater:["瀑布","Waterfall"], scPan:["追拍","Panning"],
+  gSplash:["把每一颗水珠都定在空中。","Freeze every single droplet in the air."],
+  gCars:["把车灯拍成长长的、连续的光线。","Turn the car lights into long, unbroken lines of light."],
+  gWater:["把瀑布拍得像一片柔滑的白纱。","Make the waterfall look like a smooth white veil."],
+  gPan:["人要清楚，背景要拉成线，让人感到速度。","Keep the runner sharp and stretch the background into streaks, so we feel the speed."],
+  okSplash:["✓ 水珠颗颗分明。这么短的时间里，它们几乎来不及移动。","✓ Every droplet is clear. In such a short time they hardly move at all."],
+  loSplash:["水珠被拖成了线，越慢越糊。把快门调快。","The droplets are dragged into lines; the slower, the mushier. Use a faster shutter."],
+  hiCars:["车灯只是几个亮点或短短的线。把快门放慢到 1 秒以上。","The lights are only dots or short dashes. Slow the shutter to 1 second or longer."],
+  okCars:["✓ 车灯连成了光的河流。楼房不动，所以依然清楚。记住：相机一定要放稳。","✓ The lights join into rivers of light. The buildings do not move, so they stay sharp. Remember: the camera must be rock steady."],
+  hiWater:["水被定成了一颗颗水珠，很有力量，但不柔。把快门放慢。","The water is frozen into separate drops: powerful, but not smooth. Slow the shutter down."],
+  okWater:["✓ 水流连成了一片白纱，岩石不动，依然清楚。","✓ The water blends into a white veil, while the rocks, which do not move, stay sharp."],
+  hiPan:["人和背景都清清楚楚，像站着没动，看不出速度。放慢一点。","Runner and background are both sharp, as if standing still. No sense of speed. Go a little slower."],
+  okPan:["✓ 这就是追拍：身体还清楚，背景拉成了线，一看就知道跑得很快。","✓ This is a panning shot: the body is still clear and the background streaks, so we can see the speed."],
+  loPan:["太慢了，连手脚和身体也糊掉了。快一点。","Too slow: arms, legs and body are smeared as well. Go faster."],
+  key3:["<b>要点</b>　想把动作定住，用快的快门（1/500 或更快）。想表现速度和流动，用慢的快门，并且让相机稳住（三脚架），或者稳稳地跟着主体移动（追拍）。拍视频想要自然的运动，就回到 180° 规则。","<b>Key idea</b>　To freeze action, use a fast shutter (1/500 or faster). To show speed and flow, use a slow shutter and keep the camera steady on a tripod, or follow the subject smoothly (panning). For natural-looking video, go back to the 180° rule."],
+  quizH:["小测","Quick quiz"], right:["对了。","Correct. "], wrong:["再想想。","Not quite. "],
+  u_s:[" 秒"," s"], u_ms:[" 毫秒"," ms"]
+};
+const QUIZ=[
+ {q:["拍篮球扣篮，想把球员清清楚楚地定在空中。用哪个快门？","You are shooting a slam dunk and want the player frozen sharply in mid-air. Which shutter?"],
+  o:[["1 秒","1 s"],["1/30 秒","1/30 s"],["1/1000 秒","1/1000 s"]], a:2,
+  why:["快门只开千分之一秒，球员几乎来不及移动，所以是清楚的。","The shutter is open for only a thousandth of a second, so the player barely moves and stays sharp."]},
+ {q:["用每秒 24 格拍视频，想要自然的“电影感”运动。快门大约设多少？","You shoot video at 24 fps and want natural, film-like motion. Roughly which shutter?"],
+  o:[["1/50 秒","1/50 s"],["1/1000 秒","1/1000 s"],["1/4 秒","1/4 s"]], a:0,
+  why:["180° 规则：快门时间 ≈ 1 ÷（帧率 × 2）= 1/48，相机上最接近的是 1/50。","The 180° rule: shutter time ≈ 1 ÷ (frame rate × 2) = 1/48, and the closest setting on most cameras is 1/50."]},
+ {q:["夜里想把车灯拍成长长的光线。除了很慢的快门，还必须有什么？","At night you want car lights as long lines of light. Besides a very slow shutter, what else do you need?"],
+  o:[["闪光灯","A flash"],["三脚架，让相机不动","A tripod, so the camera stays still"],["更高的帧率","A higher frame rate"]], a:1,
+  why:["快门开着的几秒钟里，相机只要一动，楼房和路也会跟着糊掉。","During the seconds the shutter is open, any camera movement would blur the buildings and the road as well."]}
+];
+const t=(k,v)=>{ let s=T[k]?T[k][zh()?0:1]:k; if(v) for(const n in v) s=s.split("{"+n+"}").join(v[n]); return s; };
+const L2=a=>a[zh()?0:1];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const num=(x,d)=>{ const s=x.toFixed(d==null?(x<10?(x<1?2:1):0):d); return s.indexOf(".")>=0?s.replace(/\.?0+$/,""):s; };
+const dur=sec=>sec<1?num(sec*1000,sec<.01?1:0)+t("u_ms"):num(sec)+t("u_s");
+const shTxt=s=>(s>=1?num(s):"1/"+Math.round(1/s))+t("sec");
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let r=Math.imul(seed^seed>>>15,1|seed); r=r+Math.imul(r^r>>>7,61|r)^r; return ((r^r>>>14)>>>0)/4294967296; }; }
+const C={bg:"#0d0f12",panel:"#14171c",panel2:"#1a1e24",line:"#262b33",fg:"#ebe7df",muted:"#9198a2",faint:"#5d636c",light:"#e9c77f",air:"#86b6cf",brass:"#d8b06a",digit:"#b6a4e8",good:"#6cc08b"};
+const FM='"JetBrains Mono",ui-monospace,Menlo,monospace', FB='"IBM Plex Sans","Noto Sans SC",system-ui,sans-serif';
+
+const CV={}; const stageH=w=>clamp(Math.round(w*.6),210,470);
+const HEIGHTS={c1a:stageH,c1b:stageH,c1t:()=>84,c2a:stageH,c2b:stageH,c2t:()=>104,c3a:stageH,c3b:stageH};
+function fit(id,h){ const cv=$(id), w=cv.getBoundingClientRect().width||cv.parentElement.clientWidth; if(!w) return null; const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+"px"; const g=cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); return CV[id]={g,w,h}; }
+function hud(g,x,y,txt,col,align){ g.font="500 12.5px "+FM; g.textAlign=align||"left"; g.textBaseline="top"; const m=g.measureText(txt).width;
+  const bx=align==="right"?x-m-8:x-8; g.fillStyle="rgba(13,15,18,.62)"; g.beginPath(); g.roundRect(bx,y-5,m+16,24,7); g.fill(); g.fillStyle=col||C.fg; g.fillText(txt,x,y); g.textAlign="left"; }
+
+/* The exposure: average the scene over the time the shutter is open.
+   Each sub-sample is drawn to a hidden canvas and blended in with weight 1/(i+1), which gives the exact mean. */
+let OFF=null;
+function expose(c,draw,t0,dT,n){
+  const cv=c.g.canvas; if(!OFF) OFF=document.createElement("canvas");
+  if(OFF.width!==cv.width||OFF.height!==cv.height){ OFF.width=cv.width; OFF.height=cv.height; }
+  const og=OFF.getContext("2d"); og.setTransform(cv.width/c.w,0,0,cv.height/c.h,0,0);
+  for(let i=0;i<n;i++){ draw(og,c.w,c.h,t0+dT*(i+.5)/n); c.g.globalAlpha=1/(i+1); c.g.drawImage(OFF,0,0,c.w,c.h); }
+  c.g.globalAlpha=1;
+}
+const samples=(dT,pxPerSec,cap)=>clamp(Math.ceil(dT*pxPerSec/3),1,cap);
+
+/* ================= the runner (same figure as lesson 04) ================= */
+function runner(g,x,y,s,ph,col,lw){
+  const a=ph*2*Math.PI, P=(o,ang,len)=>[o[0]+Math.sin(ang)*len,o[1]+Math.cos(ang)*len];
+  const hip=[x,y-s*.5-s*.035*Math.abs(Math.sin(a))], neck=P(hip,Math.PI-.2,s*.3), head=P(neck,Math.PI-.25,s*.085);
+  g.strokeStyle=col; g.fillStyle=col; g.lineWidth=lw||Math.max(1.5,s*.045); g.lineCap="round"; g.lineJoin="round";
+  const limb=(o,a1,l1,a2,l2,al)=>{ const k=P(o,a1,l1), e=P(k,a2,l2); g.globalAlpha=al; g.beginPath(); g.moveTo(o[0],o[1]); g.lineTo(k[0],k[1]); g.lineTo(e[0],e[1]); g.stroke(); };
+  const leg=(p,al)=>{ const th=.8*Math.sin(p), bend=.25+.95*(.5+.5*Math.sin(p-1.9)); limb(hip,th,s*.25,th-bend,s*.26,al); };
+  const arm=(p,al)=>{ const up=-.85*Math.sin(p); limb(neck,up,s*.15,up+1.35,s*.14,al); };
+  leg(a+Math.PI,.5); arm(a+Math.PI,.5);
+  g.globalAlpha=1; g.beginPath(); g.moveTo(hip[0],hip[1]); g.lineTo(neck[0],neck[1]); g.stroke();
+  g.beginPath(); g.arc(head[0],head[1],s*.075,0,7); g.fill();
+  leg(a,1); arm(a,1); g.globalAlpha=1;
+}
+
+/* ================= pages 1 & 2: windmill + runner in front of a fixed camera ================= */
+const LOOP=2, TC=1, REV=1.6;                 // loop length (s), the moment the photo is taken, windmill turns per second
+function yard(g,w,h,tt,col){
+  const tl=((tt%LOOP)+LOOP)%LOOP, gy=h*.84;
+  g.globalAlpha=1; g.fillStyle=C.panel; g.fillRect(0,0,w,h);
+  g.strokeStyle=C.line; g.lineWidth=1; for(let i=0;i<5;i++){ const x=w*(.02+i*.22); g.beginPath(); g.moveTo(x,gy); g.lineTo(x+w*.08,gy-h*.26-((i*37)%5)*h*.03); g.lineTo(x+w*.16,gy); g.stroke(); }
+  g.fillStyle=C.panel2; g.strokeStyle=C.faint; g.lineWidth=1.5;                                   // a little house: it never moves
+  const hx=w*.1, hw=w*.13, hh=h*.17; g.beginPath(); g.rect(hx,gy-hh,hw,hh); g.fill(); g.stroke();
+  g.beginPath(); g.moveTo(hx-w*.012,gy-hh); g.lineTo(hx+hw/2,gy-hh-h*.11); g.lineTo(hx+hw+w*.012,gy-hh); g.closePath(); g.fill(); g.stroke();
+  g.strokeRect(hx+hw*.16,gy-hh*.72,hw*.26,hh*.34); g.strokeRect(hx+hw*.6,gy-hh*.62,hw*.24,hh*.62);
+  g.strokeStyle=C.faint; g.lineWidth=1.5; g.beginPath(); g.moveTo(0,gy); g.lineTo(w,gy); g.stroke();
+  const mx=w*.8, my=h*.36, R=h*.24, a=tt*REV*2*Math.PI;                                          // the windmill
+  g.strokeStyle=C.muted; g.lineWidth=4; g.lineCap="round"; g.beginPath(); g.moveTo(mx,gy); g.lineTo(mx,my); g.stroke();
+  g.fillStyle=col; g.globalAlpha=.9;
+  for(let i=0;i<3;i++){ const b=a+i*2*Math.PI/3; g.beginPath(); g.moveTo(mx,my); g.lineTo(mx+Math.cos(b-.5)*R*.2,my+Math.sin(b-.5)*R*.2); g.lineTo(mx+Math.cos(b-.07)*R,my+Math.sin(b-.07)*R); g.lineTo(mx+Math.cos(b+.1)*R,my+Math.sin(b+.1)*R); g.closePath(); g.fill(); }
+  g.globalAlpha=1; g.fillStyle=C.fg; g.beginPath(); g.arc(mx,my,4,0,7); g.fill();
+  runner(g,w*(-.05+.5*tl),gy,h*.44,tt*1.7,col);
+}
+const yardSpeed=h=>2*Math.PI*REV*h*.24;       // fastest thing in the yard: the blade tips (px per second)
+
+const SH1=[1/1000,1/500,1/250,1/125,1/60,1/30,1/15,1/8,1/4];
+const S1={i:4,real:false,t:0,dirty:true};
+function draw1(dt){
+  S1.t+=dt; const a=CV.c1a, b=CV.c1b; if(!a||!b) return; const dT=SH1[S1.i], tl=S1.t%LOOP;
+  yard(a.g,a.w,a.h,S1.t,C.light);
+  if(tl>=TC&&tl<TC+Math.max(dT,.12)){ a.g.strokeStyle=C.digit; a.g.lineWidth=6; a.g.strokeRect(3,3,a.w-6,a.h-6); hud(a.g,16,14,t("click"),C.digit); }
+  if(S1.dirty){ S1.dirty=false;
+    expose(b,(g,w,h,tt)=>yard(g,w,h,tt,C.digit),TC,dT,samples(dT,yardSpeed(b.h),48));
+    if(S1.real){ const gain=Math.sqrt(dT*60); b.g.fillStyle=gain<1?"rgba(0,0,0,"+clamp(1-gain,0,.86)+")":"rgba(255,255,255,"+clamp((gain-1)*.3,0,.8)+")"; b.g.fillRect(0,0,b.w,b.h); }
+    hud(b.g,16,14,shTxt(dT),C.fg);
+  }
+  const c=CV.c1t; if(!c) return; const g=c.g, W=c.w, H=c.h, px=14, full=W-2*px, X=s=>px+full*s/LOOP, y=40;
+  g.fillStyle=C.panel; g.fillRect(0,0,W,H);
+  g.strokeStyle=C.faint; g.lineWidth=1; g.beginPath(); g.moveTo(px,y+9); g.lineTo(px+full,y+9); g.stroke();
+  g.font="11px "+FM; g.fillStyle=C.muted; g.textBaseline="alphabetic";
+  for(let i=0;i<=4;i++){ const x=X(i*.5); g.beginPath(); g.moveTo(x,y+4); g.lineTo(x,y+14); g.stroke(); g.textAlign=i===0?"left":i===4?"right":"center"; g.fillText(num(i*.5,1)+t("u_s"),x,y+30); }
+  const bw=Math.max(2,full*dT/LOOP); g.fillStyle=C.digit; g.fillRect(X(TC),y-2,bw,22);
+  g.font="12.5px "+FB; g.textAlign="left"; g.fillText(t("openFor",{d:dur(dT)}),Math.min(X(TC),W-px-190),y-12);
+  g.fillStyle=C.light; g.fillRect(X(tl)-1,y-6,2,30);
+}
+function ui1(){
+  const dT=SH1[S1.i];
+  $("sh1").value=S1.i; $("sh1o").textContent=shTxt(dT);
+  document.querySelectorAll("#sh1chips button").forEach(b=>{ b.setAttribute("aria-pressed",+b.dataset.v===S1.i); b.textContent=shTxt(SH1[+b.dataset.v]); });
+  $("real1").setAttribute("aria-pressed",S1.real);
+  $("p1photoS").textContent=t("openFor",{d:dur(dT)});
+  const st=Math.log2(dT*60), sn=num(Math.abs(st),1), d=dT*5;                       // the runner does about 5 m/s
+  $("ro1").innerHTML=[["r1a",shTxt(dT)],["r1b",dur(dT)],["r1c",d<1?num(d*100,d<.1?1:0)+t("cm"):num(d,2)+t("m")],["r1d",Math.abs(st)<.05?t("same"):st>0?t("more",{n:sn}):t("less",{n:sn})]].map(r=>`<div><span>${t(r[0])}</span><b>${r[1]}</b></div>`).join("");
+  S1.dirty=true;
+}
+function init1(){
+  $("sh1chips").innerHTML=[0,2,4,6,8].map(v=>`<button type="button" class="chip" data-v="${v}"></button>`).join("");
+  $("sh1chips").onclick=e=>{ const b=e.target.closest("button"); if(b){ S1.i=+b.dataset.v; ui1(); } };
+  $("sh1").oninput=e=>{ S1.i=+e.target.value; ui1(); };
+  $("real1").onclick=()=>{ S1.real=!S1.real; ui1(); };
+}
+
+/* ---------- page 2: 24 fps, shutter angle ---------- */
+const ANG=[360,180,90,45,11];
+const S2={ang:45,t:0,playing:true,lastK:-1};
+function draw2(dt){
+  if(S2.playing) S2.t+=dt; const a=CV.c2a, b=CV.c2b; if(!a||!b) return;
+  const k=Math.floor(S2.t*FPS+1e-6);
+  if(k!==S2.lastK){ S2.lastK=k; const t0=k/FPS, sp=yardSpeed(a.h);
+    const dA=S2.ang/360/FPS, dB=.5/FPS;
+    expose(a,(g,w,h,tt)=>yard(g,w,h,tt,C.light),t0,dA,samples(dA,sp,14)); hud(a.g,16,14,S2.ang+"°",C.fg);
+    expose(b,(g,w,h,tt)=>yard(g,w,h,tt,C.digit),t0,dB,samples(dB,sp,14)); hud(b.g,16,14,"180°",C.fg);
+    strip2(k); }
+}
+function strip2(k){
+  const c=CV.c2t; if(!c) return; const g=c.g, W=c.w, H=c.h, px=14, full=W-2*px, sw=full/6, y=34, bh=34, f=S2.ang/360, cur=((k%6)+6)%6;
+  g.fillStyle=C.panel; g.fillRect(0,0,W,H);
+  for(let i=0;i<6;i++){ const x=px+i*sw; g.fillStyle="#0a0b0d"; g.fillRect(x,y,sw,bh); g.fillStyle=C.light; g.globalAlpha=i===cur?1:.5; g.fillRect(x,y,Math.max(2,sw*f),bh); g.globalAlpha=1;
+    g.strokeStyle=i===cur?C.brass:C.faint; g.lineWidth=i===cur?2:1; g.strokeRect(x+.5,y+.5,sw-1,bh-1); }
+  g.font="12.5px "+FB; g.textBaseline="alphabetic"; g.textAlign="left"; g.fillStyle=C.muted; g.fillText(t("slot"),px,y-11);
+  g.textAlign="right"; g.fillStyle=C.light; g.fillText(t("r2c")+" "+dur(f/FPS)+(f<1?"　·　"+t("r2d")+" "+dur((1-f)/FPS):""),px+full,y-11);
+  g.font="11px "+FM; g.fillStyle=C.muted; g.textAlign="center"; for(let i=0;i<6;i++) g.fillText(String(i+1),px+(i+.5)*sw,y+bh+18);
+  g.textAlign="left";
+}
+function ui2(){
+  const f=S2.ang/360;
+  document.querySelectorAll("#ang2chips button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.v===S2.ang));
+  $("play2").textContent=t(S2.playing?"play":"paused"); $("step2").disabled=S2.playing;
+  $("p2youS").textContent=S2.ang+"° = "+shTxt(f/FPS);
+  $("ro2").innerHTML=[["r2a",S2.ang+"°"],["r2b",shTxt(f/FPS)],["r2c",dur(f/FPS)],["r2d",dur((1-f)/FPS)]].map(r=>`<div><span>${t(r[0])}</span><b>${r[1]}</b></div>`).join("");
+  $("verdict2").textContent=t(S2.ang>=360?"v360":S2.ang>=180?"v180":S2.ang>=90?"v90":"v45");
+  S2.lastK=-1;
+}
+function init2(){
+  $("ang2chips").innerHTML=ANG.map(v=>`<button type="button" class="chip" data-v="${v}">${v}°</button>`).join("");
+  $("ang2chips").onclick=e=>{ const b=e.target.closest("button"); if(b){ S2.ang=+b.dataset.v; ui2(); } };
+  $("play2").onclick=()=>{ S2.playing=!S2.playing; ui2(); };
+  $("step2").onclick=()=>{ S2.t=(Math.floor(S2.t*FPS+1e-6)+1)/FPS+1e-4; };
+}
+
+/* ================= page 3: four scenes ================= */
+/* water balloon (same event as lesson 04) */
+const DROPS=(()=>{ const r=rng(7), a=[]; for(let i=0;i<58;i++){ const ang=-Math.PI*(.07+.86*r()), sp=.55+1.5*r(); a.push({vx:Math.cos(ang)*sp*.8,vy:Math.sin(ang)*sp,r:.007+.012*r()}); } return a; })();
+const T0=.3, GR=6.5;
+function splash(g,w,h,tt){
+  const te=Math.min(1,((tt%1.7)+1.7)%1.7);
+  g.globalAlpha=1; g.fillStyle=C.panel; g.fillRect(0,0,w,h);
+  const gy=h*.86, R=h*.075, cx=w*.5, y0=-R*1.4, yI=gy-R;
+  g.strokeStyle=C.faint; g.lineWidth=1.5; g.beginPath(); g.moveTo(0,gy); g.lineTo(w,gy); g.stroke();
+  g.fillStyle=C.air;
+  if(te<T0){ const y=y0+(yI-y0)*Math.pow(te/T0,2);
+    g.beginPath(); g.ellipse(cx,y,R,R*1.08,0,0,7); g.fill();
+    g.beginPath(); g.moveTo(cx-R*.16,y-R*1.02); g.lineTo(cx+R*.16,y-R*1.02); g.lineTo(cx,y-R*1.3); g.fill(); return; }
+  const tau=te-T0;
+  if(tau<.07){ const u=tau/.07; g.globalAlpha=1-u; g.beginPath(); g.ellipse(cx,gy-R*(1-u*.75),R*(1+u*1.1),R*(1-u*.75),0,0,7); g.fill(); g.globalAlpha=1; }
+  for(const d of DROPS){ const y=(d.vy*tau+.5*GR*tau*tau)*h;
+    if(y<R*.5){ g.beginPath(); g.arc(cx+d.vx*tau*h,gy-R*.5+y,d.r*h,0,7); g.fill(); }
+    else { const tl=(-d.vy+Math.sqrt(d.vy*d.vy+GR*R/h))/GR; g.globalAlpha=.55; g.beginPath(); g.ellipse(cx+d.vx*tl*h,gy+2,d.r*h*1.9,2,0,0,7); g.fill(); g.globalAlpha=1; } }
+}
+/* night street */
+const BLD=(()=>{ const r=rng(5), a=[]; let x=0; while(x<1){ const w=.05+.06*r(), h=.16+.3*r(), win=[]; for(let i=0;i<24;i++) win.push(r()<.42); a.push({x,w,h,win}); x+=w+.008; } return a; })();
+const CARS=(()=>{ const r=rng(21), a=[]; for(let i=0;i<8;i++){ const far=i%2===0; a.push({x:(i/8+r()*.08)%1,v:(far?1:-1)*(.3+.22*r()),y:far?.755:.885,s:far?.8:1.15}); } return a; })();
+function street(g,w,h){
+  g.globalAlpha=1; const gr=g.createLinearGradient(0,0,0,h*.66); gr.addColorStop(0,"#090d1c"); gr.addColorStop(1,"#1c2140"); g.fillStyle=gr; g.fillRect(0,0,w,h);
+  for(const b of BLD){ const bx=b.x*w, bw=b.w*w, bh=b.h*h, top=h*.66-bh; g.fillStyle="#12151f"; g.fillRect(bx,top,bw,bh);
+    const rows=Math.min(8,Math.floor(bh/(h*.05))); for(let i=0;i<rows*3;i++){ g.fillStyle=b.win[i]?"rgba(240,200,120,.85)":"#1b2030"; g.fillRect(bx+bw*(.14+.28*(i%3)),top+h*.02+Math.floor(i/3)*h*.05,bw*.16,h*.022); } }
+  g.fillStyle="#15171c"; g.fillRect(0,h*.66,w,h*.34); g.fillStyle="#262b33"; g.fillRect(0,h*.66,w,3);
+  g.fillStyle="#3a404a"; for(let x=0;x<w;x+=w/9) g.fillRect(x,h*.82,w/20,2);
+}
+const carX=(c,w,tt)=>{ const span=w*1.4; return (((c.x*span+c.v*w*tt)%span)+span)%span-w*.2; };
+function carLights(g,w,h,tt,glow){
+  for(const c of CARS){ const x=carX(c,w,tt), y=c.y*h, len=w*.075*c.s, d=Math.sign(c.v), r=2.6*c.s;
+    const dot=(px,py,col)=>{ if(glow){ g.globalAlpha=.3; g.fillStyle=col; g.beginPath(); g.arc(px,py,r*2.4,0,7); g.fill(); g.globalAlpha=1; } g.fillStyle=col; g.beginPath(); g.arc(px,py,r,0,7); g.fill(); };
+    dot(x+d*len/2,y+2*c.s,"#fff2c8"); dot(x-d*len/2,y-3*c.s,"#ff4a3a"); }
+}
+function carBodies(g,w,h,tt){ g.fillStyle="#2b303a"; for(const c of CARS){ const x=carX(c,w,tt), y=c.y*h, len=w*.075*c.s, ch=h*.045*c.s; g.beginPath(); g.roundRect(x-len/2,y-ch*.7,len,ch,ch*.3); g.fill(); g.beginPath(); g.roundRect(x-len*.28,y-ch*1.3,len*.5,ch*.7,ch*.25); g.fill(); } }
+function cars(g,w,h,tt){ street(g,w,h); carBodies(g,w,h,tt); carLights(g,w,h,tt,true); }
+function carsPhoto(c,t0,dT){                       // lights saturate the sensor, so trails keep their brightness: accumulate with "lighten"
+  const g=c.g, n=clamp(Math.ceil(dT*.55*c.w/2),1,520); street(g,c.w,c.h); if(dT<=1/15) carBodies(g,c.w,c.h,t0+dT/2);
+  g.globalCompositeOperation="lighten"; for(let i=0;i<n;i++) carLights(g,c.w,c.h,t0+dT*(i+.5)/n,n<4); g.globalCompositeOperation="source-over";
+}
+/* waterfall */
+const FALL=(()=>{ const r=rng(31), a=[]; for(let i=0;i<300;i++) a.push({x:r(),ph:r(),v:.8+.6*r(),l:r()}); return a; })();
+const FOAM=(()=>{ const r=rng(33), a=[]; for(let i=0;i<46;i++) a.push({x:r(),y:r(),f:3+6*r(),p:r()*7}); return a; })();
+function fall(g,w,h,tt){
+  g.globalAlpha=1; const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,"#1a2a2e"); gr.addColorStop(1,"#0f191c"); g.fillStyle=gr; g.fillRect(0,0,w,h);
+  const x0=w*.36, x1=w*.64, top=h*.1, bot=h*.8;
+  g.fillStyle="rgba(190,215,230,.2)"; g.fillRect(x0,top,x1-x0,bot-top);
+  g.fillStyle="rgba(236,245,250,.8)";
+  for(let i=0;i<FALL.length;i++){ const d=FALL[i], fr=(((d.ph+tt*d.v)%1)+1)%1; g.fillRect(x0+(x1-x0-5)*d.x+Math.sin(fr*6+i)*3,top+Math.pow(fr,1.7)*(bot-top),2.5+2.5*d.l,7+18*fr); }
+  g.fillStyle="#1d3540"; g.fillRect(0,bot,w,h-bot);
+  for(const f of FOAM){ g.globalAlpha=.35+.35*Math.sin(tt*f.f*3+f.p); g.fillStyle="#e6f1f6"; g.beginPath(); g.arc(x0-w*.04+(x1-x0+w*.08)*f.x+Math.sin(tt*f.f+f.p)*w*.02,bot+h*.012+f.y*h*.07+Math.cos(tt*f.f*1.3+f.p)*4,3+3*f.y,0,7); g.fill(); }
+  g.globalAlpha=1; g.fillStyle="#262c33"; g.strokeStyle="#3a424c"; g.lineWidth=1.5;
+  const rock=p=>{ g.beginPath(); p.forEach((q,i)=>i?g.lineTo(q[0]*w,q[1]*h):g.moveTo(q[0]*w,q[1]*h)); g.closePath(); g.fill(); g.stroke(); };
+  rock([[0,.02],[.3,.04],[.37,.1],[.35,.34],[.38,.6],[.33,.83],[0,.86]]); rock([[1,.03],[.7,.05],[.63,.1],[.66,.4],[.62,.62],[.68,.84],[1,.86]]);
+  rock([[.14,.9],[.2,.84],[.28,.87],[.3,.94],[.16,.96]]); rock([[.74,.93],[.79,.86],[.88,.88],[.9,.95]]);
+}
+/* panning: the camera turns with the runner, so the runner stays put and the background streams past */
+function pan(g,w,h,tt){
+  g.globalAlpha=1; g.fillStyle=C.panel; g.fillRect(0,0,w,h); const gy=h*.82, sp=w*1.1, wrap=(x,span)=>((x%span)+span)%span;
+  g.strokeStyle=C.line; g.lineWidth=1; for(let i=0;i<7;i++){ const x=wrap(i*w/5-tt*sp*.12,w*1.4)-w*.2; g.beginPath(); g.moveTo(x,gy); g.lineTo(x+w*.07,gy-h*.3-((i*37)%5)*h*.03); g.lineTo(x+w*.14,gy); g.stroke(); }
+  for(let i=0;i<5;i++){ const x=wrap(i*w*.31-tt*sp*.55,w*1.55)-w*.2; g.fillStyle="#3b4a44"; g.fillRect(x-3,gy-h*.2,6,h*.2); g.fillStyle="#31453c"; g.beginPath(); g.arc(x,gy-h*.3,h*.11,0,7); g.fill(); }
+  g.strokeStyle=C.faint; g.lineWidth=1.5; g.beginPath(); g.moveTo(0,gy); g.lineTo(w,gy); g.stroke();
+  for(let i=0;i<9;i++){ const x=wrap(i*w/6-tt*sp,w*1.5)-w*.25; g.fillStyle=i%3?"#7c838d":C.brass; g.fillRect(x,gy-h*.17,5,h*.17); g.fillStyle=C.faint; g.fillRect(x-w*.03,gy+h*.06,w*.06,3); }
+  runner(g,w*.5,gy,h*.6,tt*1.6,C.light);
+}
+const SH3=[1/2000,1/500,1/125,1/50,1/30,1/15,1/4,1,4];
+const SCENES={
+  splash:{draw:splash,t0:.5,v:2.4,cap:60,goal:"gSplash",note:"tripod",judge:d=>d<=1/500?["ok","okSplash"]:["no","loSplash"]},
+  cars:{draw:cars,t0:0,photo:carsPhoto,goal:"gCars",note:"tripod",judge:d=>d>=1?["ok","okCars"]:["no","hiCars"]},
+  water:{draw:fall,t0:0,v:1.9,cap:60,goal:"gWater",note:"tripod",judge:d=>d>=1/4?["ok","okWater"]:["no","hiWater"]},
+  pan:{draw:pan,t0:.3,v:2.2,cap:60,goal:"gPan",note:"follow",judge:d=>d<1/60?["no","hiPan"]:d<=1/15?["ok","okPan"]:["no","loPan"]}
+};
+const SCN=["splash","cars","water","pan"], SCT={splash:"scSplash",cars:"scCars",water:"scWater",pan:"scPan"};
+const S3={scene:"splash",i:3,t:0,dirty:true};
+try{ const q=new URLSearchParams(location.search), sc=q.get("scene"), sh=+q.get("sh"); if(SCENES[sc]) S3.scene=sc; if(q.has("sh")&&SH3[sh]) S3.i=sh; }catch(e){}   // optional deep link: ?scene=cars&sh=7#create
+function draw3(dt){
+  S3.t+=dt; const a=CV.c3a, b=CV.c3b; if(!a||!b) return; const sc=SCENES[S3.scene], dT=SH3[S3.i];
+  sc.draw(a.g,a.w,a.h,S3.t);
+  if(S3.dirty){ S3.dirty=false;
+    if(sc.photo) sc.photo(b,sc.t0,dT); else expose(b,sc.draw,sc.t0,dT,samples(dT,sc.v*b.h,sc.cap));
+    hud(b.g,16,14,shTxt(dT),C.fg); }
+}
+function ui3(){
+  const sc=SCENES[S3.scene], dT=SH3[S3.i], j=sc.judge(dT);
+  document.querySelectorAll("#sc3chips button").forEach(b=>{ b.setAttribute("aria-pressed",b.dataset.v===S3.scene); b.textContent=t(SCT[b.dataset.v]); });
+  document.querySelectorAll("#sh3chips button").forEach(b=>{ b.setAttribute("aria-pressed",+b.dataset.v===S3.i); b.textContent=shTxt(SH3[+b.dataset.v]); });
+  $("sh3").value=S3.i; $("sh3o").textContent=shTxt(dT);
+  $("goal3").innerHTML="<b>"+t("goal")+"</b>"+t(sc.goal);
+  $("p3realS").textContent=t(sc.note); $("p3photoS").textContent=t("bright3");
+  const v=$("verdict3"); v.textContent=t(j[1]); v.classList.toggle("good",j[0]==="ok");
+  S3.dirty=true;
+}
+function init3(){
+  $("sc3chips").innerHTML=SCN.map(v=>`<button type="button" class="chip" data-v="${v}"></button>`).join("");
+  $("sc3chips").onclick=e=>{ const b=e.target.closest("button"); if(b){ S3.scene=b.dataset.v; S3.i=3; ui3(); } };
+  $("sh3chips").innerHTML=[0,1,3,5,6,7,8].map(v=>`<button type="button" class="chip" data-v="${v}"></button>`).join("");
+  $("sh3chips").onclick=e=>{ const b=e.target.closest("button"); if(b){ S3.i=+b.dataset.v; ui3(); } };
+  $("sh3").oninput=e=>{ S3.i=+e.target.value; ui3(); };
+}
+const QA=QUIZ.map(()=>-1);
+function renderQuiz(){
+  $("quiz").innerHTML=QUIZ.map((q,i)=>{ const p=QA[i];
+    return `<div class="q"><p class="qq">${i+1}. ${L2(q.q)}</p><div class="qopts">${q.o.map((o,j)=>`<button type="button" data-q="${i}" data-o="${j}" class="${p===j?(j===q.a?"ok":"no"):""}">${L2(o)}</button>`).join("")}</div>${p<0?"":`<p class="why">${t(p===q.a?"right":"wrong")}${p===q.a?L2(q.why):""}</p>`}</div>`; }).join("");
+}
+$("quiz").onclick=e=>{ const b=e.target.closest("button"); if(b){ QA[+b.dataset.q]=+b.dataset.o; renderQuiz(); } };
+
+/* ================= shell: pages, language, loop ================= */
+const PIDS=["open","angle","create"], PNAME={open:"n1",angle:"n2",create:"n3"};
+let cur="open";
+function renderNav(){
+  $("nav").innerHTML=PIDS.map((p,i)=>`<button type="button" data-go="${p}" aria-current="${p===cur}"><span>0${i+1}</span>${t(PNAME[p])}</button>`).join("");
+  document.querySelectorAll("[data-pager]").forEach(el=>{ const i=PIDS.indexOf(el.dataset.pager), a=PIDS[i-1], b=PIDS[i+1];
+    el.innerHTML=(a?`<button type="button" data-go="${a}"><span>← ${t("prev")}</span><b>${t(PNAME[a])}</b></button>`:"")+(b?`<button type="button" class="next" data-go="${b}"><span>${t("next")} →</span><b>${t(PNAME[b])}</b></button>`:""); });
+}
+function resizeAll(){
+  for(const id in HEIGHTS){ const cv=$(id), w=cv.getBoundingClientRect().width; if(w) fit(id,HEIGHTS[id](w)); }
+  S1.dirty=true; S2.lastK=-1; S3.dirty=true;
+}
+function showPage(id,scroll){
+  if(!PIDS.includes(id)) id=PIDS[0]; cur=id; PIDS.forEach(p=>$(p).hidden=p!==id);
+  document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.go===id));
+  try{ if(location.hash.slice(1)!==id) history.replaceState(null,"","#"+id); }catch(e){}
+  resizeAll();
+  if(scroll){ const y=$("nav").getBoundingClientRect().top+window.scrollY-12; if(window.scrollY>y) window.scrollTo({top:y}); }
+}
+function applyLang(){
+  document.documentElement.lang=zh()?"zh-CN":"en"; document.title=t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ el.innerHTML=t(el.dataset.i18nHtml); });
+  $("lang-zh").setAttribute("aria-pressed",zh()); $("lang-en").setAttribute("aria-pressed",!zh());
+  renderNav(); renderQuiz(); ui1(); ui2(); ui3();
+}
+/* the other lessons remember the language under two different keys; write both so the choice follows the student */
+const setLang=l=>{ lang=l; try{ localStorage.setItem("mic-lang",l); localStorage.setItem("lab-lang",JSON.stringify(l)); }catch(e){} applyLang(); };
+$("lang-zh").onclick=()=>setLang("zh"); $("lang-en").onclick=()=>setLang("en");
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(b) showPage(b.dataset.go,true); });
+window.addEventListener("hashchange",()=>showPage(location.hash.slice(1),false));
+$("present").onclick=()=>{ const on=!document.body.classList.contains("present"); document.body.classList.toggle("present",on); $("present").setAttribute("aria-pressed",on); requestAnimationFrame(resizeAll); };
+document.addEventListener("keydown",e=>{ if(e.altKey||e.ctrlKey||e.metaKey) return; const tg=e.target; if(tg&&(tg.tagName==="INPUT"||tg.tagName==="TEXTAREA")) return;
+  const i=PIDS.indexOf(cur); if(e.key==="ArrowRight"&&i<PIDS.length-1){ e.preventDefault(); showPage(PIDS[i+1],true); } else if(e.key==="ArrowLeft"&&i>0){ e.preventDefault(); showPage(PIDS[i-1],true); } });
+window.addEventListener("resize",resizeAll);
+init1(); init2(); init3();
+applyLang();
+showPage(location.hash.slice(1),false);
+let last=performance.now();
+function loop(now){ requestAnimationFrame(loop); const dt=Math.min(.1,(now-last)/1000); last=now; if(document.hidden) return;
+  if(cur==="open") draw1(dt); else if(cur==="angle") draw2(dt); else draw3(dt); }
+requestAnimationFrame(loop);
+document.fonts&&document.fonts.ready.then(resizeAll);
+})();
+</script>
+</body>
+</html>

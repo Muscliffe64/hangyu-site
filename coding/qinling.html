@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>秦岭声景地图 · Qinling Soundscape — Hangyu</title>
+  <meta name="description" content="我们在秦岭录下的森林声音，一个个标在地图上。原始录音、加工过的声音、用它们做成的音乐连成一棵“来龙去脉”的树。">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="../index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="../photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="../films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="../writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="../vibe-coding.html" class="active"><span class="zh">写代码</span><span class="en">Coding</span></a>
+        <a href="../jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="../about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proj">
+    <p class="proj-back"><a href="../vibe-coding.html#classroom">← 写代码 · Coding</a></p>
+    <div class="proj-head">
+      <p class="proj-meta">2026 · 团队项目 · 进行中</p>
+      <h1><span class="zh">秦岭声景地图</span><span class="en">Qinling Soundscape</span></h1>
+      <p class="proj-lede">我们在秦岭山里录下的声音，一个个钉在地图上：天子峪的树林、抱龙峪的瀑布、山脊上的风。原始录音被加工成新的声音，再被做成音乐，音乐又长出新的回响：再创作、配乐、舞蹈、文字。每一件作品都能顺着线找回它出自哪一段录音。</p>
+      <p class="proj-lede-en">Forest sounds our team recorded in the Qinling mountains, pinned on a map. Raw recordings become processed sounds, then music, then new echoes, and every piece can be traced back to where it came from.</p>
+      <div class="proj-links"><a class="proj-link" href="https://123.57.56.38:623/qinling/" target="_blank" rel="noopener">打开声景地图 ↗</a><span class="proj-link-note">公开页面，可以直接听；上传录音需要成员账号。</span></div>
+    </div>
+    <figure class="proj-hero"><img src="../Code/qinling/map.webp" alt="秦岭声景地图首页：地图上的采样点和左侧的概览" width="1600" height="1000" decoding="async"></figure>
+    <dl class="proj-facts"><div><dt>团队</dt><dd>我和学生们</dd></div><div><dt>目前</dt><dd>48 个采样点 · 47 段录音 · 11 件作品与回响</dd></div><div><dt>四层</dt><dd>素材 → 处理 → 音乐 → 回响</dd></div><div><dt>做法</dt><dd>FastAPI + SQLite + Leaflet，高德底图</dd></div></dl>
+
+    <section class="proj-section" id="gallery">
+      <h2><span class="zh">长什么样</span><span class="en">What it looks like</span></h2>
+      <div class="proj-gallery">
+        <figure class="proj-shot is-wide"><div class="frame"><img src="../Code/qinling/tree.webp" alt="来龙去脉：一件再创作作品由三个来源汇成，追溯到三个采样点" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>来龙去脉：《滩&Mist》由三个来源汇成，一直追溯到三处采样点。点任何一个节点，都能听。<span class="en">Lineage: one piece traced back through three sources to three recording sites.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/qinling/music.webp" alt="音乐页：作品卡片，标着来自几个地点、有没有回响" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>从山林到音乐：每件作品都标着它来自哪里，长出了什么。<span class="en">From forest to music.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/qinling/lineage.webp" alt="来龙去脉列表：每条脉络一张卡片" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>十一条脉络，每条一张卡片。<span class="en">Eleven lineages.</span></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="proj-section" id="why">
+      <h2><span class="zh">为什么做</span><span class="en">Why I made it</span></h2>
+      <div class="proj-prose">
+<p>一开始我们只是想去秦岭采些素材，做一个声景。我对声景的理解，很大程度来自谷歌地球的街景。可街景里是没有声音的。秦岭作为一个地方，完全可以从声音这一层被记录下来。</p>
+<p>所以出发前我们定了一个规矩：开始录音时，先说清楚时间、地点、现在大概有什么声音，再用手机拍一张照片。这样以后每段录音都能自动转写、归类、打标签，照片还带着时间和 GPS。</p>
+      </div>
+      <blockquote class="proj-quote"><p>你想，以前如果几个学艺术的、学音乐的，想要搭这样一个平台做这样一件事情，我觉得几乎是不可能的。……聊天、碰撞彼此的认知、连接彼此的想法，最终出来这样一个内容。我现在很确定地说，这就是未来的一种创作模式，尤其是团队合作的创作模式。</p><cite>语音日记 · 2026.09.11</cite></blockquote>
+      <div class="proj-prose">
+<p>第一次从山里回来，我们在咖啡馆里聊。我把整段对话录下来交给 AI，不到半小时，第一版地图就上线了，每个成员都成了项目的共同维护者。</p>
+<p>我不会写歌，也不会作曲，但我很会拍照片。有一次我把一张雾里的树林照片交给一位音乐家，请他看完随手在键盘上弹一段；那段旋律后来又被重新创作，最后用进了我在挪威森林里拍的纪录片。也许是一张照片，也许是一段声音，让一个普通人也走进了创作。“来龙去脉”这棵树，就是为了把这些启发一条条留下来。</p>
+      </div>
+    </section>
+
+    <section class="proj-section" id="tech">
+      <h2><span class="zh">怎么做的</span><span class="en">How it is built</span></h2>
+      <p class="proj-tech">成员在山里用手机直接上传录音、照片和现场笔记，自动带上位置。国内访问不了海外的地图和脚本，所以换成高德底图，地图库也放在自己的服务器上。我们还在试着给每件作品做数字存证，让“它出自哪一段录音”不只是网页上的一条线。</p>
+    </section>
+
+    
+    <nav class="proj-nav"><a class="prev" href="course-square.html"><small>← 上一个</small><span>课程广场</span></a><a class="next" href="jiangtong.html"><small>下一个 →</small><span>积木讲通</span></a></nav>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script src="coding.js"></script>
+</body>
+</html>

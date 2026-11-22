@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>电平、增益与削波</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: same dark studio page as the other lessons. Four pages:
+   read the meter → set the gain (clipping) → the noise floor → a gain-setting challenge.
+   Color: air-blue = the sound signal, grey = noise, green / yellow / red = meter zones. */
+:root{
+  color-scheme: dark;
+  --bg:#0d0f12; --panel:#14171c; --panel2:#1a1e24; --line:#262b33;
+  --fg:#ebe7df; --muted:#9198a2; --faint:#5d636c;
+  --light:#e9c77f; --air:#86b6cf; --brass:#d8b06a; --digit:#b6a4e8; --err:#e86a7a; --good:#6cc08b; --warn:#f2c14e;
+  --display:"Bricolage Grotesque","Noto Sans SC",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 72px;display:flex;flex-direction:column;gap:26px}
+header.top{display:flex;flex-direction:column;gap:14px;padding-top:12px}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.hdr-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--air)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.6vw,64px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{max-width:62ch;color:var(--muted);font-size:16px;margin:0}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--panel)}
+.lang button{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:5px 12px;border-radius:999px;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.toolbtn{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.toolbtn[aria-pressed="true"]{color:#17120a;background:var(--brass);border-color:var(--brass)}
+:is(.lang button,.toolbtn,.nav button,.pager button,.chip,.btn,.qopts button):focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:20;display:flex;gap:4px;padding:5px;border-radius:14px;overflow-x:auto;scrollbar-width:none;
+  background:rgba(20,23,28,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line)}
+.nav::-webkit-scrollbar{display:none}
+.nav button{all:unset;cursor:pointer;flex:1 0 auto;display:flex;align-items:baseline;gap:8px;padding:9px 14px;border-radius:10px;color:var(--muted);font-weight:500;white-space:nowrap}
+.nav button span{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.nav button:hover{color:var(--fg)}
+.nav button[aria-current="true"]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px #343a43}
+.nav button[aria-current="true"] span{color:var(--air)}
+
+section.page{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.shead{display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:6px;align-items:baseline}
+.snum{font-family:var(--mono);font-size:13px;color:var(--air)}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,3.2vw,34px);margin:0;line-height:1.15;text-wrap:balance}
+.ssub{grid-column:2;color:var(--muted);max-width:68ch;margin:0}
+
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.panel canvas{display:block;width:100%}
+.plabel{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.plabel b{font-weight:600;color:var(--air)}
+.plabel span{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.ctrl{display:flex;gap:10px 18px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.ctrl label{font-size:13px;color:var(--muted)}
+.ctrl .grow{flex:1 1 240px;display:flex;align-items:center;gap:10px;min-width:0}
+.ctrl output{font-family:var(--mono);font-size:15px;min-width:10ch;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-width:0;accent-color:var(--brass);height:28px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip:hover{border-color:#3a414b;color:var(--fg)}
+.chip[aria-pressed="true"]{color:#17120a;background:var(--brass);border-color:var(--brass)}
+.btn{all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--fg);background:var(--panel2);white-space:nowrap}
+.btn:hover{border-color:#3a414b}
+.btn.on{background:var(--air);color:#0d1418;border-color:var(--air)}
+.btn.rec{border-color:var(--err);color:var(--err)}
+.btn[disabled]{opacity:.4;cursor:default}
+
+.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.readout div{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.readout span{font-size:11.5px;color:var(--muted)}
+.readout b{font-family:var(--mono);font-weight:500;font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.verdict{margin:0;padding:10px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:15px}
+.verdict.bad{border-color:var(--err)} .verdict.ok{border-color:var(--good)} .verdict.mid{border-color:var(--warn)}
+.note{margin:0;font-size:13px;color:var(--muted)}
+.key{margin:0;padding:12px 16px;border-left:3px solid var(--air);background:var(--panel);border-radius:0 12px 12px 0;max-width:78ch}
+.key b{color:var(--air)}
+.chain{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.chain div{flex:1 1 150px;display:flex;flex-direction:column;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);min-width:0}
+.chain div.hot{border-color:var(--brass)}
+.chain span{font-size:12px;color:var(--muted)}
+.chain b{font-family:var(--mono);font-weight:500;font-size:17px}
+.chain i{align-self:center;font-style:normal;color:var(--faint);font-family:var(--mono)}
+.tips{margin:0;padding:12px 16px 12px 34px;border:1px solid var(--line);border-radius:14px;background:var(--panel);max-width:78ch}
+.tips li{margin:4px 0}
+.tips b{color:var(--light)}
+
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line);margin-top:6px}
+.pager button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+.pager button:hover{border-color:#3a414b}
+.pager button span{font-size:12px;color:var(--muted)}
+.pager button b{font-family:var(--display);font-size:17px}
+.pager .next{margin-left:auto;text-align:right}
+
+.quiz{display:flex;flex-direction:column;gap:14px}
+.q{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.q p{margin:0}
+.q .qq{font-weight:600}
+.qopts{display:flex;gap:8px;flex-wrap:wrap}
+.qopts button{all:unset;cursor:pointer;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:14px}
+.qopts button.ok{border-color:var(--good);color:var(--good)}
+.qopts button.no{border-color:var(--err);color:var(--err)}
+.q .why{color:var(--muted);font-size:14px}
+
+body.present{font-size:17px}
+body.present .wrap{max-width:1560px}
+body.present .lede,body.present .ssub,body.present .quiz,body.present .note{display:none}
+body.present h1{font-size:clamp(26px,3vw,40px)}
+@media (max-width:760px){
+  .duo{grid-template-columns:1fr}
+  .readout{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .chain i{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="toprow">
+      <div class="eyebrow" data-i18n="eyebrow"></div>
+      <div class="hdr-r">
+        <a class="toolbtn" href="https://123.57.56.38:624/" target="_top" data-i18n="home"></a>
+        <button type="button" class="toolbtn" id="present" aria-pressed="false" data-i18n="present"></button>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" id="lang-zh" aria-pressed="true">中文</button>
+          <button type="button" id="lang-en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+    <h1 data-i18n="title"></h1>
+    <p class="lede" data-i18n="lede"></p>
+  </header>
+  <nav class="nav" id="nav" aria-label="Pages"></nav>
+
+  <!-- 01 reading the meter -->
+  <section class="page" id="meter">
+    <div class="shead"><div class="snum">01</div><h2 data-i18n="s1h"></h2><p class="ssub" data-i18n="s1s"></p></div>
+    <div class="panel"><div class="plabel"><b data-i18n="p1h"></b><span data-i18n="p1s"></span></div><canvas id="c1"></canvas></div>
+    <div class="ctrl">
+      <label data-i18n="srcLabel"></label>
+      <div class="chips" id="src1"></div>
+      <div class="grow"><label for="lvl1" data-i18n="loudLabel"></label><input type="range" id="lvl1" min="-40" max="6" step="1" value="-12"><output id="lvl1o"></output></div>
+      <button type="button" class="btn" data-play="p1"></button>
+    </div>
+    <p class="note" id="mic1"></p>
+    <div class="readout" id="ro1"></div>
+    <p class="key" data-i18n-html="key1"></p>
+    <div class="pager" data-pager="meter"></div>
+  </section>
+
+  <!-- 02 gain and clipping -->
+  <section class="page" id="gain" hidden>
+    <div class="shead"><div class="snum">02</div><h2 data-i18n="s2h"></h2><p class="ssub" data-i18n="s2s"></p></div>
+    <div class="chain">
+      <div><span data-i18n="ch1"></span><b>−30 dBFS</b></div><i>→</i>
+      <div class="hot"><span data-i18n="ch2"></span><b id="ch2g"></b></div><i>→</i>
+      <div><span data-i18n="ch3"></span><b id="ch2p"></b></div>
+    </div>
+    <div class="duo">
+      <div class="panel"><div class="plabel"><b data-i18n="p2ah"></b><span id="p2as"></span></div><canvas id="c2a"></canvas></div>
+      <div class="panel"><div class="plabel"><b data-i18n="p2bh"></b><span data-i18n="p2bs"></span></div><canvas id="c2b"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="gain2" data-i18n="gainLabel"></label><input type="range" id="gain2" min="0" max="48" step="1" value="6"><output id="gain2o"></output></div>
+      <div class="chips" id="src2"></div>
+      <button type="button" class="chip" id="post2" aria-pressed="false" data-i18n="post2"></button>
+      <button type="button" class="btn" data-play="p2"></button>
+    </div>
+    <p class="verdict" id="v2"></p>
+    <div class="readout" id="ro2"></div>
+    <p class="note" data-i18n="earNote"></p>
+    <p class="key" data-i18n-html="key2"></p>
+    <div class="pager" data-pager="gain"></div>
+  </section>
+
+  <!-- 03 the noise floor -->
+  <section class="page" id="noise" hidden>
+    <div class="shead"><div class="snum">03</div><h2 data-i18n="s3h"></h2><p class="ssub" data-i18n="s3s"></p></div>
+    <div class="duo">
+      <div class="panel"><div class="plabel"><b data-i18n="p3ah"></b><span id="p3as"></span></div><canvas id="c3a"></canvas></div>
+      <div class="panel"><div class="plabel"><b data-i18n="p3bh"></b><span data-i18n="p3bs"></span></div><canvas id="c3b"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="gain3" data-i18n="recGain"></label><input type="range" id="gain3" min="0" max="24" step="1" value="0"><output id="gain3o"></output></div>
+      <button type="button" class="chip" id="norm3" aria-pressed="true" data-i18n="norm3"></button>
+      <button type="button" class="btn" data-play="p3b"></button>
+      <button type="button" class="btn" data-play="p3a"></button>
+    </div>
+    <p class="verdict" id="v3"></p>
+    <div class="readout" id="ro3"></div>
+    <p class="key" data-i18n-html="key3"></p>
+    <div class="pager" data-pager="noise"></div>
+  </section>
+
+  <!-- 04 challenge -->
+  <section class="page" id="try" hidden>
+    <div class="shead"><div class="snum">04</div><h2 data-i18n="s4h"></h2><p class="ssub" data-i18n="s4s"></p></div>
+    <div class="panel"><div class="plabel"><b data-i18n="p4h"></b><span id="p4s"></span></div><canvas id="c4m"></canvas></div>
+    <div class="ctrl">
+      <div class="grow"><label for="gain4" data-i18n="gainLabel"></label><input type="range" id="gain4" min="0" max="40" step="1" value="0"><output id="gain4o"></output></div>
+      <button type="button" class="btn" id="reh4"></button>
+      <button type="button" class="btn rec" id="rec4" data-i18n="rec4"></button>
+      <button type="button" class="btn" id="new4" data-i18n="new4"></button>
+    </div>
+    <div class="panel"><div class="plabel"><b data-i18n="p4oh"></b><span data-i18n="p4os"></span></div><canvas id="c4o"></canvas></div>
+    <p class="verdict" id="v4"></p>
+    <div class="readout" id="ro4"></div>
+    <ul class="tips" id="tips"></ul>
+    <p class="key" data-i18n-html="key4"></p>
+    <h2 data-i18n="quizH" style="margin-top:14px"></h2>
+    <div class="quiz" id="quiz"></div>
+    <div class="pager" data-pager="try"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ================= i18n & helpers ================= */
+let lang="zh";
+try{ const s=localStorage.getItem("mic-lang"); if(s==="en"||s==="zh") lang=s; }catch(e){}
+const $=id=>document.getElementById(id);
+const zh=()=>lang==="zh";
+const T={
+  eyebrow:["声音基础 · 03","Sound Basics · 03"], home:["← 课程目录","← All lessons"], present:["投屏模式","Present"],
+  title:["电平、增益与削波","Levels, Gain & Clipping"],
+  lede:["录音最常见的两个失误：录得太大，声音破了；录得太小，全是嘶嘶的底噪。学会看电平表、调增益，这两个问题都能避开。","The two most common recording mistakes: too loud and the sound breaks up; too quiet and it drowns in hiss. Learn to read the meter and set the gain, and you avoid both."],
+  n1:["电平表怎么读","Reading the meter"], n2:["增益与削波","Gain & clipping"], n3:["录小了为什么不行","Why not record quietly"], n4:["调一调","Set the level"],
+  prev:["上一页","Previous"], next:["下一页","Next"],
+  play:["▶ 听声音","▶ Listen"], stop:["■ 停止","■ Stop"],
+  srcLabel:["声源","Source"], voice:["人声","Voice"], drum:["鼓","Drum"], tone:["持续音","Steady tone"], mic:["🎤 我的麦克风","🎤 My microphone"],
+  s1h:["电平表：声音有多大","The level meter: how loud is it"],
+  s1s:["左边是声音的波形，右边是电平表。表上的数字单位是 dBFS：最上面的 0 是数字录音的天花板，所有声音都只能在它下面，所以读数都是负数。拖动“声音大小”，看表怎么跳。","On the left is the waveform, on the right the level meter. The numbers are in dBFS: the 0 at the top is the ceiling of digital audio. Every sound has to fit below it, so readings are negative. Drag “Loudness” and watch the meter."],
+  p1h:["波形 + 电平表","Waveform + level meter"], p1s:["横线 = 峰值保持","line = peak hold"],
+  loudLabel:["声音大小","Loudness"], over:["超出 {n} dB","{n} dB over"],
+  r1a:["峰值（最高的一瞬间）","Peak (highest instant)"], r1b:["平均（听起来多响）","Average (how loud it feels)"], r1c:["最高纪录","Highest so far"], r1d:["状态","Status"],
+  stLow:["太小","Too low"], stQuiet:["偏小","A bit low"], stGood:["合适","Good"], stHot:["危险区","Danger zone"], stClip:["削波！","Clipping!"],
+  ceil:["0 dBFS 天花板","0 dBFS ceiling"], clip:["削波","CLIP"], target:["峰值目标","peak target"],
+  zAvg:["平均说话声","average speech"], zPk:["峰值在这里","peaks live here"], zRed:["危险","danger"],
+  micOff:[" "," "], micAsk:["正在请求麦克风权限…","Asking for microphone permission…"],
+  micOk:["麦克风已打开：对着它说话、拍手、吹气，看电平表。声音不会从扬声器放出来。","Microphone is on: talk, clap or blow at it and watch the meter. Nothing is played through the speakers."],
+  micNo:["这个浏览器不能使用麦克风（需要 https 网址或较新的浏览器）。已换回合成的人声。","This browser cannot use the microphone (it needs an https address or a newer browser). Switched back to the synthetic voice."],
+  micDenied:["没有拿到麦克风权限。已换回合成的人声。","Microphone permission was not given. Switched back to the synthetic voice."],
+  key1:["<b>要点</b>　电平表显示的是声音信号有多大。<b>0 dBFS 是天花板</b>，上面没有数字可用。说话的平均电平在 −18 左右、最响的峰值在 −12 到 −6 之间最稳妥。表头亮红灯，就是撞到天花板了。","<b>Key idea</b>　The meter shows how big the sound signal is. <b>0 dBFS is the ceiling</b>; there are no numbers above it. Speech sits safely with its average around −18 and its loudest peaks between −12 and −6. A red light at the top means you hit the ceiling."],
+  s2h:["增益：太小、太大、刚好","Gain: too little, too much, just right"],
+  s2s:["传声器出来的信号很弱，录音机要先用“增益”把它放大。增益开得太大，波形的顶就会撞上天花板被削平，这叫削波，听起来又破又刺耳。慢慢把增益往上推，看波形什么时候被削平。","The signal from a microphone is weak, so the recorder first amplifies it with “gain”. Too much gain and the tops of the wave hit the ceiling and get cut flat. That is clipping, and it sounds harsh and broken. Push the gain up slowly and watch for the tops going flat."],
+  ch1:["传声器出来的信号","Signal from the microphone"], ch2:["增益（放大）","Gain (amplify)"], ch3:["录音机收到的峰值","Peak reaching the recorder"],
+  p2ah:["放大看波形","The wave, zoomed in"], p2bh:["电平表","Level meter"], p2bs:["括号 = 峰值目标 −12 到 −6","bracket = peak target −12 to −6"],
+  ms:[" 毫秒"," ms"], gainLabel:["增益","Gain"],
+  post2:["后期拉小，能救吗？","Turn it down later: fixed?"],
+  ghost:["本来的波形","the wave as it should be"], flat:["被削平","cut flat"], postLbl:["后期拉小 12 dB：顶还是平的","12 dB lower in post: the tops are still flat"],
+  r2a:["放大倍数","Amplification"], r2b:["此刻的电平","Level right now"], r2c:["被削掉的部分","Samples clipped"], r2d:["判断","Verdict"],
+  xTimes:["× {n}","× {n}"],
+  v2low:["太小：声音离底噪太近，后期拉大会全是嘶嘶声（见下一页）。","Too low: the sound is close to the noise floor and will be full of hiss when turned up later (see the next page)."],
+  v2quiet:["偏小：安全，但还可以再开大一点。","A bit low: safe, but there is room to turn it up."],
+  v2good:["刚好：峰值在 −12 到 −6 之间。够响，上面还留着余量。","Just right: peaks between −12 and −6. Loud enough, with headroom left above."],
+  v2hot:["太险：还没破，但几乎没有余量，演员再大声一点就破了。","Risky: not broken yet, but there is almost no headroom. A slightly louder moment will clip."],
+  v2clip:["削波了：波峰被削平，声音发破。被削掉的部分没有录下来，后期救不回来。","Clipping: the peaks are cut flat and the sound breaks up. The part that was cut off was never recorded, so it cannot be repaired later."],
+  earNote:["为了保护耳朵，试听的音量已经自动拉平：增益再大，声音也不会更响，你听到的只是它变破了。","To protect your ears the listening volume is levelled automatically: more gain does not get louder here, you only hear it break up."],
+  key2:["<b>要点</b>　增益决定录进去的信号有多大。目标：<b>最响的时候峰值在 −12 到 −6 dBFS</b>，给意外的大声留出余量。撞到 0 就是削波：波形的顶被切掉，那部分声音没有被记录，后期把音量拉小也补不回来。","<b>Key idea</b>　Gain sets how big the recorded signal is. Aim for <b>peaks of −12 to −6 dBFS at the loudest moment</b>, leaving headroom for surprises. Hitting 0 means clipping: the tops of the wave are cut off, that sound was never recorded, and turning it down afterwards does not bring it back."],
+  s3h:["录小了，后期再拉大？","Record it quietly and turn it up later?"],
+  s3s:["那就一直录小一点，不就永远不会削波了？不行。每台录音机都有一层固定的嘶嘶声，叫底噪。录得太小，声音就贴着底噪；后期把音量拉大，底噪也跟着一起变大。","So why not always record quietly and never clip? Because every recorder adds a constant layer of hiss, the noise floor. Record too low and your sound sits right on top of it; turn the volume up afterwards and the hiss comes up with it."],
+  p3ah:["最后听到的声音","What you finally hear"], p3bh:["信号和底噪","Signal and noise"], p3bs:["两根柱子的差 = 信噪比","the gap = signal-to-noise ratio"],
+  recGain:["录制增益","Recording gain"], norm3:["后期拉大到正常音量","Turn up to normal volume in post"],
+  play3b:["▶ 听：这一条","▶ Listen: this take"], play3a:["▶ 听：录得刚好的","▶ Listen: well recorded"],
+  r3a:["录制时的峰值","Peak when recorded"], r3b:["后期拉大","Boost in post"], r3c:["最后的底噪","Final noise floor"], r3d:["信噪比","Signal-to-noise"],
+  colRec:["录下来的文件","As recorded"], colPost:["后期拉大以后","After the boost"], noBoost:["（没有拉大）","(no boost)"],
+  sig:["人声","voice"], nz:["底噪","noise"], nzLine:["底噪 {d}","noise floor {d}"], gap:["差 {n} dB","gap {n} dB"],
+  v3ok:["干净：人声比底噪高出很多，几乎听不到嘶嘶声。","Clean: the voice is far above the noise; the hiss is barely audible."],
+  v3mid:["安静的地方能听到一层嘶嘶声。","In the quiet moments you can hear a layer of hiss."],
+  v3bad:["嘶嘶声很明显：录的时候信号离底噪太近，后期一拉大，两个一起变大。","Obvious hiss: the signal was recorded too close to the noise, and the boost raised both together."],
+  key3:["<b>要点</b>　底噪的大小是固定的。重要的是人声比底噪高出多少，这个差叫<b>信噪比</b>。它在按下录音键的那一刻就定了：后期拉大音量，人声和底噪一起变大，差不会变。所以录的时候就要把电平开够。","<b>Key idea</b>　The noise floor has a fixed size. What matters is how far the voice is above it: the <b>signal-to-noise ratio</b>. It is decided the moment you record: turning it up later raises voice and noise together, and the gap stays the same. So get enough level while recording."],
+  s4h:["调一调：给这场戏定增益","Your turn: set the gain for this scene"],
+  s4s:["这场戏里演员先说悄悄话，再正常说话，最后突然大喊。只能用一个增益。先“试音”看电平表，把增益调到你觉得合适，再按“录制”看结果。","In this scene the actor whispers, then talks normally, then suddenly shouts. You get one gain setting. Run a “level check” and watch the meter, set the gain where you think it should be, then press “Record” to see the result."],
+  p4h:["试音：看电平表","Level check: watch the meter"], p4oh:["录下来的这一条","The recorded take"], p4os:["每一刻的电平","level at each moment"],
+  reh4:["▶ 试音","▶ Level check"], rec4:["● 录制","● Record"], new4:["换一场戏","New scene"],
+  idle4:["按“试音”，看演员最大声的时候表跳到哪里","press “Level check” and see where the loudest moment lands"],
+  seg1:["悄悄话","whisper"], seg2:["说话","talking"], seg3:["大喊","shout"],
+  hidden4:["先试音、调好增益，再按“录制”。录完才能看到这一条。","Do a level check, set the gain, then press “Record”. The take appears once it is recorded."],
+  r4a:["增益","Gain"], r4b:["试音时的最高峰值","Highest peak in the check"], r4c:["悄悄话高出底噪","Whisper above the noise"], r4d:["得分","Score"],
+  res3:["★★★　刚好。大喊的峰值 {p}，没有破，上面还有余量；悄悄话比底噪高 {w} dB。","★★★　Just right. The shout peaks at {p}: no clipping and headroom to spare; the whisper is {w} dB above the noise."],
+  resHot:["★★☆　没有破，但太险。大喊的峰值 {p}，离天花板太近，演员再用力一点就破了。再留一点余量。","★★☆　No clipping, but too risky. The shout peaks at {p}, right under the ceiling; a little more energy and it clips. Leave more headroom."],
+  resLow:["★★☆　安全，但偏小。大喊才到 {p}，悄悄话只比底噪高 {w} dB。可以再开大一点。","★★☆　Safe, but low. The shout only reaches {p} and the whisper is just {w} dB above the noise. You can turn it up."],
+  resVlow:["★☆☆　太小。悄悄话只比底噪高 {w} dB，后期拉大全是嘶嘶声。","★☆☆　Too low. The whisper is only {w} dB above the noise; turned up later it will be full of hiss."],
+  resClip:["★☆☆　破音了。大喊的时候有 {c}% 的波形被削平，这一条不能用。把增益关小再来。","★☆☆　Clipped. During the shout {c}% of the wave was cut flat; this take is unusable. Turn the gain down and go again."],
+  tips:[["<b>用最大声的那句台词试音。</b>请演员按正式表演的音量来一遍，而不是随口说“喂喂”。","<b>Check levels on the loudest line.</b> Ask the actor to perform it at full strength, not to mumble “testing, testing”."],
+        ["<b>留余量。</b>最响的峰值放在 −12 到 −6，正式表演往往比试音更大声。","<b>Leave headroom.</b> Put the loudest peaks at −12 to −6; the real take is often louder than the check."],
+        ["<b>看电平表，不要凭感觉。</b>耳机音量和录进去的电平是两回事。","<b>Trust the meter, not your gut.</b> Headphone volume and recorded level are two different things."],
+        ["<b>准备后备。</b>很多录音机有限幅器，或者能同时录一条小 12 dB 的安全轨，以防突然的大声。","<b>Have a backup.</b> Many recorders have a limiter, or can record a safety track 12 dB lower, in case of a sudden loud moment."]],
+  key4:["<b>要点</b>　定增益就是在两个危险之间找位置：上面是削波，下面是底噪。按最大声的时候来定，峰值放在 −12 到 −6 dBFS。","<b>Key idea</b>　Setting gain means finding a place between two dangers: clipping above and noise below. Set it for the loudest moment, with peaks at −12 to −6 dBFS."],
+  quizH:["小测","Quick quiz"], right:["对了。","Correct. "], wrong:["再想想。","Not quite. "]
+};
+const QUIZ=[
+ {q:["电平表最上面的 0 dBFS 是什么？","What is the 0 dBFS at the top of the meter?"],
+  o:[["最安静的声音","The quietest sound"],["数字录音能记下的最大值","The largest value digital audio can store"],["标准的说话音量","Normal speaking level"]], a:1,
+  why:["0 dBFS 是天花板，超过它的部分记不下来，会被削平。","0 dBFS is the ceiling; anything above it cannot be stored and is cut flat."]},
+ {q:["录对白时，最响的峰值放在哪里最稳妥？","When recording dialogue, where should the loudest peaks sit?"],
+  o:[["紧贴 0 dBFS","Right at 0 dBFS"],["−12 到 −6 dBFS","−12 to −6 dBFS"],["−40 dBFS 以下","Below −40 dBFS"]], a:1,
+  why:["够响，离底噪很远；上面又留着余量，突然大声也不会破。","Loud enough to be far above the noise, with headroom left so a sudden loud moment does not clip."]},
+ {q:["录的时候电平太小，后期把音量拉大，会怎样？","You recorded too quietly and turn the volume up afterwards. What happens?"],
+  o:[["和正常录的一样干净","As clean as a normal recording"],["底噪跟着一起变大","The hiss comes up with it"],["声音会被削波","The sound gets clipped"]], a:1,
+  why:["拉大音量时人声和底噪一起变大，它们之间的差（信噪比）在录的时候就定了。","Voice and noise rise together; the gap between them (the signal-to-noise ratio) was fixed when you recorded."]}
+];
+const t=(k,v)=>{ let s=T[k]?T[k][zh()?0:1]:k; if(v) for(const n in v) s=s.split("{"+n+"}").join(v[n]); return s; };
+const L2=a=>a[zh()?0:1];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let r=Math.imul(seed^seed>>>15,1|seed); r=r+Math.imul(r^r>>>7,61|r)^r; return ((r^r>>>14)>>>0)/4294967296; }; }
+const C={bg:"#0d0f12",panel:"#14171c",panel2:"#1a1e24",line:"#262b33",fg:"#ebe7df",muted:"#9198a2",faint:"#5d636c",light:"#e9c77f",air:"#86b6cf",brass:"#d8b06a",err:"#e86a7a",good:"#6cc08b",warn:"#f2c14e"};
+const FM='"JetBrains Mono",ui-monospace,Menlo,monospace', FB='"IBM Plex Sans","Noto Sans SC",system-ui,sans-serif';
+const db2lin=d=>Math.pow(10,d/20), lin2db=v=>v>1e-6?20*Math.log10(v):-120;
+const fdb=d=>d<-99?"−∞":(d<-.05?"−":"")+Math.abs(d).toFixed(1);            // a level
+const dbfs=d=>fdb(d)+" dBFS";
+const gdb=d=>(d>0?"+":d<0?"−":"")+Math.abs(Math.round(d))+" dB";               // a gain change
+const now=()=>performance.now()/1000;
+
+const CV={};
+function fit(id,h){ const cv=$(id), w=cv.getBoundingClientRect().width||cv.parentElement.clientWidth; if(!w) return null; const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+"px"; const g=cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); return CV[id]={g,w,h}; }
+const stageH=w=>clamp(Math.round(w*.42),250,380), halfH=w=>clamp(Math.round(w*.62),250,360);
+const HEIGHTS={c1:stageH,c2a:halfH,c2b:halfH,c3a:halfH,c3b:halfH,c4m:w=>clamp(Math.round(w*.34),240,340),c4o:w=>clamp(Math.round(w*.26),200,280)};
+
+/* ================= synthesised sounds (all normalised to peak 1.0) ================= */
+const SR=44100;
+function normalize(a){ let m=0; for(let i=0;i<a.length;i++){ const v=Math.abs(a[i]); if(v>m) m=v; } if(m>0) for(let i=0;i<a.length;i++) a[i]/=m; return a; }
+const VOW={a:[800,1200,2500],i:[300,2300,3000],u:[350,800,2300],e:[500,1800,2500],o:[500,900,2400]};
+const fmt=(f,F)=>1/(1+Math.pow((f-F[0])/90,2))+.6/(1+Math.pow((f-F[1])/110,2))+.3/(1+Math.pow((f-F[2])/160,2));
+/* a speech-like phrase: harmonics of a gliding pitch shaped by vowel formants, one envelope per syllable.
+   whisper = the same formants excited by many unrelated sine partials (sounds like breath noise). */
+function phrase(dur,syl,o){
+  o=o||{}; const n=Math.round(dur*SR), out=new Float32Array(n), r=rng(o.seed||1), tilt=o.tilt||1;
+  for(const s of syl){ const i0=Math.round(s[0]*SR), len=Math.round(s[1]*SR), F=VOW[s[4]], parts=[];
+    if(o.whisper){ for(let j=0;j<56;j++){ const f=250+3600*r(); parts.push([f,fmt(f,F)+.04,r()*6.283]); } }
+    else { const fm=(s[2]+s[3])/2, K=Math.min(40,Math.floor(4200/fm)); for(let k=1;k<=K;k++) parts.push([k,fmt(k*fm,F)/Math.pow(k,tilt)+.002,0]); }
+    let ph=0;
+    for(let i=0;i<len&&i0+i<n;i++){ const u=i/len, env=Math.min(1,u/.12)*Math.min(1,(1-u)/.3), e=env*env*(3-2*env); let v=0;
+      if(o.whisper){ const tt=i/SR; for(const p of parts) v+=p[1]*Math.sin(6.283185*p[0]*tt+p[2]); }
+      else { const f0=s[2]+(s[3]-s[2])*u+3*Math.sin(u*40); ph+=6.283185*f0/SR; for(const p of parts) v+=p[1]*Math.sin(p[0]*ph); v+=(r()-.5)*.05; }
+      out[i0+i]+=v*e*(s[5]||1); } }
+  return normalize(out);
+}
+function mkDrum(){ const n=SR*2, a=new Float32Array(n), r=rng(9);
+  const hit=(t0,kick)=>{ const i0=Math.round(t0*SR); let ph=0; for(let i=0;i<SR*.45&&i0+i<n;i++){ const tt=i/SR;
+    if(kick){ ph+=6.283185*(45+115*Math.exp(-tt/.045))/SR; a[i0+i]+=Math.sin(ph)*Math.exp(-tt/.16); }
+    else { ph+=6.283185*190/SR; a[i0+i]+=((r()*2-1)*.75+Math.sin(ph)*.4)*Math.exp(-tt/.07)*.7; } } };
+  hit(0,true); hit(.5,false); hit(1,true); hit(1.25,true); hit(1.5,false); return normalize(a); }
+function mkTone(){ const a=new Float32Array(SR); for(let i=0;i<SR;i++) a[i]=Math.sin(6.283185*440*i/SR); return a; }
+function mkNoise(){ const a=new Float32Array(SR*2), r=rng(21); for(let i=0;i<a.length;i++) a[i]=(r()*2-1)*1.7320508; return a; }   // RMS = 1
+const SEG4=[[.15,1.55],[1.95,1.5],[3.7,1.25]], DUR4=5.2;      // whisper, talk, shout: start, length (s)
+function mkTake(){ const a=new Float32Array(Math.round(DUR4*SR));
+  const put=(p,t0,amp)=>{ const i0=Math.round(t0*SR); for(let i=0;i<p.length&&i0+i<a.length;i++) a[i0+i]+=p[i]*amp; };
+  put(phrase(1.55,[[0,.3,0,0,"i"],[.33,.3,0,0,"a"],[.7,.32,0,0,"u"],[1.08,.4,0,0,"e"]],{whisper:true,seed:4}),SEG4[0][0],db2lin(-24));
+  put(phrase(1.5,[[0,.28,135,125,"o"],[.32,.3,140,150,"a"],[.68,.28,130,120,"i"],[1.02,.42,128,105,"e"]],{seed:5}),SEG4[1][0],db2lin(-12));
+  put(phrase(1.25,[[0,.42,230,260,"a"],[.5,.7,270,215,"e"]],{seed:6,tilt:.7}),SEG4[2][0],1);
+  return a; }
+const SND={}, MAKE={
+  voice:()=>phrase(2.7,[[.05,.3,128,140,"a"],[.4,.28,142,130,"i"],[.76,.34,125,112,"o"],[1.3,.28,135,150,"e"],[1.63,.3,150,138,"a"],[2.0,.42,132,104,"u"]],{seed:2}),
+  drum:mkDrum, tone:mkTone, noise:mkNoise, take:mkTake };
+const snd=k=>SND[k]||(SND[k]=MAKE[k]());
+
+/* ================= audio engine: source → gain → hard clip → monitor gain → master → limiter ================= */
+let AC=null, master=null, PLAY=null, MIC=null;
+function ac(){
+  if(!AC){ const Ctor=window.AudioContext||window.webkitAudioContext; if(!Ctor) return null;
+    try{ AC=new Ctor(); }catch(e){ return null; }
+    master=AC.createGain(); master.gain.value=.5;                            // conservative master level
+    const lim=AC.createDynamicsCompressor(); lim.threshold.value=-8; lim.knee.value=0; lim.ratio.value=20; lim.attack.value=.002; lim.release.value=.12;
+    master.connect(lim); lim.connect(AC.destination); }
+  if(AC.state==="suspended") AC.resume();
+  return AC;
+}
+/* listening level: never louder than a clean −9 dBFS-peak signal, however far the gain is pushed.
+   Once it clips the output peak is stuck at 0 dBFS but it keeps getting denser, so back off a further 0.6 dB per dB of overdrive. */
+const monFor=pk=>pk<=-9?1:pk<=0?db2lin(-9-pk):db2lin(-9-.6*Math.min(pk,18));
+function audioParams(tag){
+  if(tag==="p1") return {buf:S1.src,loop:true,pre:db2lin(S1.lvl),mon:monFor(S1.lvl),noise:0};
+  if(tag==="p2") return {buf:S2.src,loop:true,pre:db2lin(-30+S2.gain),mon:monFor(-30+S2.gain),noise:0};
+  if(tag==="p3a") return {buf:"voice",loop:true,pre:db2lin(-6),mon:1,noise:db2lin(NOISE)};
+  if(tag==="p3b") return {buf:"voice",loop:true,pre:db2lin(-30+S3.gain),mon:S3.norm?db2lin(boost3()):1,noise:db2lin(NOISE)};
+  return {buf:"take",loop:false,pre:db2lin(S4.raw+S4.gain),mon:monFor(S4.raw+S4.gain),noise:0};
+}
+function stopAudio(){
+  if(PLAY){ const p=PLAY; PLAY=null; p.srcs.forEach(s=>{ try{ s.onended=null; s.stop(); }catch(e){} }); p.nodes.forEach(n=>{ try{ n.disconnect(); }catch(e){} }); }
+  playBtns();
+}
+function startAudio(tag){
+  stopAudio(); const c=ac(); if(!c) return false; const P=audioParams(tag), data=snd(P.buf);
+  const mk=(d,loop)=>{ const b=c.createBuffer(1,d.length,SR); b.getChannelData(0).set(d); const s=c.createBufferSource(); s.buffer=b; s.loop=loop; return s; };
+  const src=mk(data,P.loop), pre=c.createGain(), sh=c.createWaveShaper(), mon=c.createGain(), fade=c.createGain();
+  sh.curve=new Float32Array([-1,1]);                                          // linear inside ±1, clamped outside: a true hard clip
+  pre.gain.value=P.pre; mon.gain.value=P.mon; fade.gain.value=0; fade.gain.setTargetAtTime(1,c.currentTime,.02);
+  src.connect(pre); pre.connect(sh); sh.connect(mon); mon.connect(fade); fade.connect(master);
+  const srcs=[src], nodes=[src,pre,sh,mon,fade]; let ng=null;
+  if(P.noise){ const nz=mk(snd("noise"),true); ng=c.createGain(); ng.gain.value=P.noise; nz.connect(ng); ng.connect(mon); nz.start(); srcs.push(nz); nodes.push(nz,ng); }
+  src.onended=()=>{ if(PLAY&&PLAY.srcs[0]===src) stopAudio(); };
+  src.start(); PLAY={tag,srcs,nodes,pre,mon,ng}; playBtns(); return true;
+}
+function syncAudio(){ if(!PLAY||!AC) return; const P=audioParams(PLAY.tag), n=AC.currentTime; PLAY.pre.gain.setTargetAtTime(P.pre,n,.02); PLAY.mon.gain.setTargetAtTime(P.mon,n,.02); }
+function playBtns(){
+  document.querySelectorAll("[data-play]").forEach(b=>{ const tag=b.dataset.play, on=!!PLAY&&PLAY.tag===tag;
+    b.textContent=on?t("stop"):t(tag==="p3a"?"play3a":tag==="p3b"?"play3b":"play"); b.classList.toggle("on",on); b.disabled=tag==="p1"&&S1.src==="mic"; });
+  const r=$("reh4"), on=!!S4.reh; r.textContent=on?t("stop"):t("reh4"); r.classList.toggle("on",on);
+}
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-play]"); if(!b||b.disabled) return; const tag=b.dataset.play;
+  if(PLAY&&PLAY.tag===tag){ stopAudio(); return; }
+  if(startAudio(tag)){ const S=tag==="p1"?S1:tag==="p2"?S2:S3; S.t0=now(); S.rig&&resetRig(S.rig); } });
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){ stopAudio(); endReh(); } });
+function micOff(){ if(MIC){ try{ MIC.stream.getTracks().forEach(x=>x.stop()); MIC.node.disconnect(); }catch(e){} MIC=null; } }
+async function micOn(){
+  const fail=k=>{ micOff(); S1.src="voice"; S1.micMsg=k; resetRig(S1.rig); ui1(); };
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!ac()) return fail("micNo");
+  S1.micMsg="micAsk"; ui1();
+  try{ const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    if(S1.src!=="mic"||cur!=="meter"){ stream.getTracks().forEach(x=>x.stop()); return; }
+    const node=AC.createMediaStreamSource(stream), an=AC.createAnalyser(); an.fftSize=2048; node.connect(an);       // analyser only: never sent to the speakers
+    MIC={stream,node,an,arr:new Float32Array(2048)}; S1.micMsg="micOk"; ui1();
+  }catch(e){ fail(e&&e.name==="NotAllowedError"?"micDenied":"micNo"); }
+}
+
+/* ================= meter state & drawing ================= */
+const mkRig=()=>({last:-1,hist:[],lvl:-120,hold:-120,holdT:0,clipT:-9,ms:0,max:-120});
+function resetRig(R){ R.last=-1; R.hist.length=0; R.lvl=R.hold=R.max=-120; R.ms=0; R.clipT=-9; }
+/* one animation frame of signal: mn/mx after clipping, mean square, and whether anything went over the ceiling */
+function feed(R,dt,mn,mx,ms,over){
+  const pk=lin2db(Math.max(-mn,mx)); R.lvl=Math.max(pk,R.lvl-45*dt); const n=now();
+  if(pk>=R.hold||n-R.holdT>1.6){ if(pk>=R.hold){ R.hold=pk; R.holdT=n; } else R.hold=Math.max(pk,R.hold-60*dt); }
+  if(over) R.clipT=n; R.ms+=(ms-R.ms)*(1-Math.exp(-dt/.3)); if(pk>R.max) R.max=pk;
+  R.hist.push(mn,mx,over?1:0); if(R.hist.length>3*420) R.hist.splice(0,3);
+}
+/* advance through a looped buffer to `pos` seconds, applying gain and a hard clip */
+function scan(R,buf,pos,gain,dt,loop){
+  const len=buf.length; let i1=Math.floor(pos*SR); if(loop) i1%=len; else i1=Math.min(i1,len-1);
+  if(R.last<0) R.last=i1; let cnt=loop?(i1-R.last+len)%len:Math.max(0,i1-R.last); cnt=Math.min(cnt,9000);
+  let mn=0,mx=0,ss=0,over=false, i=R.last;
+  for(let k=0;k<cnt;k++){ let v=buf[i]*gain; if(v>1){ v=1; over=true; } else if(v<-1){ v=-1; over=true; } if(v<mn) mn=v; if(v>mx) mx=v; ss+=v*v; if(++i>=len) i=loop?0:len-1; }
+  R.last=i1; feed(R,dt,mn,mx,cnt?ss/cnt:R.ms,over);
+}
+const ZONES=[[-60,-18,C.good],[-18,-6,C.warn],[-6,0,C.err]];
+function drawMeter(g,x,y,w,h,R,target){
+  const top=y+30, hh=h-30-12, Y=d=>top+hh*(1-(clamp(d,-60,0)+60)/60), bx=x+w*.36, bw=Math.min(34,w*.3);
+  g.fillStyle="#0a0b0d"; g.fillRect(bx,top,bw,hh);
+  for(const z of ZONES){ g.fillStyle=z[2]; g.globalAlpha=.16; g.fillRect(bx,Y(z[1]),bw,Y(z[0])-Y(z[1]));
+    if(R.lvl>z[0]){ g.globalAlpha=1; const hi=Math.min(z[1],R.lvl); g.fillRect(bx,Y(hi),bw,Y(z[0])-Y(hi)); } }
+  g.globalAlpha=1; g.fillStyle=C.panel; for(let d=-57;d<0;d+=3) g.fillRect(bx,Y(d)-.5,bw,1);
+  if(R.hold>-60){ g.fillStyle=C.fg; g.fillRect(bx-3,Y(R.hold)-1,bw+6,2); }
+  g.font="11px "+FM; g.textAlign="right"; g.textBaseline="middle"; g.fillStyle=C.muted;
+  for(const d of [0,-6,-12,-18,-24,-36,-48,-60]) g.fillText(d===0?"0":"−"+(-d),bx-8,Y(d));
+  const lit=now()-R.clipT<1.5; g.fillStyle=lit?C.err:"#2a1a1e"; g.beginPath(); g.roundRect(bx-4,y+6,bw+8,16,4); g.fill();
+  g.fillStyle=lit?"#1a0a0d":C.faint; g.textAlign="center"; g.font="500 10px "+FM; g.fillText(t("clip"),bx+bw/2,y+14.5);
+  if(target){ const tx=bx+bw+7; g.strokeStyle=C.light; g.lineWidth=2; g.beginPath(); g.moveTo(tx+5,Y(-6)); g.lineTo(tx,Y(-6)); g.lineTo(tx,Y(-12)); g.lineTo(tx+5,Y(-12)); g.stroke();
+    if(w>118){ g.fillStyle=C.light; g.font="11px "+FB; g.textAlign="left"; g.fillText(t("target"),tx+9,Y(-9)); } }
+  g.textAlign="left"; g.textBaseline="alphabetic";
+}
+/* scrolling envelope of the recent signal, with the ±1.0 ceiling */
+function drawWave(g,x,y,w,h,R){
+  const cy=y+h/2, A=h*.38, n=R.hist.length/3, cw=w/420;
+  g.strokeStyle=C.line; g.lineWidth=1; g.beginPath(); g.moveTo(x,cy); g.lineTo(x+w,cy); g.stroke();
+  for(let k=0;k<n;k++){ const px=x+w-(n-k)*cw, mn=R.hist[k*3], mx=R.hist[k*3+1], ov=R.hist[k*3+2];
+    g.fillStyle=ov?C.err:C.air; g.fillRect(px,cy-mx*A,Math.max(1,cw+.5),Math.max(1,(mx-mn)*A)); }
+  g.setLineDash([5,5]); g.strokeStyle=C.err; g.globalAlpha=.75; g.beginPath(); g.moveTo(x,cy-A); g.lineTo(x+w,cy-A); g.moveTo(x,cy+A); g.lineTo(x+w,cy+A); g.stroke(); g.setLineDash([]); g.globalAlpha=1;
+  g.font="11.5px "+FB; g.fillStyle=C.err; g.textAlign="left"; g.textBaseline="alphabetic"; g.fillText(t("ceil"),x+10,cy-A-7);
+}
+function drawStage(c,R,target){
+  const g=c.g, W=c.w, H=c.h, mw=clamp(W*.17,92,170); g.fillStyle=C.panel; g.fillRect(0,0,W,H);
+  drawWave(g,0,0,W-mw,H,R); g.fillStyle=C.line; g.fillRect(W-mw,0,1,H); drawMeter(g,W-mw,0,mw,H,R,target);
+}
+const status=R=>now()-R.clipT<1.5?"stClip":R.hold>-6?"stHot":R.hold>=-18?"stGood":R.hold>=-36?"stQuiet":"stLow";
+const ro=(id,rows)=>{ $(id).innerHTML=rows.map(r=>`<div><span>${t(r[0])}</span><b>${r[1]}</b></div>`).join(""); };
+const chipsHTML=(keys)=>keys.map(k=>`<button type="button" class="chip" data-v="${k}"></button>`).join("");
+const chipsSync=(id,v)=>document.querySelectorAll("#"+id+" button").forEach(b=>{ b.setAttribute("aria-pressed",b.dataset.v===v); b.textContent=t(b.dataset.v); });
+
+/* ================= page 1: reading the meter ================= */
+const S1={src:"voice",lvl:-12,t0:now(),rig:mkRig(),micMsg:"micOff",roT:0};
+function draw1(dt){
+  const c=CV.c1, R=S1.rig; if(!c) return;
+  if(S1.src==="mic"){ if(MIC){ MIC.an.getFloatTimeDomainData(MIC.arr); let mn=0,mx=0,ss=0,ov=false; for(const s of MIC.arr){ let v=s; if(v>=1){ v=1; ov=true; } else if(v<=-1){ v=-1; ov=true; } if(v<mn) mn=v; if(v>mx) mx=v; ss+=v*v; } feed(R,dt,mn,mx,ss/MIC.arr.length,ov); }
+    else feed(R,dt,0,0,0,false); }
+  else scan(R,snd(S1.src),now()-S1.t0,db2lin(S1.lvl),dt,true);
+  drawStage(c,R,false);
+  const g=c.g, mw=clamp(c.w*.17,92,170), x=c.w-mw+mw*.36+Math.min(34,mw*.3)+8;
+  if(mw>130){ const top=30, hh=c.h-42, Y=d=>top+hh*(-d/60); g.font="11px "+FB; g.textBaseline="middle"; [[-24,"zAvg",C.good],[-12,"zPk",C.warn],[-3,"zRed",C.err]].forEach(z=>{ g.fillStyle=z[2]; g.fillText(t(z[1]),x,Y(z[0])); }); g.textBaseline="alphabetic"; }
+  if(now()-S1.roT>.12){ S1.roT=now(); const st=status(R); ro("ro1",[["r1a",dbfs(R.lvl)],["r1b",dbfs(lin2db(Math.sqrt(R.ms)))],["r1c",dbfs(R.max)],["r1d",`<span style="font-family:var(--body);font-size:16px;color:${st==="stClip"||st==="stHot"?C.err:st==="stGood"?C.good:C.muted}">${t(st)}</span>`]]); }
+}
+function ui1(){
+  chipsSync("src1",S1.src); $("lvl1").value=S1.lvl; $("lvl1").disabled=S1.src==="mic"; $("lvl1o").textContent=S1.src==="mic"?"—":S1.lvl>0?t("over",{n:S1.lvl}):dbfs(S1.lvl);
+  $("mic1").textContent=t(S1.micMsg); $("mic1").hidden=S1.micMsg==="micOff"; playBtns();
+}
+function init1(){
+  $("src1").innerHTML=chipsHTML(["voice","drum","tone","mic"]);
+  $("src1").onclick=e=>{ const b=e.target.closest("button"); if(!b||b.dataset.v===S1.src) return; const v=b.dataset.v; micOff(); S1.src=v; S1.micMsg="micOff"; resetRig(S1.rig); S1.t0=now();
+    if(v==="mic"){ if(PLAY&&PLAY.tag==="p1") stopAudio(); ui1(); micOn(); } else { if(PLAY&&PLAY.tag==="p1") startAudio("p1"); ui1(); } };
+  $("lvl1").oninput=e=>{ S1.lvl=+e.target.value; S1.rig.max=-120; ui1(); syncAudio(); };
+}
+
+/* ================= page 2: gain and clipping ================= */
+const S2={src:"voice",gain:6,post:false,t0:now(),rig:mkRig(),roT:0,clipPct:0};
+const PEAK={}, peakAt=b=>{ let m=0,k=0; for(let i=0;i<b.length;i++){ const v=Math.abs(b[i]); if(v>m){ m=v; k=i; } } return k; };
+function drawScope(c){
+  const g=c.g, W=c.w, H=c.h, buf=snd(S2.src), gain=db2lin(-30+S2.gain), win=S2.src==="tone"?.012:.03, len=Math.round(win*SR);
+  let i0=0; if(S2.src!=="tone"){ const pk=PEAK[S2.src]||(PEAK[S2.src]=peakAt(buf)); i0=(pk-Math.round(len*.42)+buf.length)%buf.length; }   // a still frame around the loudest instant
+  const cy=H/2, A=H*.27, sc=S2.post?.25:1, X=k=>W*k/len, val=k=>buf[(i0+k)%buf.length]*gain;
+  g.fillStyle=C.panel; g.fillRect(0,0,W,H);
+  g.strokeStyle=C.line; g.lineWidth=1; g.beginPath(); g.moveTo(0,cy); g.lineTo(W,cy); g.stroke();
+  g.setLineDash([5,5]); g.strokeStyle=C.err; g.globalAlpha=.75; g.beginPath(); g.moveTo(0,cy-A); g.lineTo(W,cy-A); g.moveTo(0,cy+A); g.lineTo(W,cy+A); g.stroke(); g.globalAlpha=1;
+  let any=false; g.strokeStyle=C.faint; g.lineWidth=1.2; g.setLineDash([3,4]); g.beginPath();
+  for(let k=0;k<=len;k++){ const v=val(k); if(Math.abs(v)>1) any=true; const y=cy-clamp(v,-1.85,1.85)*A; k?g.lineTo(X(k),y):g.moveTo(X(k),y); }
+  if(any&&!S2.post) g.stroke(); g.setLineDash([]);
+  g.strokeStyle=C.air; g.lineWidth=2; g.lineJoin="round"; g.beginPath();
+  for(let k=0;k<=len;k++){ const y=cy-clamp(val(k),-1,1)*A*sc; k?g.lineTo(X(k),y):g.moveTo(X(k),y); } g.stroke();
+  g.strokeStyle=C.err; g.lineWidth=3.5; g.beginPath();
+  for(let k=0;k<len;k++){ const v=val(k), v2=val(k+1); if(Math.abs(v)>=1&&Math.abs(v2)>=1&&v*v2>0){ const y=cy-Math.sign(v)*A*sc; g.moveTo(X(k),y); g.lineTo(X(k+1),y); } } g.stroke();
+  g.font="11.5px "+FB; g.textBaseline="alphabetic"; g.textAlign="left"; g.fillStyle=C.err; g.fillText(t("ceil"),10,cy-A-7);
+  g.textAlign="right";
+  if(S2.post){ g.fillStyle=C.light; g.fillText(t("postLbl"),W-10,H-12); }
+  else if(any){ g.fillStyle=C.faint; g.fillText("┄ "+t("ghost"),W-10,18); g.fillStyle=C.err; g.fillText("━ "+t("flat"),W-10,H-12); }
+  g.textAlign="left";
+}
+function draw2(dt){
+  const a=CV.c2a, b=CV.c2b; if(!a||!b) return; const R=S2.rig;
+  scan(R,snd(S2.src),now()-S2.t0,db2lin(-30+S2.gain),dt,true);
+  drawScope(a); drawStage(b,R,true);
+  if(now()-S2.roT>.12){ S2.roT=now(); const pk=-30+S2.gain;
+    ro("ro2",[["r2a",t("xTimes",{n:db2lin(S2.gain)<10?db2lin(S2.gain).toFixed(1):Math.round(db2lin(S2.gain))})],["r2b",dbfs(R.lvl)],["r2c",(S2.clipPct<10?S2.clipPct.toFixed(1):Math.round(S2.clipPct))+" %"],
+      ["r2d",`<span style="font-family:var(--body);font-size:16px;color:${pk>-6?C.err:pk>=-12?C.good:C.muted}">${t(pk>0?"stClip":pk>-6?"stHot":pk>=-12?"stGood":pk>=-24?"stQuiet":"stLow")}</span>`]]); }
+}
+function ui2(){
+  const pk=-30+S2.gain, gl=db2lin(pk), buf=snd(S2.src); let n=0,c=0; for(let i=0;i<buf.length;i+=5){ const v=Math.abs(buf[i]); if(v>.02){ n++; if(v*gl>1) c++; } } S2.clipPct=n?100*c/n:0;
+  $("gain2").value=S2.gain; $("gain2o").textContent=gdb(S2.gain); $("ch2g").textContent=gdb(S2.gain);
+  $("ch2p").textContent=pk>0?"0 dBFS · "+t("stClip"):dbfs(pk); $("ch2p").style.color=pk>0?C.err:"";
+  chipsSync("src2",S2.src); $("post2").hidden=pk<=0; if(pk<=0) S2.post=false; $("post2").setAttribute("aria-pressed",S2.post);
+  $("p2as").textContent=(S2.src==="tone"?12:30)+t("ms");
+  const v=$("v2"), k=pk>0?"v2clip":pk>-6?"v2hot":pk>=-12?"v2good":pk>=-24?"v2quiet":"v2low"; v.textContent=t(k); v.className="verdict "+(pk>-6?"bad":pk>=-12?"ok":"mid");
+  S2.rig.max=-120; playBtns();
+}
+function init2(){
+  $("src2").innerHTML=chipsHTML(["voice","tone","drum"]);
+  $("src2").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; S2.src=b.dataset.v; resetRig(S2.rig); S2.t0=now(); if(PLAY&&PLAY.tag==="p2") startAudio("p2"); ui2(); };
+  $("gain2").oninput=e=>{ S2.gain=+e.target.value; ui2(); syncAudio(); };
+  $("post2").onclick=()=>{ S2.post=!S2.post; ui2(); };
+}
+
+/* ================= page 3: the noise floor ================= */
+const NOISE=-60, GOOD3=24;                                    // recorder hiss (dBFS RMS); the gain that puts peaks at −6
+const S3={gain:0,norm:true,t0:now(),hist:[],last:-1,roT:0};
+const boost3=()=>-6-(-30+S3.gain), snr3=()=>(-30+S3.gain)-NOISE;
+function dbGraph(g,x,y,w,h,cols,opt){                          // level-over-time on a dB scale, −80 … 0
+  const Y=d=>y+26+(h-38)*(1-(clamp(d,-80,0)+80)/80), n=cols.length, cw=w/opt.cap;
+  g.font="11px "+FM; g.textBaseline="middle"; g.textAlign="left";
+  for(const d of [0,-20,-40,-60,-80]){ g.strokeStyle=d===0?C.err:C.line; g.lineWidth=1; g.setLineDash(d===0?[5,5]:[]); g.beginPath(); g.moveTo(x,Y(d)); g.lineTo(x+w,Y(d)); g.stroke(); g.setLineDash([]); g.fillStyle=d===0?C.err:C.faint; g.fillText(d===0?"0 dBFS":"−"+(-d),x+8,Y(d)-9); }
+  if(opt.target){ g.fillStyle="rgba(108,192,139,.13)"; g.fillRect(x,Y(-6),w,Y(-12)-Y(-6)); }
+  const nb=opt.noise!=null?opt.noise+5:-80, yb=Y(nb);          // hiss peaks sit about 5 dB above its RMS level
+  for(let k=0;k<n;k++){ const d=cols[k], px=opt.scroll?x+w-(n-k)*cw:x+k*cw, ov=d>=0, yy=Y(Math.min(d,0)), ww=Math.max(1,cw+.5);
+    if(yy<yb){ g.fillStyle=ov?C.err:C.air; g.fillRect(px,yy,ww,yb-yy); } g.fillStyle="#565c66"; g.fillRect(px,Math.max(yy,yb),ww,Y(-80)-Math.max(yy,yb)); }
+  if(opt.noise!=null){ g.setLineDash([4,4]); g.strokeStyle=C.muted; g.beginPath(); g.moveTo(x,yb); g.lineTo(x+w,yb); g.stroke(); g.setLineDash([]);
+    g.font="11.5px "+FB; g.fillStyle=C.fg; g.textAlign="right"; g.fillText(t("nzLine",{d:dbfs(opt.noise)}),x+w-10,yb-10); }
+  g.textAlign="left"; g.textBaseline="alphabetic"; return Y;
+}
+function draw3(dt){
+  const a=CV.c3a; if(!a) return; const buf=snd("voice"), nz=snd("noise"), sig=db2lin(-30+S3.gain), nl=db2lin(NOISE), post=S3.norm?db2lin(boost3()):1;
+  let i1=Math.floor((now()-S3.t0)*SR)%buf.length; if(S3.last<0) S3.last=i1; let cnt=Math.min((i1-S3.last+buf.length)%buf.length,9000), i=S3.last, pk=0;
+  for(let k=0;k<cnt;k++){ const v=Math.abs(buf[i]*sig+nz[i%nz.length]*nl)*post; if(v>pk) pk=v; if(++i>=buf.length) i=0; }
+  S3.last=i1; if(cnt){ S3.hist.push(lin2db(pk)); if(S3.hist.length>300) S3.hist.shift(); }
+  const g=a.g; g.fillStyle=C.panel; g.fillRect(0,0,a.w,a.h);
+  dbGraph(g,0,0,a.w,a.h,S3.hist,{cap:300,scroll:true,noise:NOISE+(S3.norm?boost3():0)});
+}
+function drawLadder(){
+  const c=fit("c3b",HEIGHTS.c3b($("c3b").getBoundingClientRect().width)); if(!c) return; const g=c.g, W=c.w, H=c.h, top=40, hh=H-top-30, Y=d=>top+hh*(1-(clamp(d,-80,0)+80)/80);
+  g.fillStyle=C.panel; g.fillRect(0,0,W,H); g.font="11px "+FM; g.textBaseline="middle";
+  for(const d of [0,-20,-40,-60,-80]){ g.strokeStyle=d===0?C.err:C.line; g.setLineDash(d===0?[5,5]:[]); g.beginPath(); g.moveTo(44,Y(d)); g.lineTo(W-8,Y(d)); g.stroke(); g.setLineDash([]); g.fillStyle=d===0?C.err:C.faint; g.textAlign="right"; g.fillText(d===0?"0":"−"+(-d),38,Y(d)); }
+  const B=S3.norm?boost3():0, pk=-30+S3.gain, bw=Math.min(74,(W-60)*.2);
+  const col=(cx,sd,nd,title,dim)=>{ g.globalAlpha=dim?.4:1;
+    g.fillStyle="rgba(145,152,162,.45)"; g.fillRect(cx-bw-3,Y(nd),bw,Y(-80)-Y(nd)); g.fillStyle=C.air; g.fillRect(cx+3,Y(sd),bw,Y(-80)-Y(sd));
+    g.font="12px "+FB; g.textAlign="center"; g.textBaseline="alphabetic"; g.fillStyle=C.muted; g.fillText(t("nz"),cx-bw/2-3,Y(nd)-6); g.fillStyle=C.air; g.fillText(t("sig"),cx+bw/2+3,Y(sd)-6);
+    g.strokeStyle=C.light; g.lineWidth=1.5; const ax=cx+bw+12; g.beginPath(); g.moveTo(ax-4,Y(sd)); g.lineTo(ax+4,Y(sd)); g.moveTo(ax,Y(sd)); g.lineTo(ax,Y(nd)); g.moveTo(ax-4,Y(nd)); g.lineTo(ax+4,Y(nd)); g.stroke();
+    g.fillStyle=C.light; g.textAlign="left"; g.textBaseline="middle"; if(W>330) g.fillText(t("gap",{n:Math.round(sd-nd)}),ax+7,(Y(sd)+Y(nd))/2);
+    g.fillStyle=C.fg; g.textAlign="center"; g.textBaseline="alphabetic"; g.font="12.5px "+FB; g.fillText(title,cx,H-9); g.globalAlpha=1; };
+  const x1=44+(W-52)*.26, x2=44+(W-52)*.72;
+  col(x1,pk,NOISE,t("colRec"),false); col(x2,pk+B,NOISE+B,t("colPost")+(S3.norm&&B>0?"":" "+t("noBoost")),!(S3.norm&&B>0));
+  if(S3.norm&&B>0){ g.fillStyle=C.brass; g.font="500 13px "+FM; g.textAlign="center"; g.fillText("→ "+gdb(B),(x1+x2)/2+bw*.4,22); }
+  g.textAlign="left";
+}
+function ui3(){
+  const B=S3.norm?boost3():0, s=snr3();
+  $("gain3").value=S3.gain; $("gain3o").textContent=gdb(S3.gain); $("norm3").setAttribute("aria-pressed",S3.norm);
+  $("p3as").textContent=dbfs(-30+S3.gain+B)+" / "+dbfs(NOISE+B);
+  ro("ro3",[["r3a",dbfs(-30+S3.gain)],["r3b",gdb(B)],["r3c",dbfs(NOISE+B)],["r3d",Math.round(s)+" dB"]]);
+  const v=$("v3"); v.textContent=t(s>=50?"v3ok":s>=40?"v3mid":"v3bad"); v.className="verdict "+(s>=50?"ok":s>=40?"mid":"bad");
+  drawLadder(); playBtns();
+}
+function init3(){
+  $("gain3").oninput=e=>{ S3.gain=+e.target.value; ui3(); syncAudio(); };
+  $("norm3").onclick=()=>{ S3.norm=!S3.norm; ui3(); syncAudio(); };
+}
+
+/* ================= page 4: the challenge ================= */
+const S4={gain:0,raw:-18,reh:null,rig:mkRig(),result:null,rehMax:-120};
+const newRaw=()=>{ let r; do{ r=[-24,-21,-18,-15,-12][Math.floor(Math.random()*5)]; }while(r===S4.raw); return r; };
+function endReh(){ if(S4.reh){ S4.reh=null; if(PLAY&&PLAY.tag==="p4") stopAudio(); playBtns(); } }
+function draw4(dt){
+  const c=CV.c4m; if(!c) return; const R=S4.rig;
+  if(S4.reh){ const pos=now()-S4.reh.t0; if(pos>=DUR4+.3){ endReh(); ui4(); } else { scan(R,snd("take"),Math.min(pos,DUR4-.001),db2lin(S4.raw+S4.gain),dt,false); if(R.max>S4.rehMax){ S4.rehMax=R.max; } } }
+  else feed(R,dt,0,0,0,false);
+  drawStage(c,R,true);
+  const g=c.g, mw=clamp(c.w*.17,92,170), ww=c.w-mw;
+  if(S4.reh){ const pos=now()-S4.reh.t0, k=SEG4.findIndex(s=>pos>=s[0]&&pos<s[0]+s[1]); g.font="500 13px "+FB; g.textAlign="left"; g.fillStyle=C.fg; if(k>=0) g.fillText(t("seg"+(k+1)),12,c.h-14);
+    g.fillStyle=C.line; g.fillRect(0,c.h-4,ww,4); g.fillStyle=C.air; g.fillRect(0,c.h-4,ww*clamp(pos/DUR4,0,1),4); }
+  else if(!R.hist.some(v=>v)){ g.font="13px "+FB; g.fillStyle=C.faint; g.textAlign="center"; g.fillText(t("idle4"),ww/2,c.h-18); g.textAlign="left"; }
+}
+function record4(){
+  endReh(); const buf=snd("take"), gl=db2lin(S4.raw+S4.gain), a=Math.round(SEG4[2][0]*SR), b=Math.round((SEG4[2][0]+SEG4[2][1])*SR); let n=0,c=0;
+  for(let i=a;i<b;i++){ const v=Math.abs(buf[i]); if(v>.02){ n++; if(v*gl>1) c++; } }
+  const pk=S4.raw+S4.gain, w=Math.round(pk-24-NOISE);
+  S4.result={pk,clip:n?100*c/n:0,w,key:pk>0?"resClip":pk>-6?"resHot":pk>=-12?"res3":pk>=-18?"resLow":"resVlow"}; ui4();
+}
+function drawTake(){
+  const c=fit("c4o",HEIGHTS.c4o($("c4o").getBoundingClientRect().width)); if(!c) return; const g=c.g, W=c.w, H=c.h; g.fillStyle=C.panel; g.fillRect(0,0,W,H);
+  if(!S4.result){ g.font="14px "+FB; g.fillStyle=C.faint; g.textAlign="center"; g.textBaseline="middle"; const s=t("hidden4"); if(g.measureText(s).width>W-24){ const m=zh()?s.indexOf("。")+1:s.indexOf(". ")+1; g.fillText(s.slice(0,m),W/2,H/2-11); g.fillText(s.slice(m),W/2,H/2+11); } else g.fillText(s,W/2,H/2); g.textAlign="left"; g.textBaseline="alphabetic"; return; }
+  const buf=snd("take"), nz=snd("noise"), gl=db2lin(S4.result.pk), nl=db2lin(NOISE), N=Math.floor(W/2), cols=[], per=buf.length/N;
+  for(let k=0;k<N;k++){ let pk=0; const i0=Math.floor(k*per), i1=Math.floor((k+1)*per); for(let i=i0;i<i1;i+=3){ const v=Math.abs(buf[i]*gl+nz[i%nz.length]*nl); if(v>pk) pk=v; } cols.push(pk>=1?0:lin2db(pk)); }
+  const Y=dbGraph(g,0,0,W,H-4,cols,{cap:N,scroll:false,noise:NOISE,target:true});
+  g.font="12.5px "+FB; g.textAlign="center"; g.fillStyle=C.fg; SEG4.forEach((s,k)=>{ const d=S4.result.pk+[-24,-12,0][k]; g.fillText(t("seg"+(k+1)),W*(s[0]+s[1]/2)/DUR4,Math.max(26,Y(Math.min(d,0))-8)); }); g.textAlign="left";
+}
+function ui4(){
+  $("gain4").value=S4.gain; $("gain4o").textContent=gdb(S4.gain); $("p4s").textContent=gdb(S4.gain);
+  const r=S4.result, v=$("v4"); v.hidden=!r; if(r){ v.textContent=t(r.key,{p:dbfs(Math.min(r.pk,0)),w:r.w,c:r.clip<10?r.clip.toFixed(1):Math.round(r.clip)}); v.className="verdict "+(r.key==="res3"?"ok":r.key==="resClip"||r.key==="resVlow"?"bad":"mid"); }
+  ro("ro4",[["r4a",gdb(S4.gain)],["r4b",S4.rehMax>-100?dbfs(S4.rehMax):"—"],["r4c",r?r.w+" dB":"—"],["r4d",r?(r.key==="res3"?"★★★":r.key==="resHot"||r.key==="resLow"?"★★☆":"★☆☆"):"—"]]);
+  $("tips").innerHTML=T.tips.map(x=>"<li>"+L2(x)+"</li>").join(""); drawTake(); playBtns();
+}
+function init4(){
+  S4.raw=newRaw();
+  $("gain4").oninput=e=>{ S4.gain=+e.target.value; S4.result=null; S4.rehMax=S4.reh?-120:S4.rehMax; S4.rig.max=-120; ui4(); syncAudio(); };
+  $("reh4").onclick=()=>{ if(S4.reh){ endReh(); return; } resetRig(S4.rig); S4.rehMax=-120; S4.reh={t0:now()}; startAudio("p4"); playBtns(); };
+  $("rec4").onclick=record4;
+  $("new4").onclick=()=>{ endReh(); S4.raw=newRaw(); S4.gain=0; S4.result=null; S4.rehMax=-120; resetRig(S4.rig); ui4(); };
+}
+const QA=QUIZ.map(()=>-1);
+function renderQuiz(){
+  $("quiz").innerHTML=QUIZ.map((q,i)=>{ const p=QA[i];
+    return `<div class="q"><p class="qq">${i+1}. ${L2(q.q)}</p><div class="qopts">${q.o.map((o,j)=>`<button type="button" data-q="${i}" data-o="${j}" class="${p===j?(j===q.a?"ok":"no"):""}">${L2(o)}</button>`).join("")}</div>${p<0?"":`<p class="why">${t(p===q.a?"right":"wrong")}${p===q.a?L2(q.why):""}</p>`}</div>`; }).join("");
+}
+$("quiz").onclick=e=>{ const b=e.target.closest("button"); if(b){ QA[+b.dataset.q]=+b.dataset.o; renderQuiz(); } };
+
+/* ================= shell: pages, language, loop ================= */
+const PIDS=["meter","gain","noise","try"], PNAME={meter:"n1",gain:"n2",noise:"n3",try:"n4"};
+let cur="meter";
+function renderNav(){
+  $("nav").innerHTML=PIDS.map((p,i)=>`<button type="button" data-go="${p}" aria-current="${p===cur}"><span>0${i+1}</span>${t(PNAME[p])}</button>`).join("");
+  document.querySelectorAll("[data-pager]").forEach(el=>{ const i=PIDS.indexOf(el.dataset.pager), a=PIDS[i-1], b=PIDS[i+1];
+    el.innerHTML=(a?`<button type="button" data-go="${a}"><span>← ${t("prev")}</span><b>${t(PNAME[a])}</b></button>`:"")+(b?`<button type="button" class="next" data-go="${b}"><span>${t("next")} →</span><b>${t(PNAME[b])}</b></button>`:""); });
+}
+function resizeAll(){
+  for(const id in HEIGHTS){ const cv=$(id), w=cv.getBoundingClientRect().width; if(w) fit(id,HEIGHTS[id](w)); }
+  if(cur==="noise") drawLadder(); if(cur==="try") drawTake();
+}
+function showPage(id,scroll){
+  if(!PIDS.includes(id)) id=PIDS[0];
+  if(id!==cur){ stopAudio(); endReh(); if(S1.src==="mic"){ micOff(); S1.src="voice"; S1.micMsg="micOff"; resetRig(S1.rig); ui1(); } }
+  cur=id; PIDS.forEach(p=>$(p).hidden=p!==id);
+  document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.go===id));
+  try{ if(location.hash.slice(1)!==id) history.replaceState(null,"","#"+id); }catch(e){}
+  resizeAll();
+  if(scroll){ const y=$("nav").getBoundingClientRect().top+window.scrollY-12; if(window.scrollY>y) window.scrollTo({top:y}); }
+}
+function applyLang(){
+  document.documentElement.lang=zh()?"zh-CN":"en"; document.title=t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ el.innerHTML=t(el.dataset.i18nHtml); });
+  $("lang-zh").setAttribute("aria-pressed",zh()); $("lang-en").setAttribute("aria-pressed",!zh());
+  renderNav(); renderQuiz(); ui1(); ui2(); ui3(); ui4();
+}
+/* the lessons remember the language under two different keys; write both so the choice follows the student */
+const setLang=l=>{ lang=l; try{ localStorage.setItem("mic-lang",l); localStorage.setItem("lab-lang",JSON.stringify(l)); }catch(e){} applyLang(); };
+$("lang-zh").onclick=()=>setLang("zh"); $("lang-en").onclick=()=>setLang("en");
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(b) showPage(b.dataset.go,true); });
+window.addEventListener("hashchange",()=>showPage(location.hash.slice(1),false));
+$("present").onclick=()=>{ const on=!document.body.classList.contains("present"); document.body.classList.toggle("present",on); $("present").setAttribute("aria-pressed",on); requestAnimationFrame(resizeAll); };
+document.addEventListener("keydown",e=>{ if(e.altKey||e.ctrlKey||e.metaKey) return; const tg=e.target; if(tg&&(tg.tagName==="INPUT"||tg.tagName==="TEXTAREA")) return;
+  const i=PIDS.indexOf(cur); if(e.key==="ArrowRight"&&i<PIDS.length-1){ e.preventDefault(); showPage(PIDS[i+1],true); } else if(e.key==="ArrowLeft"&&i>0){ e.preventDefault(); showPage(PIDS[i-1],true); } });
+window.addEventListener("resize",resizeAll);
+init1(); init2(); init3(); init4();
+applyLang();
+showPage(location.hash.slice(1),false);
+let last=performance.now();
+function loop(n){ requestAnimationFrame(loop); const dt=Math.min(.1,(n-last)/1000); last=n; if(document.hidden) return;
+  if(cur==="meter") draw1(dt); else if(cur==="gain") draw2(dt); else if(cur==="noise") draw3(dt); else draw4(dt); }
+requestAnimationFrame(loop);
+document.fonts&&document.fonts.ready.then(resizeAll);
+/* test hook: ?selftest renders each chain offline and logs peak / RMS so the gain maths can be checked without listening */
+if(/[?&]selftest/.test(location.search)&&window.OfflineAudioContext){ (async()=>{
+  const run=async(name,bufK,pre,mon,noise)=>{ const d=snd(bufK), o=new OfflineAudioContext(1,d.length,SR), mk=x=>{ const b=o.createBuffer(1,x.length,SR); b.getChannelData(0).set(x); const s=o.createBufferSource(); s.buffer=b; return s; };
+    const s=mk(d), p=o.createGain(), sh=o.createWaveShaper(), m=o.createGain(); sh.curve=new Float32Array([-1,1]); p.gain.value=pre; m.gain.value=mon; s.connect(p); p.connect(sh); sh.connect(m); m.connect(o.destination); s.start();
+    if(noise){ const z=mk(snd("noise")), zg=o.createGain(); zg.gain.value=noise; z.loop=true; z.connect(zg); zg.connect(m); z.start(); }
+    const out=(await o.startRendering()).getChannelData(0); let pk=0,ss=0; for(const v of out){ pk=Math.max(pk,Math.abs(v)); ss+=v*v; }
+    console.log("SELFTEST "+name+" peak "+lin2db(pk).toFixed(1)+" dBFS rms "+lin2db(Math.sqrt(ss/out.length)).toFixed(1)+" dBFS"); };
+  for(const G of [0,24,30,48]) await run("p2 voice gain+"+G,"voice",db2lin(-30+G),monFor(-30+G),0);
+  await run("p2 tone gain+48","tone",db2lin(18),monFor(18),0);
+  await run("p3a good","voice",db2lin(-6),1,db2lin(NOISE));
+  await run("p3b gain0 boosted","voice",db2lin(-30),db2lin(24),db2lin(NOISE));
+  await run("noise only boosted 24","tone",0,db2lin(24),db2lin(NOISE));
+  await run("p4 raw-12 gain+40","take",db2lin(28),monFor(28),0);
+})(); }
+})();
+</script>
+</body>
+</html>

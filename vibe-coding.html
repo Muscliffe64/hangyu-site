@@ -29,8 +29,9 @@
         <span class="zh">写代码</span>
         <span class="en">Coding</span>
       </h1>
-      <p class="lede">我不是程序员。这里的东西，都是我用自然语言和 AI 一起做出来的：给学生的课件和学习平台，给儿子积木的学习工具和游戏。每一个都在真实使用。这一页放的是它们的样子、为什么要做，以及做的过程中想明白的事。</p>
-      <p class="lede-en">I'm not a programmer. Everything here was built by talking it through with AI: lessons and learning platforms for my students, learning tools and games for my son Jim. All of them are in real use. This page shows what they look like, why they exist, and what building them taught me.</p>
+      <p class="lede">我不是程序员。这里的东西，都是我用自然语言和 AI 一起做出来的：给学生的课件和学习平台，给儿子积木和他同学们的学习工具。每一个都在真实使用。这一页放的是它们的样子；点进去，是为什么要做，以及做的过程中想明白的事。</p>
+      <p class="lede-en">I'm not a programmer. Everything here was built by talking it through with AI: lessons and learning platforms for my students, and learning tools for my son Jim and his classmates. All of them are in real use. This page shows what they look like; open one to see why it exists and what building it taught me.</p>
+      <blockquote class="proj-quote code-origin"><p>我真正开始尝试用 AI 做东西，不是从课程平台开始，而是从掼蛋记分开始。我没有什么软件开发背景，也从看不懂代码开始，但那次我把从需求、修改到上线的整个过程跑了一遍。原来遇到现实里的问题，我不一定只能说“可惜我不会”，也可以先试着把它说清楚，看看能做出什么。</p><cite>“专业标签之外”教师沙龙 · 2026.11</cite></blockquote>
     </div>
 
     <div class="page-body code-page-body">
@@ -42,97 +43,109 @@
           <p class="section-desc-en">Tools for my classes and my research team.</p>
         </div>
         <div class="code-grid">
-
+          <!-- coding:classroom:start -->
           <article class="code-card">
+            <a class="code-card-link" href="coding/yingxiang.html">
             <figure class="code-shot"><img src="Code/yingxiang.webp" alt="光圈、曝光与光线课件：3D 公园场景里，相机对着人物，右上角是相机拍到的浅景深画面" width="1200" height="750" loading="lazy" decoding="async"></figure>
             <div class="code-info">
               <p class="code-meta">2026 · 交互课件 · 课堂在用</p>
               <h3><span class="zh">影像与声音课件</span><span class="en">Image &amp; Sound Lessons</span></h3>
               <p class="code-desc">把相机、镜头、麦克风和扬声器一件件拆开来讲的交互课件。学生在 3D 场景里转光圈、换焦距、挪太阳，马上就能看到景深、曝光和影子怎么变。</p>
               <p class="code-note">先一次只动一个参数，到最后一关才把所有参数一起打开。</p>
+              <span class="code-more">看看里面 →</span>
             </div>
+            </a>
           </article>
 
           <article class="code-card">
+            <a class="code-card-link" href="coding/gongdu.html">
+            <figure class="code-shot"><img src="Code/gongdu/profile.webp" alt="共读个人页：称号、近 14 天阅读小点，在读和读完两排书卡" width="1600" height="1000" loading="lazy" decoding="async"></figure>
+            <div class="code-info">
+              <p class="code-meta">2026 · 每日阅读打卡 · 两个班在用</p>
+              <h3><span class="zh">共读</span><span class="en">Read Together</span></h3>
+              <p class="code-desc">给学生的每日阅读打卡。读了几分钟、读到哪里，再摘一句打动你的话、写一句想法，这一天才算读过。同学之间能看见彼此在读什么，也能在摘句下面回一句。</p>
+              <p class="code-note">一天算不算读过，看的是你摘下的那一句，而不是你计了多少分钟。</p>
+              <span class="code-more">看看里面 →</span>
+            </div>
+            </a>
+          </article>
+
+          <article class="code-card">
+            <a class="code-card-link" href="coding/cigen.html">
             <figure class="code-shot is-phone"><img src="Code/cigen.webp" alt="词根学习平台手机界面：uni- 前缀卡片，附有课上的类比和例词" width="520" height="1126" loading="lazy" decoding="async"></figure>
             <div class="code-info">
               <p class="code-meta">2026 · 课后练习 · 35 名学生在用</p>
               <h3><span class="zh">词根学习平台</span><span class="en">Root Words</span></h3>
               <p class="code-desc">音视频技术专业英语的课后练习。每天复习到期的词根，再学几个新的；每张卡片都附着“课上”那一刻：老师怎么类比的，同学们怎么猜出来的。</p>
               <p class="code-note">卡片上写的不只是释义，还有课堂上发生过的事。学生记住的往往是那个瞬间。</p>
+              <span class="code-more">看看里面 →</span>
             </div>
+            </a>
           </article>
 
           <article class="code-card">
+            <a class="code-card-link" href="coding/course-square.html">
             <figure class="code-shot"><img src="Code/course-square.webp" alt="课程广场首页：左侧栏目，中间是同学分享，右侧是“想听热榜”投票" width="1200" height="807" loading="lazy" decoding="async"></figure>
             <div class="code-info">
               <p class="code-meta">2026 · 人工智能导论 · 班级社区</p>
               <h3><span class="zh">课程广场</span><span class="en">Course Square</span></h3>
               <p class="code-desc">一门课的班级社区。同学可以匿名提问、分享作品，也可以给“下节课想听什么”投票，票数第一的话题下节课一定讲。</p>
               <p class="code-note">让学生决定一部分课讲什么。</p>
+              <span class="code-more">看看里面 →</span>
             </div>
+            </a>
           </article>
 
           <article class="code-card">
+            <a class="code-card-link" href="coding/qinling.html">
             <figure class="code-shot"><img src="Code/qinling.webp" alt="秦岭声景地图：地图上标着录音点，左侧是 48 个点位、47 段录音的概览" width="1200" height="750" loading="lazy" decoding="async"></figure>
             <div class="code-info">
               <p class="code-meta">2026 · 团队项目 · 进行中</p>
               <h3><span class="zh">秦岭声景地图</span><span class="en">Qinling Soundscape</span></h3>
               <p class="code-desc">我们在秦岭录下的森林声音，一个个标在地图上。原始录音、加工过的声音、用它们做成的音乐连成一棵“来龙去脉”的树。</p>
               <p class="code-note">每一件作品，都能找回它出自哪一段录音。</p>
+              <span class="code-more">看看里面 →</span>
             </div>
+            </a>
           </article>
-
+          <!-- coding:classroom:end -->
         </div>
       </section>
 
       <section class="code-section" id="jim">
         <div class="code-section-head">
           <h2><span class="zh">给积木</span><span class="en">For Jim</span></h2>
-          <p class="section-desc-zh">为儿子积木做的学习工具和游戏。他是唯一的用户，也是最严格的测试员。</p>
-          <p class="section-desc-en">Learning tools and games for my son Jim, the only user and the toughest tester.</p>
+          <p class="section-desc-zh">为儿子积木做的学习工具。积木讲通只有他一个用户；Olive Words 是他和英语班的同学每天背单词的地方。他是最严格的测试员。</p>
+          <p class="section-desc-en">Learning tools for my son Jim: one built for him alone, one he shares with his English class. He is the toughest tester.</p>
         </div>
         <div class="code-grid">
-
+          <!-- coding:jim:start -->
           <article class="code-card">
+            <a class="code-card-link" href="coding/jiangtong.html">
             <figure class="code-shot"><img src="Code/jiangtong.webp" alt="积木讲通 iPad 界面：今晚建议的哲学话题“同一性：换掉所有积木，还是原来那座作品吗”" width="1180" height="820" loading="lazy" decoding="async"></figure>
             <div class="code-info">
-              <p class="code-meta">2026 · iPad · 数学与哲学</p>
+              <p class="code-meta">2026 · iPad · 数学与哲学 · 积木一个人用</p>
               <h3><span class="zh">积木讲通</span><span class="en">Explain It</span></h3>
               <p class="code-desc">看懂、练几题，再用自己的话把道理讲给 AI 小伙伴“铁蛋”听。比如：一艘积木船的每一块都换过了，它还是原来那艘船吗？</p>
               <p class="code-note">积木的推理常常比题目更深，却被判“没通过”。所以我把“过 / 不过”改成了一级一级往上走。</p>
+              <span class="code-more">看看里面 →</span>
             </div>
+            </a>
           </article>
 
           <article class="code-card">
-            <figure class="code-shot"><img src="Code/jimu-learning.webp" alt="单词积木：英语单词按前缀、词根、后缀拆成彩色积木块" width="1180" height="820" loading="lazy" decoding="async"></figure>
+            <a class="code-card-link" href="coding/olive-words.html">
+            <figure class="code-shot"><img src="Code/olive/learn.webp" alt="Olive Words 单词卡 midnight：插图、音标、发音按钮，右边把 mid 和 night 拆开" width="1600" height="1000" loading="lazy" decoding="async"></figure>
             <div class="code-info">
-              <p class="code-meta">2026 · 数学 · 英语 · 哲学 · 打卡</p>
-              <h3><span class="zh">积木学习小站</span><span class="en">Jim's Study Corner</span></h3>
-              <p class="code-desc">四个小模块放在一起：每日打卡、每天三道动脑的数学题、把单词拆成词根来拼的“单词积木”，还有哲学实验室。换 iPad 或电脑都能接着学。</p>
-              <p class="code-note">单词也像积木：前缀、词根、后缀，各是一块。</p>
+              <p class="code-meta">2026 · iPad · 英语单词作业 · 一个英语班在用</p>
+              <h3><span class="zh">Olive Words</span><span class="en">Word homework for Olive’s class</span></h3>
+              <p class="code-desc">积木英语班的单词作业。Olive 老师每周布置要背的词，孩子们在自己的 iPad 上看图、听音、拆词、拼写，还能用学过的词让 AI 写一个只属于自己的小故事。</p>
+              <p class="code-note">落下了不用设置什么，系统自己把后面几天变大一点，让孩子追得上。</p>
+              <span class="code-more">看看里面 →</span>
             </div>
+            </a>
           </article>
-
-          <article class="code-card">
-            <figure class="code-shot"><img src="Code/tuanzi.webp" alt="团子嘉年华开始界面：漂浮在海上的彩色小岛和三个存档位" width="1200" height="750" loading="lazy" decoding="async"></figure>
-            <div class="code-info">
-              <p class="code-meta">2026 · 3D 派对闯关游戏</p>
-              <h3><span class="zh">团子嘉年华</span><span class="en">Tuanzi Carnival</span></h3>
-              <p class="code-desc">积木自己构想的派对游戏，配乐是他用 Suno 做的三首歌。我和 AI 帮他把它重建成能完整玩下来的版本：派对杯、九个冒险关卡、扭蛋机和衣帽间。</p>
-              <p class="code-note">代码注释写到他自己也能改：想加一条赛道，照着抄一行就行。</p>
-            </div>
-          </article>
-
-          <article class="code-card">
-            <figure class="code-shot"><img src="Code/skyhook.webp" alt="Skyhook Rescue：雨中停机坪上的红色救援直升机和飞行仪表" width="1200" height="750" loading="lazy" decoding="async"></figure>
-            <div class="code-info">
-              <p class="code-meta">2026 · 3D 飞行游戏</p>
-              <h3><span class="zh">救援直升机</span><span class="en">Skyhook Rescue</span></h3>
-              <p class="code-desc">一款没有武器的救援游戏：在暴雨、稀薄的高原空气、浓烟和夜色里飞行，用绞车把人救上来。底层是真实的飞行物理，也可以打开辅助。</p>
-            </div>
-          </article>
-
+          <!-- coding:jim:end -->
         </div>
       </section>
 
@@ -153,8 +166,8 @@
       <!-- weekly-list:end -->
       </section>
 
-      <p class="code-contact">这些项目大多在课堂和家里使用，没有公开入口。想试用、想看代码，或者只是想聊聊，欢迎来信：<a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
-      <p class="code-contact-en">Most of these live in classrooms and at home, without a public link. If you'd like to try one, see the code, or just talk, write to me.</p>
+      <p class="code-contact">点开每个项目，能看到更多截图、可以直接玩的部分、我为什么做它，以及线上入口。学生平台需要课上发的账号；想要一个演示账号、想看代码，或者只是想聊聊，欢迎来信：<a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+      <p class="code-contact-en">Open any project for more screenshots, parts you can play with, why I built it, and its live link. The student platforms need a class account; for a demo login, the code, or just a chat, write to me.</p>
 
     </div>
   </main>
