@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>景别与焦距</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: same dark studio page as the other lessons. Three pages:
+   shot sizes → two ways to get closer (walk in, or a longer lens) → why a wide lens up close bends a face.
+   Every picture is a real pinhole projection of a small 3D scene, drawn far-to-near on a 2D canvas. */
+:root{
+  color-scheme: dark;
+  --bg:#0d0f12; --panel:#14171c; --panel2:#1a1e24; --line:#262b33;
+  --fg:#ebe7df; --muted:#9198a2; --faint:#5d636c;
+  --light:#e9c77f; --air:#86b6cf; --brass:#d8b06a; --digit:#b6a4e8; --err:#e86a7a; --good:#6cc08b;
+  --display:"Bricolage Grotesque","Noto Sans SC",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 72px;display:flex;flex-direction:column;gap:26px}
+header.top{display:flex;flex-direction:column;gap:14px;padding-top:12px}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.hdr-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.6vw,64px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{max-width:62ch;color:var(--muted);font-size:16px;margin:0}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--panel)}
+.lang button{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:5px 12px;border-radius:999px;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.toolbtn{all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.toolbtn[aria-pressed="true"]{color:#17120a;background:var(--brass);border-color:var(--brass)}
+:is(.lang button,.toolbtn,.nav button,.pager button,.chip,.btn,.qopts button):focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:20;display:flex;gap:4px;padding:5px;border-radius:14px;overflow-x:auto;scrollbar-width:none;
+  background:rgba(20,23,28,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line)}
+.nav::-webkit-scrollbar{display:none}
+.nav button{all:unset;cursor:pointer;flex:1 0 auto;display:flex;align-items:baseline;gap:8px;padding:9px 14px;border-radius:10px;color:var(--muted);font-weight:500;white-space:nowrap}
+.nav button span{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.nav button:hover{color:var(--fg)}
+.nav button[aria-current="true"]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px #343a43}
+.nav button[aria-current="true"] span{color:var(--brass)}
+
+section.page{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.shead{display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:6px;align-items:baseline}
+.snum{font-family:var(--mono);font-size:13px;color:var(--brass)}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,3.2vw,34px);margin:0;line-height:1.15;text-wrap:balance}
+.ssub{grid-column:2;color:var(--muted);max-width:68ch;margin:0}
+
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
+.panel canvas{display:block;width:100%}
+.plabel{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.plabel b{font-weight:600}
+.plabel span{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.plabel.real b{color:var(--light)} .plabel.screen b{color:var(--digit)}
+
+.ctrl{display:flex;gap:10px 18px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.ctrl label{font-size:13px;color:var(--muted)}
+.ctrl .grow{flex:1 1 220px;display:flex;align-items:center;gap:10px;min-width:0}
+.ctrl output{font-family:var(--mono);font-size:15px;min-width:5.5ch;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-width:0;accent-color:var(--brass);height:28px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip:hover{border-color:#3a414b;color:var(--fg)}
+.chip[aria-pressed="true"]{color:#17120a;background:var(--brass);border-color:var(--brass)}
+.btn{all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);color:var(--fg);background:var(--panel2)}
+.btn:hover{border-color:#3a414b}
+.btn[disabled]{opacity:.4;cursor:default}
+
+.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.readout div{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.readout span{font-size:11.5px;color:var(--muted)}
+.readout b{font-family:var(--mono);font-weight:500;font-size:17px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.verdict{margin:0;padding:10px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:15px}
+.key{margin:0;padding:12px 16px;border-left:3px solid var(--brass);background:var(--panel);border-radius:0 12px 12px 0;max-width:78ch}
+.key b{color:var(--brass)}
+.big{font-family:var(--display);font-size:clamp(20px,2.8vw,30px);line-height:1.3;margin:0;text-wrap:balance}
+.big em{font-style:normal;color:var(--light)} .big i{font-style:normal;color:var(--digit)} .big strong{color:var(--brass)}
+
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line);margin-top:6px}
+.pager button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel)}
+.pager button:hover{border-color:#3a414b}
+.pager button span{font-size:12px;color:var(--muted)}
+.pager button b{font-family:var(--display);font-size:17px}
+.pager .next{margin-left:auto;text-align:right}
+
+.quiz{display:flex;flex-direction:column;gap:14px}
+.q{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.q p{margin:0}
+.q .qq{font-weight:600}
+.qopts{display:flex;gap:8px;flex-wrap:wrap}
+.qopts button{all:unset;cursor:pointer;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:14px}
+.qopts button.ok{border-color:var(--good);color:var(--good)}
+.qopts button.no{border-color:var(--err);color:var(--err)}
+.q .why{color:var(--muted);font-size:14px}
+
+body.present{font-size:17px}
+body.present .wrap{max-width:1560px}
+body.present .lede,body.present .ssub,body.present .quiz{display:none}
+body.present h1{font-size:clamp(26px,3vw,40px)}
+@media (max-width:760px){
+  .duo{grid-template-columns:1fr}
+  .readout{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+.duo.wide{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr)}
+.info{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.info h3{margin:0;font-family:var(--display);font-size:22px;line-height:1.2}
+.info h3 small{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--muted);margin-left:10px;letter-spacing:.04em}
+.info p{margin:0;max-width:74ch}
+.info .cut{color:var(--muted);font-size:14px}
+.info .says b{color:var(--brass)}
+.mapcv{touch-action:pan-y;cursor:ew-resize}
+@media (max-width:760px){ .duo.wide{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="toprow">
+      <div class="eyebrow" data-i18n="eyebrow"></div>
+      <div class="hdr-r">
+        <a class="toolbtn" href="https://123.57.56.38:624/" target="_top" data-i18n="home"></a>
+        <button type="button" class="toolbtn" id="present" aria-pressed="false" data-i18n="present"></button>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" id="lang-zh" aria-pressed="true">中文</button>
+          <button type="button" id="lang-en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+    <h1 data-i18n="title"></h1>
+    <p class="lede" data-i18n="lede"></p>
+  </header>
+  <nav class="nav" id="nav" aria-label="Pages"></nav>
+
+  <!-- 01 shot sizes -->
+  <section class="page" id="sizes">
+    <div class="shead"><div class="snum">01</div><h2 data-i18n="s1h"></h2><p class="ssub" data-i18n="s1s"></p></div>
+    <div class="ctrl"><label data-i18n="sizeLabel"></label><div class="chips" id="sizechips"></div></div>
+    <div class="duo wide">
+      <div class="panel"><div class="plabel screen"><b data-i18n="vf"></b><span id="v1S"></span></div><canvas id="v1"></canvas></div>
+      <div class="panel"><div class="plabel"><b data-i18n="cutH"></b><span data-i18n="cutS"></span></div><canvas id="d1"></canvas></div>
+    </div>
+    <div class="info" id="info1"></div>
+    <p class="key" data-i18n-html="key1"></p>
+    <div class="pager" data-pager="sizes"></div>
+  </section>
+
+  <!-- 02 walk in, or change the lens -->
+  <section class="page" id="lens" hidden>
+    <div class="shead"><div class="snum">02</div><h2 data-i18n="s2h"></h2><p class="ssub" data-i18n="s2s"></p></div>
+    <div class="duo">
+      <div class="panel"><div class="plabel real"><b data-i18n="mapH"></b><span data-i18n="mapS"></span></div><canvas id="m2" class="mapcv"></canvas></div>
+      <div class="panel"><div class="plabel screen"><b data-i18n="vf"></b><span id="v2S"></span></div><canvas id="v2"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="f2" data-i18n="fLabel"></label><input type="range" id="f2" min="0" max="1000" step="1"><output id="f2o"></output></div>
+      <div class="chips" id="f2chips"></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="dist2" data-i18n="dLabel"></label><input type="range" id="dist2" min="0" max="1000" step="1"><output id="dist2o"></output></div>
+      <button type="button" class="chip" id="lock2" aria-pressed="false" data-i18n="lock"></button>
+      <button type="button" class="btn" id="reset2" data-i18n="reset"></button>
+    </div>
+    <div class="readout" id="ro2"></div>
+    <p class="verdict" id="verdict2"></p>
+    <p class="key" data-i18n-html="key2"></p>
+    <div class="pager" data-pager="lens"></div>
+  </section>
+
+  <!-- 03 a wide lens up close -->
+  <section class="page" id="face" hidden>
+    <div class="shead"><div class="snum">03</div><h2 data-i18n="s3h"></h2><p class="ssub" data-i18n="s3s"></p></div>
+    <div class="duo">
+      <div class="panel"><div class="plabel screen"><b data-i18n="vf"></b><span id="v3S"></span></div><canvas id="v3"></canvas></div>
+      <div class="panel"><div class="plabel real"><b data-i18n="topH"></b><span data-i18n="topS"></span></div><canvas id="t3"></canvas></div>
+    </div>
+    <div class="ctrl">
+      <div class="grow"><label for="d3" data-i18n="d3Label"></label><input type="range" id="d3" min="0" max="1000" step="1"><output id="d3o"></output></div>
+      <div class="chips" id="d3chips"></div>
+    </div>
+    <div class="readout" id="ro3"></div>
+    <p class="verdict" id="verdict3"></p>
+    <p class="key" data-i18n-html="key3"></p>
+    <h2 data-i18n="quizH" style="margin-top:14px"></h2>
+    <div class="quiz" id="quiz"></div>
+    <div class="pager" data-pager="face"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ================= i18n & helpers ================= */
+let lang="zh";
+try{ const s=localStorage.getItem("mic-lang"); if(s==="en"||s==="zh") lang=s; }catch(e){}
+const $=id=>document.getElementById(id);
+const zh=()=>lang==="zh";
+const T={
+  eyebrow:["影像基础 · 06","Imaging Basics · 06"], home:["← 课程目录","← All lessons"], present:["投屏模式","Present"],
+  title:["景别与焦距","Shot Size & Focal Length"],
+  lede:["每拍一个镜头，先要决定两件事：画面里装下多少东西，以及用什么办法装。站得远还是近，用广角还是长焦，拍出来的不只是大小不同，连背景和人的脸都会变。","Every shot starts with two decisions: how much to fit in the frame, and how to fit it. Standing far or near, using a wide or a long lens: these change more than size. They change the background, and even the face."],
+  n1:["景别","Shot sizes"], n2:["走近，还是换镜头","Walk in, or zoom in"], n3:["近拍会变形","Up close, faces bend"],
+  prev:["上一页","Previous"], next:["下一页","Next"],
+  vf:["取景器","Viewfinder"],
+  s1h:["六种景别：画面里装多少","Six shot sizes: how much is in the frame"],
+  s1s:["同一个人，同一个地方，摄影机越靠近，画面里的人就越大。电影人给这些大小起了名字，叫“景别”。逐个点一遍，看每种景别在告诉观众什么。","Same person, same place: the closer the camera, the bigger she is in the frame. Film-makers have names for these sizes. Click through them and see what each one tells the audience."],
+  sizeLabel:["景别","Shot size"], cutH:["画面切在哪里","Where the frame cuts"], cutS:["亮框 = 当前景别","bright box = current size"],
+  elsNote:["远景：画面比这张图大得多","Extreme wide: far bigger than this picture"],
+  d1:["50mm 镜头，距离 {d}","50mm lens, {d} away"],
+  cutL:["取景：","Framing: "], saysL:["它在说：","It says: "],
+  key1:["<b>要点</b>　景别越大（远景、全景），观众看到的是<b>环境和动作</b>；景别越小（特写、大特写），观众看到的是<b>表情和情绪</b>。拍一场戏，通常先用大景别交代“在哪里”，再用小景别带观众走近人物。","<b>Key idea</b>　Wider shots show <b>the place and the action</b>; tighter shots show <b>the face and the feeling</b>. A scene usually opens wide to say “where are we”, then moves in tight to bring the audience close to the character."],
+  s2h:["把人拍大的两种办法","Two ways to make her bigger"],
+  s2s:["想让人物在画面里更大，可以走近，也可以站着不动换一支更长的镜头。人物可以拍得一样大，但背景完全不同。左边是俯视图，右边是摄影机看到的画面。","To make the subject bigger you can walk closer, or stay put and use a longer lens. She can end up the same size, yet the background is completely different. Left: the view from above. Right: what the camera sees."],
+  mapH:["俯视图","From above"], mapS:["拖动相机改变距离","drag the camera to move it"],
+  fLabel:["焦距","Focal length"], dLabel:["相机到人物","Camera to subject"],
+  lock:["保持人物一样大","Keep her the same size"], reset:["重置","Reset"],
+  r2a:["焦距","Focal length"], r2b:["水平视角","Angle of view"], r2c:["距离","Distance"], r2d:["20 米外的背景看起来","Background 20 m behind looks"],
+  r2dv:["人物处的 {p}%","{p}% of its size at the subject"],
+  camL:["相机","Camera"], subjL:["人物","Subject"], farL:["远山 →","mountains →"],
+  wide:["广角","wide"], normal:["标准","normal"], tele:["长焦","telephoto"],
+  v2try:["试一试：点亮“保持人物一样大”，再把焦距从 16mm 慢慢拖到 200mm。人物不变，看背景。","Try it: switch on “Keep her the same size”, then drag the focal length slowly from 16mm to 200mm. She stays put; watch the background."],
+  v2wide:["广角 + 靠近：背景又小又远，装进了一大片环境。空间显得很深。","Wide lens, close camera: the background is small and far away, and a lot of it fits in. The space feels deep."],
+  v2mid:["接近人眼的感觉：人物和背景的大小关系很自然。","Close to how your eyes see it: subject and background sit in a natural balance."],
+  v2tele:["长焦 + 退远：背景被放大，像是贴在人物身后；只剩下窄窄一条。这叫“空间压缩”。","Long lens, far camera: the background is magnified and seems pressed up behind her, and only a narrow slice remains. This is called “compression”."],
+  key2:["<b>要点</b>　焦距只决定<b>画面截取多宽</b>：焦距越长，视角越窄，像是把画面中间裁下来放大。<b>透视</b>（远近物体的大小关系）只由<b>相机站在哪里</b>决定。所以“走近”和“换长焦”不是一回事：走近改变背景与人物的比例，换长焦只是放大。","<b>Key idea</b>　Focal length only decides <b>how wide a slice you take</b>: a longer lens has a narrower angle, like cropping the middle of the picture and enlarging it. <b>Perspective</b> (how big near and far things look relative to each other) is decided only by <b>where the camera stands</b>. So walking in and zooming in are not the same: walking in changes the balance of subject and background; zooming only magnifies."],
+  s3h:["广角贴近拍，脸会变形","A wide lens up close bends the face"],
+  s3s:["下面的头在画面里始终一样大：相机越近，就自动换成越广的镜头。把距离从 1 米拖到 20 厘米，看鼻子和耳朵。","The head below always fills the frame equally: the closer the camera, the wider the lens it switches to. Drag the distance from a metre down to 20 cm and watch the nose and the ears."],
+  topH:["俯视图","From above"], topS:["相机到鼻尖、到耳朵","camera to nose tip, to ears"],
+  d3Label:["相机到脸","Camera to face"],
+  r3a:["配合的焦距","Matching lens"], r3b:["到鼻尖","To the nose tip"], r3c:["到耳朵","To the ears"], r3d:["鼻子比耳朵放大","Nose enlarged vs ears"],
+  noseL:["鼻尖 {d}","nose {d}"], earL:["耳朵 {d}","ear {d}"],
+  v3a:["鼻子很大，耳朵快看不见了，脸变得又尖又长。手机贴着脸自拍就是这个样子。","Big nose, ears almost gone, and the face looks long and pointed. This is what a phone selfie at arm's length or closer does."],
+  v3b:["还有一点变形：鼻子略大，脸略窄。","Still a little distorted: the nose is slightly large and the face slightly narrow."],
+  v3c:["比例自然。拍人像爱用 85mm 左右，就是因为可以站在 1 米以外。","Natural proportions. Portraits are often shot around 85mm precisely because you can stand more than a metre away."],
+  key3:["<b>要点</b>　变形不是镜头“坏”，而是<b>离得太近</b>。离脸 25 厘米时，鼻尖到相机的距离只有耳朵的六成，所以鼻子被放大得多；退到 1 米以外，这点差别就不算什么了。想拍好看的特写：<b>退后一点，用长一点的焦距</b>。","<b>Key idea</b>　The distortion is not a “bad” lens; it is <b>being too close</b>. At 25 cm from a face the nose tip is only about 60% as far from the camera as the ears, so it is magnified much more. Beyond a metre that difference hardly matters. For a flattering close-up: <b>step back and use a longer lens</b>."],
+  quizH:["小测","Quick quiz"], right:["对了。","Correct. "], wrong:["再想想。","Not quite. "],
+  u_m:[" 米"," m"], u_cm:[" 厘米"," cm"]
+};
+/* shot sizes: frame height at the subject (m) and the height the frame is centred on (m) */
+const SIZES=[
+ {k:"ELS",h:9,   y:3.0,  n:["远景","Extreme wide shot"], cut:["人只占画面一小块，四周全是环境。","The person is a small part of the frame; the place fills the rest."], says:["我们在哪里？这里有多大、多空？","Where are we? How big, how empty is this place?"]},
+ {k:"WS", h:2.15,y:0.9,  n:["全景","Wide shot"], cut:["从头到脚，上下留一点空。","Head to toe, with a little room above and below."], says:["她是谁，穿什么，正在做什么动作？","Who is she, what is she wearing, what is her whole body doing?"]},
+ {k:"MS", h:0.95,y:1.4,  n:["中景","Medium shot"], cut:["腰部以上。","From the waist up."], says:["她在说话、在做事。对话场面最常用。","She is talking, doing something. The workhorse of dialogue scenes."]},
+ {k:"MCU",h:0.6, y:1.5,  n:["近景","Medium close-up"], cut:["胸部以上。","From the chest up."], says:["听她说什么，同时看清她的表情。","Listen to what she says and read her expression at the same time."]},
+ {k:"CU", h:0.37,y:1.565,n:["特写","Close-up"], cut:["整张脸。","The whole face."], says:["她现在是什么感受？","What is she feeling right now?"]},
+ {k:"ECU",h:0.115,y:1.592,n:["大特写","Extreme close-up"], cut:["只有眼睛（或嘴、手、一件小东西）。","Just the eyes (or the mouth, a hand, one small object)."], says:["就看这里！这个细节很重要。","Look right here! This detail matters."]}
+];
+const QUIZ=[
+ {q:["你想让观众看清角色眼里的泪光，该用哪种景别？","You want the audience to see the tears in a character's eyes. Which shot size?"],
+  o:[["远景","Extreme wide shot"],["全景","Wide shot"],["特写","Close-up"]], a:2,
+  why:["特写把整张脸放满画面，表情和情绪看得最清楚。","A close-up fills the frame with the face, so expression and emotion read most clearly."]},
+ {q:["同一个人，在画面里一样大：一次用 24mm 走近拍，一次用 200mm 退远拍。背景有什么不同？","The same person, the same size in frame: once at 24mm from close, once at 200mm from far away. How does the background differ?"],
+  o:[["完全一样","Exactly the same"],["200mm 的背景更大、更近，只剩窄窄一条","At 200mm the background is bigger and closer, and only a narrow slice remains"],["24mm 的背景更大","At 24mm the background is bigger"]], a:1,
+  why:["退远之后，背景和人物到相机的距离差不多，所以背景被放得几乎和人物一样大，视角也窄了。","From far away, the background and the subject are nearly the same distance from the camera, so the background is magnified almost as much as she is, and the angle is narrow."]},
+ {q:["用手机贴着脸自拍，鼻子显得特别大。真正的原因是？","A phone selfie taken right up against your face makes your nose look huge. What is the real reason?"],
+  o:[["相机离脸太近，鼻尖比耳朵近得多","The camera is too close, so the nose is far nearer than the ears"],["手机镜头质量差","Phone lenses are poor quality"],["像素不够高","Not enough megapixels"]], a:0,
+  why:["离得越近的东西被放得越大。距离很短时，鼻尖和耳朵那几厘米的差别就成了很大的比例。","Nearer things are magnified more. At a very short distance, the few centimetres between nose tip and ears become a big ratio."]}
+];
+const t=(k,v)=>{ let s=T[k]?T[k][zh()?0:1]:k; if(v) for(const n in v) s=s.split("{"+n+"}").join(v[n]); return s; };
+const L2=a=>a[zh()?0:1];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const mix=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
+const rgb=(c,a)=>"rgba("+Math.round(c[0])+","+Math.round(c[1])+","+Math.round(c[2])+","+(a==null?1:a)+")";
+const num=(x,d)=>{ const s=x.toFixed(d==null?(x<10?(x<1?2:1):0):d); return s.indexOf(".")>=0?s.replace(/\.?0+$/,""):s; };
+const cm=m=>num(m*100,0)+t("u_cm");
+const dist=m=>m<1?num(m*100,0)+t("u_cm"):num(m,m<10?1:0)+t("u_m");
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let r=Math.imul(seed^seed>>>15,1|seed); r=r+Math.imul(r^r>>>7,61|r)^r; return ((r^r>>>14)>>>0)/4294967296; }; }
+const C={bg:"#0d0f12",panel:"#14171c",panel2:"#1a1e24",line:"#262b33",fg:"#ebe7df",muted:"#9198a2",faint:"#5d636c",light:"#e9c77f",air:"#86b6cf",brass:"#d8b06a",digit:"#b6a4e8"};
+const FM='"JetBrains Mono",ui-monospace,Menlo,monospace', FB='"IBM Plex Sans","Noto Sans SC",system-ui,sans-serif';
+const CV={};
+function fit(id,h){ const cv=$(id), w=cv.getBoundingClientRect().width||cv.parentElement.clientWidth; if(!w) return null; const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv.style.height=h+"px"; const g=cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); return CV[id]={g,w,h}; }
+const cw=id=>$(id).getBoundingClientRect().width;
+function hud(g,x,y,txt,col,align){ g.font="500 12.5px "+FM; g.textAlign=align||"left"; g.textBaseline="top"; const m=g.measureText(txt).width;
+  const bx=align==="right"?x-m-8:x-8; g.fillStyle="rgba(13,15,18,.62)"; g.beginPath(); g.roundRect(bx,y-5,m+16,24,7); g.fill(); g.fillStyle=col||C.fg; g.fillText(txt,x,y); g.textAlign="left"; }
+
+/* ================= the scene: a person on a path, trees, a town, mountains ================= */
+/* world: x to the right, y up, z away from the camera's starting side; the person stands at the origin */
+const TREES=[[-2.6,5,4.2,0],[3.2,8,5,1],[-5.5,11,6,1],[1.9,15,5.5,0],[6.5,13,4.6,0],[-9,18,7,1],[4.5,22,6.5,1],[-3.2,26,6,0],[9,27,7,0],[-12,30,7,1],[13,20,6,1],[-7,6,4,0],[8,4.5,4.5,1],
+             [-9,-6,5,0],[10,-9,5.5,1],[-13,-14,6,1],[12,-17,5,0]].map(a=>({x:a[0],z:a[1],h:a[2],k:a[3]}));
+const TOWN_Z=40;
+const TOWN=(()=>{ const r=rng(21), a=[]; let x=-46; while(x<46){ const w=5+5*r(), h=7+15*r(), win=[]; for(let i=0;i<24;i++) win.push(r()); a.push({x,w,h,win}); x+=w+.6+2*r(); } return a; })();
+const MTN=[1,2].map(L=>{ const r=rng(L*9), a=[]; let v=.5; for(let x=-1.5;x<=1.5001;x+=.05){ v=clamp(v+(r()-.5)*.5,0,1); a.push([x,(L===1?.05:.022)+v*(L===1?.07:.04)]); } return a; });
+const SKIN="#e2b48c", HAIR="#2b2320", TOP="#e9c77f", PANTS="#3b4a63";
+/* the person, drawn in metres with the origin at her feet and y pointing up */
+function person(g){
+  const el=(x,y,rx,ry)=>{ g.beginPath(); g.ellipse(x,y,rx,ry,0,0,7); g.fill(); };
+  g.lineCap="round"; g.lineJoin="round";
+  g.fillStyle="#1c1f26"; el(-.085,.035,.085,.04); el(.085,.035,.085,.04);
+  g.fillStyle=PANTS; g.beginPath(); g.roundRect(-.145,.05,.125,.9,.03); g.roundRect(.02,.05,.125,.9,.03); g.fill();
+  g.strokeStyle="#d9b56c"; g.lineWidth=.085; g.beginPath(); g.moveTo(-.2,1.36); g.lineTo(-.262,.92); g.moveTo(.2,1.36); g.lineTo(.262,.92); g.stroke();
+  g.fillStyle=SKIN; el(-.268,.85,.043,.05); el(.268,.85,.043,.05);
+  g.fillRect(-.042,1.37,.084,.12);
+  g.fillStyle=TOP; g.beginPath(); g.moveTo(-.2,1.42); g.quadraticCurveTo(0,1.39,.2,1.42); g.quadraticCurveTo(.25,1.36,.21,1.2); g.lineTo(.165,.9); g.lineTo(-.165,.9); g.lineTo(-.21,1.2); g.quadraticCurveTo(-.25,1.36,-.2,1.42); g.fill();
+  g.fillStyle=SKIN; g.beginPath(); g.moveTo(-.05,1.43); g.quadraticCurveTo(0,1.36,.05,1.43); g.fill();
+  g.fillStyle=HAIR; el(0,1.575,.112,.135);                                   // hair behind the face
+  g.fillStyle=SKIN; el(0,1.58,.09,.116);
+  g.fillStyle="#d9a47e"; el(-.094,1.575,.012,.022); el(.094,1.575,.012,.022);        // ears
+  g.fillStyle=HAIR; g.beginPath(); g.ellipse(0,1.585,.095,.123,0,0,Math.PI); g.quadraticCurveTo(-.03,1.66,0,1.668); g.quadraticCurveTo(.05,1.672,.095,1.585); g.fill();
+  for(const sx of [-1,1]){ const ex=sx*.038, ey=1.59;
+    g.fillStyle="#f4efe6"; el(ex,ey,.021,.0115);
+    g.fillStyle="#6b4a2f"; el(ex,ey,.0098,.0098); g.fillStyle="#120e0c"; el(ex,ey,.0045,.0045); g.fillStyle="#fff"; el(ex+.0035,ey+.0035,.0018,.0018);
+    g.strokeStyle=HAIR; g.lineWidth=.0032; g.beginPath(); g.moveTo(ex-.022,ey+.002); g.quadraticCurveTo(ex,ey+.018,ex+.022,ey+.002); g.stroke();
+    g.lineWidth=.0065; g.beginPath(); g.moveTo(ex-.024,ey+.026); g.quadraticCurveTo(ex,ey+.036,ex+.024,ey+.028); g.stroke(); }
+  g.strokeStyle="#c08e6c"; g.lineWidth=.004; g.beginPath(); g.moveTo(.002,1.582); g.quadraticCurveTo(-.012,1.552,-.004,1.548); g.quadraticCurveTo(.004,1.545,.01,1.55); g.stroke();
+  g.strokeStyle="#b5524a"; g.lineWidth=.007; g.beginPath(); g.moveTo(-.026,1.518); g.quadraticCurveTo(0,1.506,.026,1.518); g.stroke();
+}
+function tree(g,tr,haze){
+  const h=tr.h, sky=[74,104,130], tk=rgb(mix([74,59,46],sky,haze));
+  g.fillStyle=tk; g.fillRect(-.16,0,.32,h*.45);
+  if(tr.k){ const c=rgb(mix([47,96,74],sky,haze)), c2=rgb(mix([38,80,62],sky,haze)); for(let i=0;i<3;i++){ const y0=h*(.2+i*.22), y1=h*(.62+i*.19), w=h*(.26-i*.055); g.fillStyle=i%2?c2:c; g.beginPath(); g.moveTo(-w,y0); g.lineTo(w,y0); g.lineTo(0,y1); g.fill(); } }
+  else { const c=rgb(mix([62,112,78],sky,haze)), c2=rgb(mix([52,98,68],sky,haze)); const b=(x,y,r,cc)=>{ g.fillStyle=cc; g.beginPath(); g.arc(x,y,r,0,7); g.fill(); };
+    b(-h*.16,h*.6,h*.2,c2); b(h*.17,h*.58,h*.19,c2); b(0,h*.72,h*.27,c); }
+}
+/* cam = {y, z, f}: at height y, at depth z (negative = in front of the person), looking straight along +z */
+function drawScene(g,W,H,cam){
+  const F=cam.f/36*W, hz=H/2, P=(x,y,z)=>{ const d=z-cam.z; return [W/2+x*F/d, hz-(y-cam.y)*F/d]; };
+  let gr=g.createLinearGradient(0,0,0,hz); gr.addColorStop(0,"#17222f"); gr.addColorStop(1,"#4a6882"); g.fillStyle=gr; g.fillRect(0,0,W,hz+1);
+  MTN.forEach((m,i)=>{ g.fillStyle=i?"#2f455a":"#3b566e"; g.beginPath(); g.moveTo(W/2+m[0][0]*F,hz+1); for(const p of m) g.lineTo(W/2+p[0]*F,hz-p[1]*F); g.lineTo(W/2+m[m.length-1][0]*F,hz+1); g.fill(); });
+  gr=g.createLinearGradient(0,hz,0,H); gr.addColorStop(0,"#2c4034"); gr.addColorStop(1,"#1d2b22"); g.fillStyle=gr; g.fillRect(0,hz,W,H-hz);
+  const dT=TOWN_Z-cam.z, sT=F/dT;
+  for(const b of TOWN){ const p=P(b.x,0,TOWN_Z), bw=b.w*sT, bh=b.h*sT; if(p[0]>W||p[0]+bw<0) continue; g.fillStyle="#27323f"; g.fillRect(p[0],p[1]-bh,bw,bh+1);
+    if(sT>1.2){ const cols=3, rows=Math.min(8,Math.floor(b.h/2.6)); for(let i=0;i<cols*rows;i++){ g.fillStyle=b.win[i]>.72?"rgba(233,199,127,.8)":"#324050"; g.fillRect(p[0]+bw*(.14+.28*(i%cols)),p[1]-bh+(.9+Math.floor(i/cols)*2.6)*sT,bw*.16,1.3*sT); } } }
+  const z0=cam.z+.35, a=P(-1.2,0,z0), b=P(1.2,0,z0), c=P(1.2,0,90), d=P(-1.2,0,90);          // the path
+  g.fillStyle="#3a3c38"; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.lineTo(c[0],c[1]); g.lineTo(d[0],d[1]); g.fill();
+  g.strokeStyle="rgba(235,231,223,.16)"; for(let z=Math.ceil((cam.z+.6)/2)*2;z<=38;z+=2){ const p=P(-1.2,0,z), q=P(1.2,0,z); g.lineWidth=clamp(.05*F/(z-cam.z),.4,4); g.beginPath(); g.moveTo(p[0],p[1]); g.lineTo(q[0],q[1]); g.stroke(); }
+  const items=TREES.map(tr=>({z:tr.z,tr})).concat([{z:0,p:1}]).filter(o=>o.z-cam.z>.12).sort((p,q)=>q.z-p.z);
+  for(const o of items){ const dd=o.z-cam.z, s=F/dd, base=P(o.p?0:o.tr.x,0,o.z); if(!o.p&&(base[0]<-o.tr.h*s||base[0]>W+o.tr.h*s)) continue;
+    g.save(); g.translate(base[0],base[1]); g.scale(s,-s);
+    if(o.p){ g.fillStyle="rgba(0,0,0,.28)"; g.beginPath(); g.ellipse(.05,0,.34,.07,0,0,7); g.fill(); person(g); } else tree(g,o.tr,clamp(dd/90,0,.55));
+    g.restore(); }
+  g.strokeStyle="rgba(235,231,223,.55)"; g.lineWidth=1.5; const m=12, l=18;                 // viewfinder corner marks
+  [[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]].forEach(k=>{ g.beginPath(); g.moveTo(k[0]+l*k[2],k[1]); g.lineTo(k[0],k[1]); g.lineTo(k[0],k[1]+l*k[3]); g.stroke(); });
+}
+
+/* ================= page 1: shot sizes ================= */
+const S1={i:1,lh:Math.log(SIZES[1].h),y:SIZES[1].y,anim:0};
+function draw1(){
+  const w=cw("v1"); if(!w) return; const c=fit("v1",Math.round(w*9/16)), hF=Math.exp(S1.lh), d=hF*50/20.25;
+  drawScene(c.g,c.w,c.h,{y:S1.y,z:-d,f:50});
+  hud(c.g,22,22,L2(SIZES[S1.i].n),C.fg); $("v1S").textContent=t("d1",{d:dist(d)});
+}
+function drawCuts(){
+  const w=cw("d1"); if(!w) return; const side=cw("v1")>w+40, H=side?Math.round(cw("v1")*9/16):400, c=fit("d1",H), g=c.g;
+  g.fillStyle=C.panel; g.fillRect(0,0,w,H);
+  const sc=(H-52)/2.2, gy=H-34, px=w/2, Y=y=>gy-y*sc;
+  g.strokeStyle=C.line; g.lineWidth=1; g.beginPath(); g.moveTo(10,gy); g.lineTo(w-10,gy); g.stroke();
+  g.save(); g.translate(px,gy); g.scale(sc,-sc); person(g); g.restore();
+  SIZES.forEach((s,i)=>{ if(i===0) return; const on=i===S1.i, fw=Math.min(s.h*16/9*sc,w-14), y0=Y(s.y+s.h/2), fh=s.h*sc;
+    if(on){ g.fillStyle="rgba(216,176,106,.1)"; g.fillRect(px-fw/2,y0,fw,fh); g.strokeStyle=C.brass; g.lineWidth=2; g.setLineDash([]); }
+    else { g.strokeStyle="rgba(145,152,162,.4)"; g.lineWidth=1; g.setLineDash([4,4]); }
+    g.strokeRect(px-fw/2,y0,fw,fh); g.setLineDash([]);
+    if(on){ g.font="600 13px "+FB; g.fillStyle=C.brass; g.textBaseline="bottom"; g.textAlign="left"; g.fillText(L2(s.n),px-fw/2+2,y0-4); } });
+  g.font="12.5px "+FB; g.textAlign="center"; g.textBaseline="alphabetic"; g.fillStyle=S1.i===0?C.brass:C.faint; g.fillText(t("elsNote"),w/2,H-11,w-20);
+  if(S1.i===0){ g.strokeStyle=C.brass; g.lineWidth=2; g.strokeRect(5,5,w-10,H-10); }
+  g.textAlign="left";
+}
+function tick1(){ S1.anim=0; const s=SIZES[S1.i], tl=Math.log(s.h), dl=tl-S1.lh, dy=s.y-S1.y;
+  if(Math.abs(dl)<.004&&Math.abs(dy)<.002){ S1.lh=tl; S1.y=s.y; draw1(); return; }
+  S1.lh+=dl*.16; S1.y+=dy*.16; draw1(); S1.anim=requestAnimationFrame(tick1); }
+function ui1(){
+  document.querySelectorAll("#sizechips button").forEach((b,i)=>{ b.setAttribute("aria-pressed",i===S1.i); b.textContent=L2(SIZES[i].n); });
+  const s=SIZES[S1.i];
+  $("info1").innerHTML=`<h3>${L2(s.n)}<small>${zh()?s.n[1]:s.k}</small></h3><p class="cut">${t("cutL")}${L2(s.cut)}</p><p class="says"><b>${t("saysL")}</b>${L2(s.says)}</p>`;
+  drawCuts(); if(!S1.anim) tick1();
+}
+function init1(){
+  $("sizechips").innerHTML=SIZES.map((s,i)=>`<button type="button" class="chip" data-v="${i}"></button>`).join("");
+  $("sizechips").onclick=e=>{ const b=e.target.closest("button"); if(b){ S1.i=+b.dataset.v; ui1(); } };
+}
+
+/* ================= page 2: distance and focal length ================= */
+const FMIN=16, FMAX=200, DMIN=.8, DMAX=20, AIM=1.02;
+const s2f=v=>FMIN*Math.pow(FMAX/FMIN,v), f2s=f=>Math.log(f/FMIN)/Math.log(FMAX/FMIN), s2d=v=>DMIN*Math.pow(DMAX/DMIN,v), d2s=d=>Math.log(d/DMIN)/Math.log(DMAX/DMIN);
+const S2={f:35,d:3.5,lock:false,k:.1,drag:false};
+const MAP={z0:-22,z1:47,xr:12.5};
+function drawMap(){
+  const w=cw("m2"); if(!w) return; const vh=Math.round(cw("v2")*9/16), side=cw("v2")<w+40&&cw("v2")>w-40&&$("m2").getBoundingClientRect().top===$("v2").getBoundingClientRect().top;
+  const sc=w/(MAP.z1-MAP.z0), H=side?vh:Math.max(190,Math.round(sc*2*MAP.xr)), c=fit("m2",H), g=c.g, X=z=>(z-MAP.z0)*sc, Y=x=>H/2+x*sc;
+  g.fillStyle=C.panel; g.fillRect(0,0,w,H);
+  g.font="10.5px "+FM; g.textBaseline="bottom"; g.textAlign="center";
+  for(let z=-20;z<=40;z+=10){ g.strokeStyle=C.line; g.lineWidth=1; g.beginPath(); g.moveTo(X(z),0); g.lineTo(X(z),H); g.stroke(); if(z) { g.fillStyle=C.faint; g.fillText(Math.abs(z)+" m",X(z),H-4); } }
+  g.fillStyle="rgba(58,60,56,.7)"; g.fillRect(0,Y(-1.2),w,2.4*sc);
+  g.fillStyle="#27323f"; for(const b of TOWN){ if(Math.abs(b.x+b.w/2)>MAP.xr+6) continue; g.fillRect(X(TOWN_Z),Y(b.x),3.2*sc,b.w*sc); }
+  const cz=-S2.d, tn=18/S2.f, zf=MAP.z1+2;
+  g.fillStyle="rgba(233,199,127,.13)"; g.strokeStyle="rgba(233,199,127,.8)"; g.lineWidth=1.2;
+  g.beginPath(); g.moveTo(X(cz),Y(0)); g.lineTo(X(zf),Y(-(zf-cz)*tn)); g.lineTo(X(zf),Y((zf-cz)*tn)); g.closePath(); g.fill(); g.stroke();
+  for(const tr of TREES){ const inside=tr.z>cz&&Math.abs(tr.x)<(tr.z-cz)*tn+tr.h*.25; g.fillStyle=inside?"#4f9068":"#2c4a3a"; g.beginPath(); g.arc(X(tr.z),Y(tr.x),Math.max(2.5,tr.h*.2*sc),0,7); g.fill(); }
+  g.fillStyle=C.digit; g.beginPath(); g.arc(X(0),Y(0),5,0,7); g.fill();
+  g.font="12px "+FB; g.textAlign="center"; g.fillStyle=C.digit; g.fillText(t("subjL"),X(0),Y(0)-9);
+  const x=X(cz), y=Y(0); g.fillStyle=C.fg; g.beginPath(); g.roundRect(x-13,y-7,13,14,2); g.fill(); g.beginPath(); g.moveTo(x,y-4); g.lineTo(x+5,y-6); g.lineTo(x+5,y+6); g.lineTo(x,y+4); g.fill();
+  g.fillStyle=C.fg; g.fillText(t("camL"),clamp(x-6,22,w-22),y+24);
+  g.strokeStyle=C.muted; g.lineWidth=1; g.setLineDash([3,3]); g.beginPath(); g.moveTo(x+6,y+34); g.lineTo(X(0),y+34); g.stroke(); g.setLineDash([]);
+  g.fillStyle=C.muted; g.font="11px "+FM; g.textBaseline="top"; g.fillText(dist(S2.d),(x+X(0))/2,y+38);
+  g.textAlign="right"; g.textBaseline="top"; g.fillStyle=C.faint; g.font="11.5px "+FB; g.fillText(t("farL"),w-8,8); g.textAlign="left";
+}
+function draw2(){
+  const w=cw("v2"); if(!w) return; const c=fit("v2",Math.round(w*9/16));
+  drawScene(c.g,c.w,c.h,{y:AIM,z:-S2.d,f:S2.f});
+  hud(c.g,22,22,num(S2.f,0)+"mm · "+dist(S2.d),C.fg);
+  drawMap();
+}
+function ui2(){
+  const f=S2.f, d=S2.d, ang=2*Math.atan(18/f)*180/Math.PI;
+  $("f2").value=Math.round(f2s(f)*1000); $("dist2").value=Math.round(d2s(d)*1000);
+  $("f2o").textContent=num(f,0)+"mm"; $("dist2o").textContent=dist(d);
+  document.querySelectorAll("#f2chips button").forEach(b=>b.setAttribute("aria-pressed",Math.abs(+b.dataset.v-f)<.6));
+  $("lock2").setAttribute("aria-pressed",S2.lock);
+  $("v2S").textContent=t(f<35?"wide":f<=70?"normal":"tele");
+  $("ro2").innerHTML=[["r2a",num(f,0)+"mm"],["r2b",num(ang,0)+"°"],["r2c",dist(d)],["r2d",t("r2dv",{p:num(d/(d+20)*100,0)})]].map(r=>`<div><span>${t(r[0])}</span><b>${r[1]}</b></div>`).join("");
+  $("verdict2").textContent=!S2.lock?t("v2try"):t(f<30?"v2wide":f<=70?"v2mid":"v2tele");
+  draw2();
+}
+function setF(f){ f=clamp(f,FMIN,FMAX); if(S2.lock){ const d=clamp(f*S2.k,DMIN,DMAX); S2.d=d; f=clamp(d/S2.k,FMIN,FMAX); } S2.f=f; ui2(); }
+function setD(d){ d=clamp(d,DMIN,DMAX); if(S2.lock){ const f=clamp(d/S2.k,FMIN,FMAX); S2.f=f; d=clamp(f*S2.k,DMIN,DMAX); } S2.d=d; ui2(); }
+function init2(){
+  $("f2chips").innerHTML=[16,24,35,50,85,135,200].map(v=>`<button type="button" class="chip" data-v="${v}">${v}</button>`).join("");
+  $("f2chips").onclick=e=>{ const b=e.target.closest("button"); if(b) setF(+b.dataset.v); };
+  $("f2").oninput=e=>{ let f=s2f(+e.target.value/1000); for(const s of [24,35,50,85,135]) if(Math.abs(f2s(s)-f2s(f))<.012) f=s; setF(f); };
+  $("dist2").oninput=e=>setD(s2d(+e.target.value/1000));
+  $("lock2").onclick=()=>{ S2.lock=!S2.lock; S2.k=S2.d/S2.f; ui2(); };
+  $("reset2").onclick=()=>{ S2.f=35; S2.d=3.5; S2.lock=false; ui2(); };
+  const cv=$("m2"), at=e=>{ const b=cv.getBoundingClientRect(), z=MAP.z0+(e.clientX-b.left)/b.width*(MAP.z1-MAP.z0); setD(-z); };
+  cv.addEventListener("pointerdown",e=>{ S2.drag=true; cv.setPointerCapture(e.pointerId); at(e); });
+  cv.addEventListener("pointermove",e=>{ if(S2.drag) at(e); });
+  ["pointerup","pointercancel"].forEach(n=>cv.addEventListener(n,()=>{ S2.drag=false; }));
+}
+
+/* ================= page 3: a 3D head, close and far ================= */
+/* head: an ellipsoid centred on the origin, facing -z (towards the camera). Sizes in metres. */
+const HA=.075, HB=.115, HC=.095, EYE_Z=-.085, NOSE_Z=-.125, EAR_Z=.012, EAR_X=.086, HEAD_FILL=.25;   // the head outline always spans HEAD_FILL x frame width from centre to chin
+const D3MIN=.14, D3MAX=2.5, s2D=v=>D3MIN*Math.pow(D3MAX/D3MIN,v), D2s=d=>Math.log(d/D3MIN)/Math.log(D3MAX/D3MIN);
+/* the silhouette of the head seen from distance L has tan(half-angle) = HB / sqrt(L² - HC²); pick the lens that keeps it constant */
+const fFor=D=>{ const L=D-EYE_Z; return 36*HEAD_FILL*Math.sqrt(L*L-HC*HC)/HB; };
+const dFor=f=>Math.sqrt(Math.pow(f*HB/(36*HEAD_FILL),2)+HC*HC)+EYE_Z;
+const zs=(x,y)=>-HC*Math.sqrt(Math.max(0,1-x*x/(HA*HA)-y*y/(HB*HB)));
+const LIGHT=(()=>{ const v=[-.45,.5,-.74], l=Math.hypot(v[0],v[1],v[2]); return v.map(k=>k/l); })();
+function ellipsoid(cx,cy,cz,a,b,c,nLat,nLon,colFn){
+  const q=[], pt=(i,j)=>{ const th=Math.PI*i/nLat, ph=2*Math.PI*j/nLon; return [cx+a*Math.sin(th)*Math.sin(ph),cy+b*Math.cos(th),cz-c*Math.sin(th)*Math.cos(ph)]; };
+  for(let i=0;i<nLat;i++) for(let j=0;j<nLon;j++){ const v=[pt(i,j),pt(i,j+1),pt(i+1,j+1),pt(i+1,j)], m=[0,1,2].map(k=>(v[0][k]+v[1][k]+v[2][k]+v[3][k])/4);
+    let n=[(m[0]-cx)/(a*a),(m[1]-cy)/(b*b),(m[2]-cz)/(c*c)]; const l=Math.hypot(n[0],n[1],n[2]); n=n.map(k=>k/l); q.push({v,m,n,col:colFn(m)}); }
+  return q;
+}
+const SK=[226,180,140], HR=[43,35,32], SH=[214,178,104];
+const MESH=[].concat(
+  ellipsoid(0,-.4,.03,.2,.21,.115,10,20,()=>SH),
+  ellipsoid(0,-.15,.012,.05,.085,.05,6,14,()=>mix(SK,[0,0,0],.12)),
+  ellipsoid(0,0,0,HA,HB,HC,26,40,m=>(m[1]>.03-m[2]*.5||(m[2]>.04&&m[1]>-.075))?HR:SK));
+const EARS=[-1,1].map(s=>{ const v=[]; for(let i=0;i<14;i++){ const a=i/14*2*Math.PI; v.push([s*(EAR_X+.004)+Math.cos(a)*.014,-.004+Math.sin(a)*.027,EAR_Z]); } return {v,m:[s*EAR_X,0,EAR_Z],n:null,col:mix(SK,[150,90,70],.25)}; });
+function drawHead(g,W,H,D){
+  const camZ=EYE_Z-D, camY=-.012, F=fFor(D)/36*W, P=p=>{ const d=p[2]-camZ; return [W/2+p[0]*F/d,H/2-(p[1]-camY)*F/d]; };
+  const gr=g.createRadialGradient(W/2,H*.45,10,W/2,H*.5,W*.75); gr.addColorStop(0,"#2a3038"); gr.addColorStop(1,"#14171c"); g.fillStyle=gr; g.fillRect(0,0,W,H);
+  const list=MESH.filter(q=>q.n[0]*(q.m[0])+q.n[1]*(q.m[1]-camY)+q.n[2]*(q.m[2]-camZ)<0).concat(EARS).sort((p,q)=>q.m[2]-p.m[2]);
+  for(const q of list){ const sh=q.n?.6+.4*Math.max(0,q.n[0]*LIGHT[0]+q.n[1]*LIGHT[1]+q.n[2]*LIGHT[2]):.8, col=rgb(mix([0,0,0],q.col,sh));
+    g.fillStyle=col; g.strokeStyle=col; g.lineWidth=1; g.beginPath(); q.v.forEach((p,i)=>{ const s=P(p); i?g.lineTo(s[0],s[1]):g.moveTo(s[0],s[1]); }); g.closePath(); g.fill(); g.stroke(); }
+  const S=p=>F/(p[2]-camZ), on=(x,y,lift)=>[x,y,zs(x,y)-(lift||.001)];
+  const poly=(pts,fill,stroke,lw)=>{ g.beginPath(); pts.forEach((p,i)=>{ const s=P(p); i?g.lineTo(s[0],s[1]):g.moveTo(s[0],s[1]); }); if(fill){ g.closePath(); g.fillStyle=fill; g.fill(); } if(stroke){ g.strokeStyle=stroke; g.lineWidth=lw; g.lineCap="round"; g.lineJoin="round"; g.stroke(); } };
+  const ring=(cx,cy,rx,ry)=>{ const a=[]; for(let i=0;i<18;i++){ const an=i/18*2*Math.PI; a.push(on(cx+Math.cos(an)*rx,cy+Math.sin(an)*ry)); } return a; };
+  for(const s of [-1,1]){ const ex=s*.031, ey=.014, sc=S(on(ex,ey));
+    poly(ring(ex,ey,.0145,.0085),"#f4efe6"); poly(ring(ex,ey,.0072,.0072),"#6b4a2f"); poly(ring(ex,ey,.0034,.0034),"#120e0c");
+    const lid=[], brow=[]; for(let i=0;i<=8;i++){ const u=i/8*2-1; lid.push(on(ex+u*.0155,ey+.0085*(1-u*u)+.001)); brow.push(on(ex+u*.018,ey+.021+.006*(1-u*u)-s*u*.002)); }
+    poly(lid,null,"#2b2320",Math.max(1,.0028*sc)); poly(brow,null,"#2b2320",Math.max(1.2,.0055*sc)); }
+  const mouth=[]; for(let i=0;i<=10;i++){ const u=i/10*2-1; mouth.push(on(u*.023,-.066-.005*(1-u*u))); }
+  poly(mouth,null,"#b5524a",Math.max(1.5,.0065*S(mouth[5])));
+  const tip=[0,-.026,NOSE_Z], top=on(0,.02), nl=on(-.021,-.037), nr=on(.021,-.037);                // the nose: a small pyramid
+  poly([top,tip,nl],rgb(mix([0,0,0],SK,.93))); poly([top,tip,nr],rgb(mix([0,0,0],SK,.8))); poly([nl,tip,nr],rgb(mix([0,0,0],SK,.68)));
+  g.strokeStyle="rgba(235,231,223,.55)"; g.lineWidth=1.5; const m=12, l=18;
+  [[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]].forEach(k=>{ g.beginPath(); g.moveTo(k[0]+l*k[2],k[1]); g.lineTo(k[0],k[1]); g.lineTo(k[0],k[1]+l*k[3]); g.stroke(); });
+}
+function drawTop(g,W,H,D){
+  g.fillStyle=C.panel; g.fillRect(0,0,W,H);
+  const camZ=EYE_Z-D, sc=Math.min((W-110)/(HC-camZ+.03),H*.62/(2*EAR_X+.04)), cy=H*.5, x0=44, X=z=>x0+(z-camZ)*sc, Y=x=>cy+x*sc;
+  g.fillStyle=rgb(HR); g.beginPath(); g.ellipse(X(0),Y(0),HC*sc,HA*sc,0,0,7); g.fill();                                  // head from above: hair
+  g.fillStyle=rgb(SK); for(const s of [-1,1]){ g.beginPath(); g.ellipse(X(EAR_Z),Y(s*EAR_X),.014*sc,.012*sc,0,0,7); g.fill(); }
+  g.beginPath(); g.ellipse(X(0),Y(0),HC*sc,HA*sc,0,Math.PI*.62,Math.PI*1.38); g.fill();
+  g.beginPath(); g.moveTo(X(-.086),Y(-.016)); g.lineTo(X(NOSE_Z),Y(0)); g.lineTo(X(-.086),Y(.016)); g.fill();
+  const ray=(z,x,col)=>{ g.strokeStyle=col; g.lineWidth=1.6; g.beginPath(); g.moveTo(X(camZ),Y(0)); g.lineTo(X(z),Y(x)); g.stroke(); g.fillStyle=col; g.beginPath(); g.arc(X(z),Y(x),3.5,0,7); g.fill(); };
+  ray(EAR_Z,-EAR_X,C.light); ray(EAR_Z,EAR_X,C.light); ray(NOSE_Z,0,C.digit);
+  const x=X(camZ); g.fillStyle=C.fg; g.beginPath(); g.roundRect(x-22,cy-11,22,22,3); g.fill(); g.beginPath(); g.moveTo(x,cy-6); g.lineTo(x+7,cy-9); g.lineTo(x+7,cy+9); g.lineTo(x,cy+6); g.fill();
+  g.font="12px "+FB; g.textAlign="center"; g.textBaseline="top"; g.fillStyle=C.fg; g.fillText(t("camL"),x-8,cy+18);
+  g.font="13px "+FB; g.textAlign="left"; g.textBaseline="alphabetic";
+  g.fillStyle=C.digit; g.fillText(t("noseL",{d:cm(D-(EYE_Z-NOSE_Z))}),14,24);
+  g.fillStyle=C.light; g.fillText(t("earL",{d:cm(D+EAR_Z-EYE_Z)}),14,44);
+}
+const S3={D:1};
+function draw3(){
+  const w=cw("v3"); if(!w) return; const h=clamp(Math.round(w*.78),240,480), a=fit("v3",h); drawHead(a.g,a.w,a.h,S3.D);
+  hud(a.g,22,22,num(fFor(S3.D),0)+"mm · "+dist(S3.D),C.fg);
+  const w2=cw("t3"), b=fit("t3",Math.abs(w2-w)<40&&$("t3").getBoundingClientRect().top===$("v3").getBoundingClientRect().top?h:260); drawTop(b.g,b.w,b.h,S3.D);
+}
+function ui3(){
+  const D=S3.D, dn=D-(EYE_Z-NOSE_Z), de=D+EAR_Z-EYE_Z, f=fFor(D);
+  $("d3").value=Math.round(D2s(D)*1000); $("d3o").textContent=dist(D);
+  document.querySelectorAll("#d3chips button").forEach(b=>b.setAttribute("aria-pressed",Math.abs(+b.dataset.v-f)<.8));
+  $("v3S").textContent=t(f<35?"wide":f<=70?"normal":"tele");
+  $("ro3").innerHTML=[["r3a",num(f,0)+"mm"],["r3b",cm(dn)],["r3c",cm(de)],["r3d","+"+num((de/dn-1)*100,0)+"%"]].map(r=>`<div><span>${t(r[0])}</span><b>${r[1]}</b></div>`).join("");
+  $("verdict3").textContent=t(D<.42?"v3a":D<.9?"v3b":"v3c");
+  draw3();
+}
+function init3(){
+  $("d3chips").innerHTML=[16,24,35,50,85,135,200].map(v=>`<button type="button" class="chip" data-v="${v}">${v}mm</button>`).join("");
+  $("d3chips").onclick=e=>{ const b=e.target.closest("button"); if(b){ S3.D=clamp(dFor(+b.dataset.v),D3MIN,D3MAX); ui3(); } };
+  $("d3").oninput=e=>{ S3.D=s2D(+e.target.value/1000); ui3(); };
+}
+const QA=QUIZ.map(()=>-1);
+function renderQuiz(){
+  $("quiz").innerHTML=QUIZ.map((q,i)=>{ const p=QA[i];
+    return `<div class="q"><p class="qq">${i+1}. ${L2(q.q)}</p><div class="qopts">${q.o.map((o,j)=>`<button type="button" data-q="${i}" data-o="${j}" class="${p===j?(j===q.a?"ok":"no"):""}">${L2(o)}</button>`).join("")}</div>${p<0?"":`<p class="why">${t(p===q.a?"right":"wrong")}${p===q.a?L2(q.why):""}</p>`}</div>`; }).join("");
+}
+$("quiz").onclick=e=>{ const b=e.target.closest("button"); if(b){ QA[+b.dataset.q]=+b.dataset.o; renderQuiz(); } };
+
+/* ================= shell: pages, language ================= */
+const PIDS=["sizes","lens","face"], PNAME={sizes:"n1",lens:"n2",face:"n3"};
+let cur="sizes";
+function renderNav(){
+  $("nav").innerHTML=PIDS.map((p,i)=>`<button type="button" data-go="${p}" aria-current="${p===cur}"><span>0${i+1}</span>${t(PNAME[p])}</button>`).join("");
+  document.querySelectorAll("[data-pager]").forEach(el=>{ const i=PIDS.indexOf(el.dataset.pager), a=PIDS[i-1], b=PIDS[i+1];
+    el.innerHTML=(a?`<button type="button" data-go="${a}"><span>← ${t("prev")}</span><b>${t(PNAME[a])}</b></button>`:"")+(b?`<button type="button" class="next" data-go="${b}"><span>${t("next")} →</span><b>${t(PNAME[b])}</b></button>`:""); });
+}
+function redraw(){ if(cur==="sizes"){ drawCuts(); draw1(); } else if(cur==="lens") draw2(); else draw3(); }
+function showPage(id,scroll){
+  if(!PIDS.includes(id)) id=PIDS[0]; cur=id; PIDS.forEach(p=>$(p).hidden=p!==id);
+  document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.go===id));
+  try{ if(location.hash.slice(1)!==id) history.replaceState(null,"","#"+id); }catch(e){}
+  redraw();
+  if(scroll){ const y=$("nav").getBoundingClientRect().top+window.scrollY-12; if(window.scrollY>y) window.scrollTo({top:y}); }
+}
+function applyLang(){
+  document.documentElement.lang=zh()?"zh-CN":"en"; document.title=t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ el.innerHTML=t(el.dataset.i18nHtml); });
+  $("lang-zh").setAttribute("aria-pressed",zh()); $("lang-en").setAttribute("aria-pressed",!zh());
+  renderNav(); renderQuiz(); ui1(); ui2(); ui3();
+}
+/* the other lessons remember the language under two different keys; write both so the choice follows the student */
+const setLang=l=>{ lang=l; try{ localStorage.setItem("mic-lang",l); localStorage.setItem("lab-lang",JSON.stringify(l)); }catch(e){} applyLang(); };
+$("lang-zh").onclick=()=>setLang("zh"); $("lang-en").onclick=()=>setLang("en");
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(b) showPage(b.dataset.go,true); });
+window.addEventListener("hashchange",()=>showPage(location.hash.slice(1),false));
+$("present").onclick=()=>{ const on=!document.body.classList.contains("present"); document.body.classList.toggle("present",on); $("present").setAttribute("aria-pressed",on); requestAnimationFrame(redraw); };
+document.addEventListener("keydown",e=>{ if(e.altKey||e.ctrlKey||e.metaKey) return; const tg=e.target; if(tg&&(tg.tagName==="INPUT"||tg.tagName==="TEXTAREA")) return;
+  const i=PIDS.indexOf(cur); if(e.key==="ArrowRight"&&i<PIDS.length-1){ e.preventDefault(); showPage(PIDS[i+1],true); } else if(e.key==="ArrowLeft"&&i>0){ e.preventDefault(); showPage(PIDS[i-1],true); } });
+let rz=0; window.addEventListener("resize",()=>{ cancelAnimationFrame(rz); rz=requestAnimationFrame(redraw); });
+init1(); init2(); init3();
+applyLang();
+showPage(location.hash.slice(1),false);
+document.fonts&&document.fonts.ready.then(redraw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>影像与声音课件 · Image &amp; Sound Lessons — Hangyu</title>
+  <meta name="description" content="把相机、镜头、麦克风和扬声器一件件拆开来讲的交互课件。学生在 3D 场景里转光圈、换焦距、挪太阳，马上就能看到景深、曝光和影子怎么变。">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="../index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="../photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="../films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="../writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="../vibe-coding.html" class="active"><span class="zh">写代码</span><span class="en">Coding</span></a>
+        <a href="../jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="../about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proj">
+    <p class="proj-back"><a href="../vibe-coding.html#classroom">← 写代码 · Coding</a></p>
+    <div class="proj-head">
+      <p class="proj-meta">2026 · 交互课件 · 课堂在用</p>
+      <h1><span class="zh">影像与声音课件</span><span class="en">Image &amp; Sound Lessons</span></h1>
+      <p class="proj-lede">十一节交互课件，七节讲影像，四节讲声音。每一课都把一件器材剖开：光圈怎么改变景深，快门为什么会拖出影子，麦克风里面那片振膜怎么动，电平表为什么不能碰到 0。学生不用先听懂再动手，而是先动手，看见了，再去读那一句“要点”。</p>
+      <p class="proj-lede-en">Eleven interactive lessons, seven on images and four on sound. Each one opens up a piece of gear so students can turn, drag and listen first, and read the rule afterwards.</p>
+      <div class="proj-links"><a class="proj-link" href="https://123.57.56.38:624/" target="_blank" rel="noopener">打开课件目录 ↗</a><span class="proj-link-note">公开页面，手机、电脑都能直接打开，不用登录。</span></div>
+    </div>
+    <figure class="proj-hero"><img src="../Code/yingxiang/aperture.webp" alt="光圈、曝光与光线：3D 公园里，相机对着人物，右上角小窗是相机拍到的浅景深画面，右侧是分级活动" width="1440" height="900" decoding="async"></figure>
+    <dl class="proj-facts"><div><dt>课程</dt><dd>影像与声音基础</dd></div><div><dt>内容</dt><dd>影像 7 课 · 声音 4 课</dd></div><div><dt>形式</dt><dd>浏览器单文件，打开即用；中英双语，带投屏模式</dd></div><div><dt>做法</dt><dd>three.js 搭 3D 场景，声音全部用 Web Audio 在浏览器里合成</dd></div></dl>
+
+    <section class="proj-section" id="try">
+      <h2><span class="zh">在这里试一试</span><span class="en">Try it here</span></h2>
+      <div class="proj-try">
+        <div class="proj-try-tabs"><button type="button" data-src="try/shutter.html" aria-pressed="true">快门与运动模糊</button><button type="button" data-src="try/shot-size.html" aria-pressed="false">景别与焦距</button><button type="button" data-src="try/levels.html" aria-pressed="false">电平、增益与削波</button></div>
+        <div class="proj-try-frame">
+          <button type="button" class="proj-try-cover" data-src="try/shutter.html" style="background-image:linear-gradient(rgba(17,17,17,.55),rgba(17,17,17,.55)),url(../Code/yingxiang/shutter.webp)"><span>▶ 在这里试一试</span><span>点开后可以直接拖动、点按，会有声音</span></button>
+        </div>
+        <p class="proj-try-note">这是课上用的原版页面，没有删减。手机上建议横过来，或者单独打开。 <a data-full href="try/shutter.html" target="_blank" rel="noopener">单独打开这一页 ↗</a></p>
+      </div>
+    </section>
+
+    <section class="proj-section" id="what">
+      <h2><span class="zh">每一课怎么走</span><span class="en">How a lesson goes</span></h2>
+      <ol class="proj-steps"><li><b>先看一样东西</b><span>每一课只从一个现象开始：跑步的人被拍糊了，同一句话放远了听起来空。</span></li><li><b>一次只动一个参数</b><span>只给一个滑杆。拖动它，左边是真实世界，右边是相机拍到的、麦克风录到的。</span></li><li><b>读一句要点</b><span>看见之后，再用一两句话把规律说出来，配一道小测。</span></li><li><b>全部打开</b><span>最后一关把所有参数一起交给学生，自己去拍一张、调一段。</span></li></ol>
+    </section>
+
+    <section class="proj-section" id="gallery">
+      <h2><span class="zh">课件里面</span><span class="en">Inside the lessons</span></h2>
+      <div class="proj-gallery">
+        <figure class="proj-shot is-wide"><div class="frame"><img src="../Code/yingxiang/index.webp" alt="课件目录：影像与声音两组课程卡片" width="1440" height="900" loading="lazy" decoding="async"></div><figcaption>课程目录。每张卡片上的线稿都对应这一课要拆开的那件东西。<span class="en">The course index.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/shutter.webp" alt="快门与运动模糊：左边是真实世界的跑步者和风车，右边是 1/60 秒拍下的照片" width="1440" height="770" loading="lazy" decoding="async"></div><figcaption>快门：左边是真实世界，右边是 1/60 秒拍下的照片。快门开得越久，跑步的人拖得越长。<span class="en">Shutter speed and motion blur.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/frame-rate.webp" alt="帧率与时间：真实的运动和每秒 2 格拍下的画面并排" width="1440" height="770" loading="lazy" decoding="async"></div><figcaption>帧率：把每秒 2 格慢慢拉到 24 格，看画面在哪一刻“活”过来。<span class="en">Frame rate: when do still frames start to move?</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/shot-size.webp" alt="景别与焦距：取景器里的人物全景，右边标出画面切在哪里" width="1440" height="770" loading="lazy" decoding="async"></div><figcaption>景别：同一个人，远景、全景、近景、特写，每一种景别在告诉观众什么。<span class="en">Shot sizes and what each one says.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/composition.webp" alt="构图与机位：三分法网格下拖动人物和地平线" width="1440" height="770" loading="lazy" decoding="async"></div><figcaption>构图：拖人物、拖地平线。三分法是起点，不是法律。<span class="en">Composition: the rule of thirds is a start, not a law.</span></figcaption></figure>
+        <figure class="proj-shot is-wide"><div class="frame"><img src="../Code/yingxiang/pixels.webp" alt="像素与分辨率：一束光从公园走进相机、传感器、数据、屏幕和眼睛" width="1440" height="900" loading="lazy" decoding="async"></div><figcaption>像素：跟着一束光从公园走进镜头、传感器、数据、屏幕，最后进到眼睛。<span class="en">Pixels: follow one beam of light from the park to your eye.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/microphone.webp" alt="传声器剖面：动圈麦克风的 11 个部件逐一标注" width="1440" height="770" loading="lazy" decoding="async"></div><figcaption>传声器：五种麦克风，剖开来一个部件一个部件地看。<span class="en">Inside five kinds of microphone.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/levels.webp" alt="电平、增益与削波：波形和电平表，0 dBFS 是天花板" width="1440" height="770" loading="lazy" decoding="async"></div><figcaption>电平：0 dBFS 是天花板。声音全部在浏览器里合成，也可以接上自己的麦克风。<span class="en">Levels: 0 dBFS is the ceiling.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/yingxiang/room-sound.webp" alt="距离与房间声：话筒离声源越远，声音越小的曲线" width="1440" height="900" loading="lazy" decoding="async"></div><figcaption>房间声：话筒离远一倍，少 6 分贝；房间的回声却一点没少。<span class="en">Distance and room sound.</span></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="proj-section" id="why">
+      <h2><span class="zh">为什么做</span><span class="en">Why I made it</span></h2>
+      <div class="proj-prose">
+<p>这一届大一新生，学校没有再要求他们买相机。相机太贵了，一个班大概只有三四个人有。可光圈、景深、快门这些东西，光靠讲是讲不明白的；就算拿着相机去拍，也不是每个人都有大光圈镜头，拍完再导进电脑里看，一节课就过去了。</p>
+<p>所以我干脆把相机搬到了网页上。第一个试的是光圈，做出来一看效果特别好，就把教案里的内容一课一课都做成了这样的交互课件。后来上专业英语课，学生说想“看得见”话筒里面是怎么工作的，一周之内，五种话筒的剖面图就有了。</p>
+      </div>
+      <blockquote class="proj-quote"><p>我之前有尝试去讲光圈，讲光圈带来的影响和景深的影响，都不够直观。……所以我就直接在这个页面上展示。这里面还有一个挑战环节，就是让他们自己对着这个画面，把这样的一个状态给调出来。这个班现在大概只有三四个人有相机，我觉得在没有相机的情况下，这已经是很棒的一种呈现了。</p><cite>语音日记 · 2026.10.19</cite></blockquote>
+      <div class="proj-prose">
+<p>有一次课上，一个学生问我，AI 提示词里写的“35 毫米”是什么意思。那一刻我意识到，AI 时代的影像创作，仍然吃基本功。把这些基本功讲清楚，是我的责任。</p>
+      </div>
+    </section>
+
+    <section class="proj-section" id="tech">
+      <h2><span class="zh">怎么做的</span><span class="en">How it is built</span></h2>
+      <p class="proj-tech">每一课是一个独立的 HTML 文件，样式、脚本、模型都在里面，放到任何服务器上都能打开。3D 场景用 three.js，声音全部用 Web Audio 实时合成，不放录音文件。课件用自然语言和 AI 一起写成，我负责讲什么、先讲什么、学生会在哪里卡住；每一课都先在课上用过，再根据学生的反应改。</p>
+    </section>
+
+    
+    <nav class="proj-nav"><span></span><a class="next" href="gongdu.html"><small>下一个 →</small><span>共读</span></a></nav>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script src="coding.js"></script>
+</body>
+</html>

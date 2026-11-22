@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程广场 · Course Square — Hangyu</title>
+  <meta name="description" content="一门课的班级社区。同学可以匿名提问、分享作品，也可以给“下节课想听什么”投票，票数第一的话题下节课一定讲。">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="../index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="../photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="../films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="../writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="../vibe-coding.html" class="active"><span class="zh">写代码</span><span class="en">Coding</span></a>
+        <a href="../jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="../about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proj">
+    <p class="proj-back"><a href="../vibe-coding.html#classroom">← 写代码 · Coding</a></p>
+    <div class="proj-head">
+      <p class="proj-meta">2026 · 人工智能导论 · 班级社区</p>
+      <h1><span class="zh">课程广场</span><span class="en">Course Square</span></h1>
+      <p class="proj-lede">《人工智能导论》的班级社区，八十个学生。三个栏目：下节课想听什么、作品与分享、课程资料。首页一行就能发帖；勾上“只给老师看”，就是一张实名的课后小票。给想听的话题点赞就是投票，票数最高的那一条，下节课一定讲。</p>
+      <p class="proj-lede-en">A class community for Introduction to AI, with 80 students. Students vote on what the next class should cover, and the top topic always gets taught.</p>
+      <div class="proj-links"><a class="proj-link" href="https://123.57.56.38/" target="_blank" rel="noopener">课程广场入口 ↗</a><span class="proj-link-note">需要课上发的账号。</span></div>
+    </div>
+    <figure class="proj-hero"><img src="../Code/course-square.webp" alt="课程广场首页：左侧栏目，中间是同学分享，右侧是“想听热榜”投票" width="1200" height="807" decoding="async"></figure>
+    <dl class="proj-facts"><div><dt>课程</dt><dd>人工智能导论</dd></div><div><dt>用的人</dt><dd>80 名学生</dd></div><div><dt>栏目</dt><dd>下节课想听什么 · 作品与分享 · 课程资料</dd></div><div><dt>做法</dt><dd>Django 5.2，126 项测试</dd></div></dl>
+
+    <section class="proj-section" id="what">
+      <h2><span class="zh">它怎么用</span><span class="en">How it works</span></h2>
+      <ol class="proj-steps"><li><b>提一个问题</b><span>可以匿名。匿名只对同学隐藏，老师能看到，发帖时写得清清楚楚。</span></li><li><b>投票</b><span>给想听的话题点赞。开课前的票算这一讲，开课后转向下一讲。</span></li><li><b>排进第 N 讲</b><span>我把问题排进某一讲，提问的同学会收到通知；讲完自动变成“✓ 第 3 讲讲过”。</span></li><li><b>不漏掉一条</b><span>“待回应”页列出我还没回的帖子和留言，有新的会推到我手机上。</span></li></ol>
+    </section>
+
+    <section class="proj-section" id="why">
+      <h2><span class="zh">为什么做</span><span class="en">Why I made it</span></h2>
+      <div class="proj-prose">
+<p>《人工智能导论》是全校公选课，八十个学生来自各个专业，谁都不认识谁，建个微信群也不会有人说话。所以我在备第一节课的时候，花不到两个小时搭了这个广场：可以匿名说话，也有一个板块专门让大家写自己想听什么。我每周去看大家想听什么，再去找相关的内容来讲。</p>
+<p>一对八十的课怎么做到个性化？我的回答之一是：每一讲的内容都整理好放上来，学生可以下载下来，交给自己的 AI，说“今天老师讲的这一段我没听懂，用初中生能理解的方式再给我讲一遍”。</p>
+      </div>
+      <blockquote class="proj-quote"><p>这个广场的内容理论上来说，你可以复刻到任何一门课里头，所以其实这是大家共同可以去创作的。……你可以把你 GitHub 的用户名粘贴到这个课程广场上，我到时候把你加进去，然后我们可以一同开发这个平台。</p><cite>人工智能导论课堂录音 · 2026.09.20</cite></blockquote>
+      <div class="proj-prose">
+<p>有个学生写了一份很认真的体验报告给我：一打开就是空白编辑框，学生不知道写什么，懒得开始；点了赞也没有反馈。这两点提得特别好，因为他就是这个用户。后来首页改成了一行就能发帖。</p>
+<p>它还没解决的难题，我也想写在这里：绝大多数同学的学习主动性，和 AI 结合得还不是很好。</p>
+      </div>
+    </section>
+
+    
+    <nav class="proj-nav"><a class="prev" href="cigen.html"><small>← 上一个</small><span>词根学习平台</span></a><a class="next" href="qinling.html"><small>下一个 →</small><span>秦岭声景地图</span></a></nav>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script src="coding.js"></script>
+</body>
+</html>

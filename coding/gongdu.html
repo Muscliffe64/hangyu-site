@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>共读 · Read Together — Hangyu</title>
+  <meta name="description" content="给学生的每日阅读打卡。读了几分钟、读到哪里，再摘一句打动你的话、写一句想法，这一天才算读过。同学之间能看见彼此在读什么，也能在摘句下面回一句。">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="brand"><span class="brand-name">Hangyu</span></a>
+      <nav class="primary-nav">
+        <a href="../index.html"><span class="zh">首页</span><span class="en">Home</span></a>
+        <a href="../photography.html"><span class="zh">摄影</span><span class="en">Photography</span></a>
+        <a href="../films.html"><span class="zh">影像</span><span class="en">Films</span></a>
+        <a href="../writing.html"><span class="zh">文字</span><span class="en">Writing</span></a>
+        <a href="../vibe-coding.html" class="active"><span class="zh">写代码</span><span class="en">Coding</span></a>
+        <a href="../jim.html"><span class="zh">积木</span><span class="en">Jim</span></a>
+        <a href="../about.html"><span class="zh">关于</span><span class="en">About</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proj">
+    <p class="proj-back"><a href="../vibe-coding.html#classroom">← 写代码 · Coding</a></p>
+    <div class="proj-head">
+      <p class="proj-meta">2026 · 每日阅读打卡 · 两个班在用</p>
+      <h1><span class="zh">共读</span><span class="en">Read Together</span></h1>
+      <p class="proj-lede">这学期我在两个班里做一个实验：让平时不怎么读书的大学生，每天读一点。共读是那个每天打开的地方：记下读了多久、读到哪里，摘一句话，写一句自己的想法。全班都能看到谁今天读了、在读什么书、摘了哪一句。</p>
+      <p class="proj-lede-en">An experiment this term: getting university students who rarely read to read a little every day. Each day counts once you save a line and a thought, and the class can see what everyone is reading.</p>
+      <div class="proj-links"><a class="proj-link" href="https://123.57.56.38:627/" target="_blank" rel="noopener">共读入口 ↗</a><a class="proj-link is-quiet" href="https://github.com/Muscliffe64/gongdu-obsidian" target="_blank" rel="noopener">Obsidian 插件（开源） ↗</a><span class="proj-link-note">共读需要课上发的账号；插件代码公开。</span></div>
+    </div>
+    <figure class="proj-hero"><img src="../Code/gongdu/class.webp" alt="共读班级页：同学刚摘的句子、今天谁读了谁还没读、近 14 天阅读天数排名" width="1600" height="1000" decoding="async"></figure>
+    <dl class="proj-facts"><div><dt>用的人</dt><dd>两个班的学生，和我自己</dd></div><div><dt>一天算读过</dt><dd>分钟 + 读到哪里 + 至少一句摘录</dd></div><div><dt>设备</dt><dd>大多在手机微信里打开</dd></div><div><dt>做法</dt><dd>Node 标准库 + SQLite，无第三方依赖</dd></div></dl>
+
+    <section class="proj-section" id="what">
+      <h2><span class="zh">它怎么用</span><span class="en">How it works</span></h2>
+      <ol class="proj-steps"><li><b>开始计时</b><span>在读的那本书就是首页上的一张卡片，点一下开始计时。</span></li><li><b>摘一句</b><span>把打动你的那句话贴进来，写一句自己的想法。一天可以摘很多句。</span></li><li><b>写读到哪里</b><span>一个框，填阅读器上显示的什么都行：45%、123/456、第 88 页。</span></li><li><b>看看同学</b><span>班级页上是大家刚摘的句子。可以点赞，也可以回一句。</span></li></ol>
+    </section>
+
+    <section class="proj-section" id="gallery">
+      <h2><span class="zh">长什么样</span><span class="en">What it looks like</span></h2>
+      <div class="proj-gallery has-phones">
+        <figure class="proj-shot is-phone"><div class="frame"><img src="../Code/gongdu/today.webp" alt="手机首页：正在读的书卡，开始计时、摘一句、打卡" width="600" height="1299" loading="lazy" decoding="async"></div><figcaption>手机首页：在读的书就是一张卡片，计时、摘句、打卡都在上面。<span class="en">Phone home: the book you are reading is one card.</span></figcaption></figure>
+        <figure class="proj-shot is-phone"><div class="frame"><img src="../Code/gongdu/excerpt.webp" alt="摘一句：粘贴句子、出处和想法" width="600" height="1299" loading="lazy" decoding="async"></div><figcaption>摘一句：一个大框贴句子，出处沿用上一句，想法可以多写几句。<span class="en">Save a line, and a thought.</span></figcaption></figure>
+      </div>
+      <div class="proj-gallery">
+        <figure class="proj-shot"><div class="frame"><img src="../Code/gongdu/profile.webp" alt="个人页：在读和读完两排书卡" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>个人页：书比数字重要。一本书一张卡，在读、读完两排，像挑电影一样横着滑。<span class="en">Profile: books come before numbers.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/gongdu/replies.webp" alt="一条摘录下面的想法、点赞和回复" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>一句摘录下面，是同学和我的回复。回复只有一层，不计分。<span class="en">Replies under an excerpt: one level, never scored.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/gongdu/achievements.webp" alt="全部成就：七级称号和快到了的成就" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>成就：从“初读”到“万卷”七级称号。拿到了就一直留着，没有“夜读”成就，不鼓励熬夜。<span class="en">Achievements, from 初读 to 万卷. No reward for reading late at night.</span></figcaption></figure>
+        <figure class="proj-shot"><div class="frame"><img src="../Code/gongdu/admin.webp" alt="老师端班级总览" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>老师这边：今天读了几个人，谁需要留意一下。<span class="en">The teacher view.</span></figcaption></figure>
+        <figure class="proj-shot is-wide"><div class="frame"><img src="../Code/gongdu/home-desktop.webp" alt="电脑首页：打卡后看到谁赞了、谁回复了" width="1600" height="1000" loading="lazy" decoding="async"></div><figcaption>电脑上的首页：打完卡，能看到谁赞了你、谁回了你，右边是全班今天的阅读。<span class="en">Desktop home after checking in.</span></figcaption></figure>
+      </div>
+      <div class="proj-prose">
+<p class="en">截图里是演示数据，名字都是编的。 Screenshots use demo data with made-up names.</p>
+      </div>
+    </section>
+
+    <section class="proj-section" id="why">
+      <h2><span class="zh">为什么做</span><span class="en">Why I made it</span></h2>
+      <div class="proj-prose">
+<p>我越来越相信，用好 AI 最重要的能力是语言能力，而训练语言最重要的办法就是阅读。可是你跟学生说“请大家去读书”，几乎没有人会去读。我问过很多同学大学四年读了几本书，很多人一本都没读过。</p>
+<p>我不怪他们。短视频一打开就很难停下来，注意力被切得越来越碎。想让他们读书，就需要一点外力，而且这个外力要做得很巧。</p>
+      </div>
+      <blockquote class="proj-quote"><p>我觉得读书这件事情其实有时候是需要一个氛围的，就如果你身边的人都在读，那你肯定也在读。……这是大家的隐私，每天读了多长时间，我们要不要放出来？但是我觉得在现阶段，我选择了稍微野蛮一点。也许你今天并不想读，但是看见有人读了，那你也会去读。</p><cite>“专业标签之外”沙龙 · 2026.11.18</cite></blockquote>
+      <div class="proj-prose">
+<p>为什么一定要摘一句、写一句想法？因为你觉得一段话好，一定有你的理由。把那个理由写下来，读书才真的发生在你身上。</p>
+<p>第一版上线之后，有天晚上我自己注册成学生用了一次，直接崩溃，受不了。那天夜里我把它从设计到后台整个重做了一遍，现在你看到的是第二版。</p>
+      </div>
+      <blockquote class="proj-quote"><p>读书这件事情对他们来说，我觉得比对我的意义可能还要大。我至少现在能意识到读书很重要，但我觉得他们很多人还意识不到，所以我设计了这样一种 push 机制。</p><cite>语音日记 · 2026.11.16</cite></blockquote>
+    </section>
+
+    <section class="proj-section" id="rules">
+      <h2><span class="zh">几条刻意的规则</span><span class="en">Rules on purpose</span></h2>
+      <div class="proj-prose">
+<ul>
+<li><b>没有摘句，不算读过。</b>只记分钟太容易糊弄，也太容易变成任务。摘下一句话，说明你真的停在某一页上了。</li>
+<li><b>排名是故意留着的。</b>按“近 14 天读了几天”排，不按累计分数排：分数只涨不跌，早开始的人会永远在前面；14 天的窗口让每个人随时都能追上来。被同学看见“他最近一直在读书”，是一件好事。</li>
+<li><b>我也在里面读。</b>我出现在每个班的名单里，和学生一样打卡、被点赞，不算排名。</li>
+<li><b>不能补卡。</b>过去的日子不能补、不能改，今天的可以改。</li>
+<li><b>不止一个入口。</b>除了网页，还可以用 Obsidian 插件从电子书阅读器里一键打卡，或者让自己的 AI 助手替你提交。</li>
+</ul>
+      </div>
+    </section>
+
+    <section class="proj-section" id="tech">
+      <h2><span class="zh">怎么做的</span><span class="en">How it is built</span></h2>
+      <p class="proj-tech">后端只用 Node 自带的标准库和 SQLite，前端是不需要构建的原生 HTML 和 JavaScript，校园网加载不了网络字体，所以只用系统字体。界面先在 Claude Design 里画了 23 张图，再照着做出来。研究用的数据只导出同意参与的同学，名字换成编号。</p>
+    </section>
+
+    
+    <nav class="proj-nav"><a class="prev" href="yingxiang.html"><small>← 上一个</small><span>影像与声音课件</span></a><a class="next" href="cigen.html"><small>下一个 →</small><span>词根学习平台</span></a></nav>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:jihangyurec@gmail.com">jihangyurec@gmail.com</a></p>
+    <p class="copy">© 2026 Hangyu</p>
+  </footer>
+
+  <script src="coding.js"></script>
+</body>
+</html>
